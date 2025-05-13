@@ -28,7 +28,6 @@ export default function SlideshowPage() {
         <main className={[styles.container, orbitron.className].join(' ')}>
             <header className={styles.header}>
                 <Image src="/cubbit.png" alt="Cubbit logo" width={30} height={40} priority />
-                <Image src="/elemento.png" alt="Elemento logo" width={40} height={40} priority />
 
                 <h1>{formattedDate}</h1>
                 {S3_ENDPOINT !== undefined ? (
