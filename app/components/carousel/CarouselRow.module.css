@@ -1,3 +1,10 @@
+.rowContainer {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    /* Add space between rows */
+}
+
 .staticRow {
     display: flex;
     gap: 1rem;
@@ -5,28 +12,33 @@
 
 .scrollLeftRow {
     animation: scrollLeft 40s linear infinite;
+    will-change: transform;
+    /* Performance optimization hint for browsers */
 }
 
 .scrollRightRow {
     animation: scrollRight 40s linear infinite;
+    will-change: transform;
+    /* Performance optimization hint for browsers */
 }
 
+/* Ensure animations use hardware acceleration for smoother performance */
 @keyframes scrollLeft {
     0% {
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
     }
 
     100% {
-        transform: translateX(calc(-1 * var(--translate)));
+        transform: translateX(calc(-1 * var(--translate))) translateZ(0);
     }
 }
 
 @keyframes scrollRight {
     0% {
-        transform: translateX(calc(-1 * var(--translate)));
+        transform: translateX(calc(-1 * var(--translate))) translateZ(0);
     }
 
     100% {
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
     }
 }
