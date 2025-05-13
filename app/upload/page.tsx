@@ -9,15 +9,12 @@ const orbitron = Orbitron({
     style: 'normal',
 });
 
-const h1Copy = 'Upload a photo to Cubbit DS3';
-
 const UploadPage = () => {
     return (
         <main className={[styles.uploadPage, orbitron.className].join(' ')}>
             <div className={styles.logo}>
                 <Image src="/cubbit.png" alt="Cubbit logo" width={60} height={80} priority />
             </div>
-            <h1 className={styles.h1}>{h1Copy}</h1>
             <UploadForm />
         </main>
     );
