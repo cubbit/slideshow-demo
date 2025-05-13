@@ -7,6 +7,8 @@
     margin: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease;
+    position: relative;
+    /* Add for proper positioning */
 }
 
 .photoContainer:hover {
@@ -14,20 +16,21 @@
     z-index: 1;
 }
 
-@media (max-width: 768px) {
-    .photoContainer {
-        width: 10rem;
-        height: 10rem;
-        margin: 0.5rem;
-    }
+.photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* This ensures cropping without stretching */
+    object-position: center;
+    /* Center the image within the container */
+    opacity: 0;
+    transition:
+        opacity 0.5s ease-in,
+        transform 0.3s ease;
 }
 
-@media (max-width: 480px) {
-    .photoContainer {
-        width: 8rem;
-        height: 8rem;
-        margin: 0.25rem;
-    }
+.loaded {
+    opacity: 1;
 }
 
 .errorContainer {
@@ -50,4 +53,21 @@
     justify-content: center;
     font-size: 24px;
     color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .photoContainer {
+        width: 10rem;
+        height: 10rem;
+        margin: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .photoContainer {
+        width: 8rem;
+        height: 8rem;
+        margin: 0.25rem;
+    }
 }
