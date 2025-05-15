@@ -124,32 +124,32 @@ export default function SettingsPage() {
 
     if (loading) {
         return (
-            <div className={`${styles.settingsPage} ${orbitron.className}`}>
+            <div className={`${styles['settings-page']} ${orbitron.className}`}>
                 <div className={styles.loading}>Loading settings...</div>
             </div>
         );
     }
 
     return (
-        <main className={`${styles.settingsPage} ${orbitron.className}`}>
+        <main className={`${styles['settings-page']} ${orbitron.className}`}>
             <div className={styles.header}>
                 <div className={styles.logo}>
                     <Image src="/cubbit.png" alt="Cubbit logo" width={40} height={50} priority />
                     <h1>Slideshow Settings</h1>
                 </div>
                 <div className={styles.actions}>
-                    <button className={styles.logoutButton} onClick={handleLogout}>
+                    <button className={styles['logout-button']} onClick={handleLogout}>
                         Logout
                     </button>
                 </div>
             </div>
 
-            <div className={styles.settingsContainer}>
-                <form className={styles.settingsForm} onSubmit={handleSave}>
+            <div className={styles['settings-container']}>
+                <form className={styles['settings-form']} onSubmit={handleSave}>
                     <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Public Settings</h2>
+                        <h2 className={styles['section-title']}>Public Settings</h2>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="S3_BUCKET_NAME">S3 Bucket Name</label>
                             <input
                                 type="text"
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                             <p className={styles.hint}>The name of your S3 bucket</p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="MAX_FILE_SIZE">Max File Size (bytes)</label>
                             <input
                                 type="number"
@@ -179,7 +179,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="SLIDESHOW_SPEED_S">Slideshow Speed (seconds)</label>
                             <input
                                 type="number"
@@ -195,7 +195,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="MIN_COUNT_FOR_MARQUEE">Min Count for Marquee</label>
                             <input
                                 type="number"
@@ -213,9 +213,9 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>S3 Connection Settings</h2>
+                        <h2 className={styles['section-title']}>S3 Connection Settings</h2>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="S3_REGION">S3 Region</label>
                             <input
                                 type="text"
@@ -231,7 +231,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="S3_ENDPOINT">S3 Endpoint</label>
                             <input
                                 type="text"
@@ -245,7 +245,7 @@ export default function SettingsPage() {
                             <p className={styles.hint}>The endpoint URL for your S3 service</p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="S3_ACCESS_KEY_ID">S3 Access Key ID</label>
                             <input
                                 type="text"
@@ -262,7 +262,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="S3_SECRET_ACCESS_KEY">S3 Secret Access Key</label>
                             <input
                                 type="text"
@@ -279,7 +279,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
 
-                        <div className={styles.formGroup}>
+                        <div className={styles['form-group']}>
                             <label htmlFor="MULTIPART_THRESHOLD">Multipart Threshold (bytes)</label>
                             <input
                                 type="number"
@@ -296,13 +296,13 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {error && <div className={styles.errorMessage}>{error}</div>}
-                    {success && <div className={styles.successMessage}>{success}</div>}
+                    {error && <div className={styles['error-message']}>{error}</div>}
+                    {success && <div className={styles['success-message']}>{success}</div>}
 
-                    <div className={styles.formActions}>
+                    <div className={styles['form-actions']}>
                         <button
                             type="submit"
-                            className={styles.saveButton}
+                            className={styles['save-button']}
                             disabled={saving || !dirty}
                         >
                             {saving ? 'Saving...' : 'Save Changes'}
