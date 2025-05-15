@@ -5,25 +5,21 @@
     height: 100vh;
     background: linear-gradient(135deg, #1a1a1a, #000);
     overflow: hidden;
-    /* Prevent scrollbars */
 }
 
 .header {
     color: #fff;
     font-size: 1rem;
     padding: 1rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 2px 4px rgb(0 0 0 / 70%);
     opacity: 0;
-    animation: headerFade 3s ease forwards;
+    animation: header-fade 3s ease forwards;
     height: 5rem;
     min-height: 5rem;
-    /* Ensure minimum height */
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    /* Allow wrapping on small screens */
     z-index: 10;
-    /* Keep header above carousel */
 }
 
 .header img {
@@ -34,7 +30,7 @@
     margin-left: auto;
 }
 
-@keyframes headerFade {
+@keyframes header-fade {
     from {
         opacity: 0;
         transform: translateY(-20px);
@@ -46,11 +42,11 @@
     }
 }
 
-.carouselContainer {
+.carousel-container {
     flex-grow: 1;
     flex-shrink: 1;
     min-height: 0;
-    /* Allow container to shrink */
+
     position: relative;
     overflow: hidden;
 }

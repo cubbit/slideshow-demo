@@ -11,7 +11,7 @@ const orbitron = Orbitron({
 
 const UploadPage = () => {
     return (
-        <main className={[styles.uploadPage, orbitron.className].join(' ')}>
+        <main className={[styles['upload-page'], orbitron.className].join(' ')}>
             <div className={styles.logo}>
                 <Image src="/cubbit.png" alt="Cubbit logo" width={60} height={80} priority />
             </div>

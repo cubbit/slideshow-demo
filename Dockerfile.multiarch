@@ -1,13 +1,24 @@
+# syntax=docker/dockerfile:1
+
+# ---------------------------
+# Stage 1: Build the Next.js app
+# ---------------------------
+FROM --platform=$BUILDPLATFORM node:18-alpine AS builder
+
+# Add build arguments for versioning
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
 ARG NODE_VERSION=18
-FROM node:${NODE_VERSION}-alpine AS builder
+
+# Debug info for architecture
+RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
 
 # Create app directory
 WORKDIR /app
 
+# Install dependencies using npm ci (reproducible installs)
 COPY package.json package-lock.json ./
-RUN npm ci --only=production && \
-    # If you have dev dependencies needed for build
-    npm ci
+RUN npm ci
 
 # Copy all source files
 COPY . .
@@ -18,9 +29,10 @@ RUN npm run build
 # ---------------------------
 # Stage 2: Create a minimal production image
 # ---------------------------
-FROM node:${NODE_VERSION}-alpine AS runner
+FROM --platform=$TARGETPLATFORM node:18-alpine AS runner
 
-LABEL org.opencontainers.image.source="https://github.com/cubbit/slideshow-demo" \
+# Add metadata
+LABEL org.opencontainers.image.source="https://github.com/marmos91/cubbit-slideshow-demo" \
       org.opencontainers.image.description="Cubbit Slideshow Demo" \
       org.opencontainers.image.licenses="MIT"
 
@@ -31,6 +43,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs --ingroup nodejs
 
+# Set working directory and permissions
 WORKDIR /app
 RUN chown -R nextjs:nodejs /app
 
@@ -42,11 +55,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Expose Next.js default port
 EXPOSE 3000
 
-# Switch to non-root user
-USER nextjs
-
+# Add healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+
+# Switch to non-root user
+USER nextjs
 
 # Run the standalone server directly
 CMD ["node", "server.js"]

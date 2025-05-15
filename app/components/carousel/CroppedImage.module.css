@@ -7,7 +7,6 @@
     margin: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     pointer-events: none;
-    /* Completely disable interactions */
     position: relative;
     z-index: 1;
 }
@@ -20,7 +19,6 @@
     opacity: 0;
     transition: opacity 0.5s ease-in;
     display: block;
-    /* Ensure display block */
 }
 
 .loaded {
@@ -50,7 +48,6 @@
     color: white;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .photoContainer {
         width: 10rem;

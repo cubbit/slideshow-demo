@@ -3,14 +3,12 @@
     overflow: hidden;
     margin-bottom: 1rem;
     height: 17rem;
-    /* Ensure we have enough height for the images + margin */
 }
 
 .staticRow {
     display: flex;
     gap: 1rem;
     height: 15rem;
-    /* Explicit height to match photo containers */
 }
 
 .scrollLeftRow {
@@ -23,7 +21,6 @@
     will-change: transform;
 }
 
-/* Ensure animations use hardware acceleration for smoother performance */
 @keyframes scrollLeft {
     0% {
         transform: translateX(0) translateZ(0);

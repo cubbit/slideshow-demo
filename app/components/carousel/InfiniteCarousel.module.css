@@ -4,7 +4,6 @@
     margin: 1rem;
     height: calc(100% - 2rem);
     overflow: visible;
-    /* Allow rows to be properly sized */
 }
 
 .noPhotos {
@@ -28,7 +27,6 @@
     margin: 10px;
     animation: pulse 2s infinite;
     pointer-events: none;
-    /* Don't block interactions */
     z-index: 100;
 }
 
@@ -49,7 +47,6 @@
     }
 }
 
-/* Screen reader only text - visible to screen readers but not visually */
 .sr-only {
     position: absolute;
     width: 1px;

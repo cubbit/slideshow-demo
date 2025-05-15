@@ -37,7 +37,7 @@ export default function SlideshowPage() {
                 )}
             </header>
 
-            <div className={styles.carouselContainer}>
+            <div className={styles['carousel-container']}>
                 <InfiniteCarousel />
             </div>
         </main>
