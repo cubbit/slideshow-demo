@@ -14,15 +14,13 @@
 }
 
 .scrollLeftRow {
-    animation: scrollLeft 40s linear infinite;
+    animation: scrollLeft var(--slideshow-speed, 40s) linear infinite;
     will-change: transform;
-    /* Performance optimization hint for browsers */
 }
 
 .scrollRightRow {
-    animation: scrollRight 40s linear infinite;
+    animation: scrollRight var(--slideshow-speed, 40s) linear infinite;
     will-change: transform;
-    /* Performance optimization hint for browsers */
 }
 
 /* Ensure animations use hardware acceleration for smoother performance */

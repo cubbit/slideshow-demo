@@ -58,6 +58,8 @@ MULTIPART_THRESHOLD=5242880               # Threshold in bytes (5MB) for multipa
 NEXT_PUBLIC_S3_BUCKET_NAME=your_bucket    # Your S3 bucket name
 NEXT_PUBLIC_MAX_FILE_SIZE=10485760        # Maximum file size in bytes (10MB)
 NEXT_PUBLIC_S3_ENDPOINT=your_endpoint     # Your S3-compatible endpoint URL
+
+NEXT_PUBLIC_SLIDESHOW_SPEED_S=200         # Speed of the slideshow animation in seconds
 ```
 
 4. Start the development server:

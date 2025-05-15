@@ -9,6 +9,8 @@ interface CarouselRowProps {
     minCountForMarquee?: number;
 }
 
+export const SLIDESHOW_SPEED_S = process.env.NEXT_PUBLIC_SLIDESHOW_SPEED_S || '40';
+
 const CarouselRow: React.FC<CarouselRowProps> = ({
     rowPhotos,
     direction,
@@ -36,6 +38,7 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
 
     const rowStyle: React.CSSProperties = {
         ['--translate' as string]: `${uniqueWidth}rem`,
+        ['--slideshow-speed' as string]: `${SLIDESHOW_SPEED_S}s`,
     };
 
     const rowClass = direction === 'left' ? styles.scrollLeftRow : styles.scrollRightRow;

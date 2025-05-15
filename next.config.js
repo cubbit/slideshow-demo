@@ -20,6 +20,10 @@ const nextConfig = {
                 pathname: '/**',
             },
         ],
+        unoptimized: true,
+    },
+    experimental: {
+        optimizeServerReact: true,
     },
 };
 
