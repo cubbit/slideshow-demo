@@ -17,20 +17,6 @@
     border-radius: 0.5rem;
 }
 
-.refreshIndicator {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 5px;
-    height: 5px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    margin: 10px;
-    animation: pulse 2s infinite;
-    pointer-events: none;
-    z-index: 100;
-}
-
 @keyframes pulse {
     0% {
         transform: scale(1);

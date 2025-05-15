@@ -43,7 +43,6 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
 }) => {
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
-    const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     // Use refs for row data to prevent unnecessary re-renders
@@ -204,7 +203,6 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
         } finally {
             if (isMountedRef.current) {
                 setIsInitialLoading(false);
-                setIsRefreshing(false);
             }
         }
     }, [onPhotoCountUpdate, photos, updateRowsWithNewPhotos]);
@@ -218,7 +216,6 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
     useEffect(() => {
         const poll = () => {
             if (isMountedRef.current) {
-                setIsRefreshing(true);
                 fetchPhotos();
             }
         };
@@ -262,12 +259,6 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
                     />
                 );
             })}
-
-            {isRefreshing && (
-                <div className={styles.refreshIndicator} aria-live="polite">
-                    <span className="sr-only">Refreshing photos...</span>
-                </div>
-            )}
         </div>
     );
 };
