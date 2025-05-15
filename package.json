@@ -9,7 +9,7 @@
         "lint": "next lint",
         "stylelint": "stylelint ./app/**/*.css",
         "stylelint:fix": "stylelint --fix ./app/**/*.css",
-        "test": "lint-staged",
+        "test": "lint-staged && npm run stylelint",
         "format": "prettier --write .",
         "prepare": "husky"
     },
