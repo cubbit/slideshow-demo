@@ -69,6 +69,22 @@ spec:
                 secretKeyRef:
                   name: {{ include "cubbit-slideshow.fullname" . }}-secret
                   key: MULTIPART_THRESHOLD
+            # Settings authentication
+            - name: AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: AUTH_USERNAME
+            - name: AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: AUTH_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: JWT_SECRET
             # Add NODE_ENV for production
             - name: NODE_ENV
               value: "production"

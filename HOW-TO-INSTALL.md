@@ -43,6 +43,12 @@ ingress:
           hosts:
               - slideshow.example.com # <-- Change to your domain
 
+# Authentication for settings page
+auth:
+    username: 'admin' # <-- Change this to a secure username
+    password: 'change-me-in-production' # <-- Change this to a secure password
+    jwtSecret: 'change-this-to-a-long-random-string' # <-- Change this to a secure random string
+
 # S3 configuration
 cubbit:
     # Public settings
@@ -77,6 +83,16 @@ That's it! Once all pods are ready, you can access:
 
 - Photo upload: <https://your-domain/upload>
 - Slideshow view: <https://your-domain/slideshow>
+- Settings page: <https://your-domain/settings> (requires authentication)
+
+## Accessing the Settings Page
+
+The settings page is protected by authentication. Use the credentials you configured in the `auth` section of your values file:
+
+- Username: The value of `auth.username` (default: "admin")
+- Password: The value of `auth.password` (default: "change-me-in-production")
+
+From the settings page, you can update configuration values without restarting the application. Note that these changes will apply immediately but won't persist across application restarts unless you update your Kubernetes secrets or environment variables.
 
 ## Customization
 
@@ -92,6 +108,7 @@ Then access:
 
 - <http://localhost:8080/upload>
 - <http://localhost:8080/slideshow>
+- <http://localhost:8080/settings>
 
 ### Troubleshooting
 
