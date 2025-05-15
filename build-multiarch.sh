@@ -13,19 +13,24 @@ NC='\033[0m' # No Color
 
 # Parse command line arguments
 VERSION="latest"
+NODE_VERSION="18"
 PUSH=false
 
 print_usage() {
-    echo -e "${YELLOW}Usage:${NC} $0 [-v version] [-p]"
-    echo -e "  ${BLUE}-v version${NC}  : Tag version (default: latest)"
-    echo -e "  ${BLUE}-p${NC}          : Push to registry after build"
-    echo -e "  ${BLUE}-h${NC}          : Show this help message"
+    echo -e "${YELLOW}Usage:${NC} $0 [-v version] [-n node_version] [-p]"
+    echo -e "  ${BLUE}-v version${NC}      : Tag version (default: latest)"
+    echo -e "  ${BLUE}-n node_version${NC} : Node.js version to use (default: 18)"
+    echo -e "  ${BLUE}-p${NC}              : Push to registry after build"
+    echo -e "  ${BLUE}-h${NC}              : Show this help message"
 }
 
-while getopts ":v:ph" opt; do
+while getopts ":v:n:ph" opt; do
     case $opt in
     v)
         VERSION="$OPTARG"
+        ;;
+    n)
+        NODE_VERSION="$OPTARG"
         ;;
     p)
         PUSH=true
@@ -59,9 +64,9 @@ docker buildx ls | grep -q mybuilder || docker buildx create --name mybuilder --
 
 # Build the multi-architecture image
 echo -e "${BLUE}Building multi-architecture image for: ${PLATFORMS}${NC}"
-echo -e "${BLUE}Image: ${IMAGE_NAME}:${VERSION}${NC}"
+echo -e "${BLUE}Image: ${IMAGE_NAME}:${VERSION} with Node.js ${NODE_VERSION}${NC}"
 
-BUILD_ARGS="--platform ${PLATFORMS} -t ${IMAGE_NAME}:${VERSION}"
+BUILD_ARGS="--platform ${PLATFORMS} --build-arg NODE_VERSION=${NODE_VERSION} -t ${IMAGE_NAME}:${VERSION}"
 
 # Add latest tag if version is not latest
 if [ "$VERSION" != "latest" ]; then

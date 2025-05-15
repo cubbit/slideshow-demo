@@ -1,17 +1,21 @@
 # syntax=docker/dockerfile:1
 
+# Define ARG before FROM to make it available for the FROM instruction
+ARG NODE_VERSION=18
+
 # ---------------------------
 # Stage 1: Build the Next.js app
 # ---------------------------
-FROM --platform=$BUILDPLATFORM node:18-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS builder
 
 # Add build arguments for versioning
 ARG BUILDPLATFORM
 ARG TARGETPLATFORM
-ARG NODE_VERSION=18
+# NODE_VERSION is already defined above, but redeclare to make it available in this stage
+ARG NODE_VERSION
 
 # Debug info for architecture
-RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM"
+RUN echo "Building on $BUILDPLATFORM for $TARGETPLATFORM using Node ${NODE_VERSION}"
 
 # Create app directory
 WORKDIR /app
@@ -29,7 +33,7 @@ RUN npm run build
 # ---------------------------
 # Stage 2: Create a minimal production image
 # ---------------------------
-FROM --platform=$TARGETPLATFORM node:18-alpine AS runner
+FROM node:${NODE_VERSION}-alpine AS runner
 
 # Add metadata
 LABEL org.opencontainers.image.source="https://github.com/marmos91/cubbit-slideshow-demo" \
@@ -52,6 +56,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
+# Install tini for better signal handling
+RUN apk add --no-cache tini
+
 # Expose Next.js default port
 EXPOSE 3000
 
@@ -61,6 +68,9 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 
 # Switch to non-root user
 USER nextjs
+
+# Use tini as entrypoint to properly handle signals
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # Run the standalone server directly
 CMD ["node", "server.js"]
