@@ -5,10 +5,13 @@
     overflow: hidden;
     border-radius: 0.5rem;
     margin: 0;
+    /* Remove default margin to let the parent control spacing */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     pointer-events: none;
     position: relative;
     z-index: 1;
+    background-color: rgba(30, 30, 30, 0.6);
+    /* Slightly visible background */
 }
 
 .photo {
@@ -23,6 +26,34 @@
 
 .loaded {
     opacity: 1;
+}
+
+/* Loading placeholder styles */
+.placeholderContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(15, 15, 15, 0.5);
+}
+
+.imagePlaceholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid rgba(200, 200, 200, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.8);
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .errorContainer {
@@ -48,10 +79,16 @@
     color: white;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .photoContainer {
         width: 10rem;
         height: 10rem;
+    }
+
+    .imagePlaceholder {
+        width: 30px;
+        height: 30px;
     }
 }
 
@@ -59,5 +96,10 @@
     .photoContainer {
         width: 8rem;
         height: 8rem;
+    }
+
+    .imagePlaceholder {
+        width: 25px;
+        height: 25px;
     }
 }

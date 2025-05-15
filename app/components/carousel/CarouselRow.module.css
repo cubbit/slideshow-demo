@@ -35,36 +35,46 @@
     /* Margin is controlled by gap in the flex container */
 }
 
+/* Improved animation with backface-visibility and specific timing function */
 .scrollLeftRow {
     animation: scrollLeft var(--slideshow-speed, 40s) linear infinite;
     will-change: transform;
+    backface-visibility: hidden;
+    /* Prevent flickering during animation */
+    transform-style: preserve-3d;
+    /* Improve performance */
     padding: 0;
 }
 
 .scrollRightRow {
     animation: scrollRight var(--slideshow-speed, 40s) linear infinite;
     will-change: transform;
+    backface-visibility: hidden;
+    /* Prevent flickering during animation */
+    transform-style: preserve-3d;
+    /* Improve performance */
     padding: 0;
 }
 
-/* Animation keyframes */
+/* Animation keyframes with clean transform values */
 @keyframes scrollLeft {
     0% {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
+        /* Use translate3d for GPU acceleration */
     }
 
     100% {
-        transform: translateX(calc(-1 * var(--translate)));
+        transform: translate3d(calc(-1 * var(--translate)), 0, 0);
     }
 }
 
 @keyframes scrollRight {
     0% {
-        transform: translateX(calc(-1 * var(--translate)));
+        transform: translate3d(calc(-1 * var(--translate)), 0, 0);
     }
 
     100% {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 
