@@ -41,6 +41,8 @@ spec:
               value: {{ .Values.cubbit.MAX_FILE_SIZE | quote }}
             - name: NEXT_PUBLIC_SLIDESHOW_SPEED_S
               value: {{ .Values.cubbit.SLIDESHOW_SPEED_S | quote }}
+            - name: NEXT_PUBLIC_MIN_COUNT_FOR_MARQUEE
+              value: {{ .Values.cubbit.MIN_COUNT_FOR_MARQUEE | default "6" | quote }}
             - name: NEXT_PUBLIC_S3_ENDPOINT
               valueFrom:
                 secretKeyRef:

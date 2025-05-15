@@ -4,7 +4,7 @@
     height: 15rem;
     overflow: hidden;
     border-radius: 0.5rem;
-    margin: 1rem;
+    margin: 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     pointer-events: none;
     position: relative;
@@ -52,7 +52,6 @@
     .photoContainer {
         width: 10rem;
         height: 10rem;
-        margin: 0.5rem;
     }
 }
 
@@ -60,6 +59,5 @@
     .photoContainer {
         width: 8rem;
         height: 8rem;
-        margin: 0.25rem;
     }
 }

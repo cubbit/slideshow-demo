@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styles from './InfiniteCarousel.module.css';
 import { Photo } from './Photo';
-import CarouselRow from './CarouselRow';
+import CarouselRow, { MIN_COUNT_FOR_MARQUEE } from './CarouselRow';
 import { shuffleArray } from './utils';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
@@ -19,7 +19,6 @@ const DEFAULT_MAX_PHOTOS_PER_ROW = 40; // Beyond this number, performance might 
 
 /**
  * Compare two arrays of Photos to identify only new photos that were added
- * Returns array of only the new photos, or empty array if none were added
  */
 const getNewPhotos = (prevPhotos: Photo[], newPhotos: Photo[]): Photo[] => {
     // If no previous photos, all are new
@@ -30,6 +29,11 @@ const getNewPhotos = (prevPhotos: Photo[], newPhotos: Photo[]): Photo[] => {
 
     // Filter out only the new photos that weren't in the previous set
     return newPhotos.filter(photo => !prevKeys.has(photo.key));
+};
+
+// Remove duplicates from array of photos
+const getUniquePhotos = (photos: Photo[]): Photo[] => {
+    return [...new Map(photos.map(photo => [photo.key, photo])).values()];
 };
 
 const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
@@ -57,10 +61,13 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
     // Function to create optimally-sized rows of photos
     const createOptimalRows = useCallback(
         (allPhotos: Photo[]): Photo[][] => {
+            // First ensure uniqueness
+            const uniquePhotos = getUniquePhotos(allPhotos);
+
             // If we have fewer photos than max, just create balanced rows
-            if (allPhotos.length <= maxPhotosPerRow * ROW_COUNT) {
+            if (uniquePhotos.length <= maxPhotosPerRow * ROW_COUNT) {
                 return Array.from({ length: ROW_COUNT }, (_, i) => {
-                    const shuffled = shuffleArray([...allPhotos]);
+                    const shuffled = shuffleArray([...uniquePhotos]);
                     return i % 2 === 0 ? shuffled : [...shuffled].reverse();
                 });
             }
@@ -70,7 +77,7 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
             const photoGroups: Photo[][] = [];
 
             // Create a shuffled copy of the array to distribute photos randomly
-            const shuffledPhotos = shuffleArray([...allPhotos]);
+            const shuffledPhotos = shuffleArray([...uniquePhotos]);
 
             // Distribute photos evenly among rows, but limit each row
             for (let i = 0; i < ROW_COUNT; i++) {
@@ -111,9 +118,14 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
             // Check if we need to rebalance (in case we have way too many photos)
             const totalRowPhotos = rowsRef.current.reduce((sum, row) => sum + row.length, 0);
 
-            // If we have more than maxPhotosPerRow*ROW_COUNT photos after adding new ones,
-            // or if the rows are severely imbalanced, recreate the rows
+            // If any single row has fewer than MIN_COUNT_FOR_MARQUEE,
+            // or if we have more photos than allowed, recreate the rows
+            const anyRowTooSmall = rowsRef.current.some(
+                row => getUniquePhotos(row).length < MIN_COUNT_FOR_MARQUEE
+            );
+
             if (
+                anyRowTooSmall ||
                 totalRowPhotos + newlyAddedPhotos.length > maxPhotosPerRow * ROW_COUNT * 1.5 ||
                 Math.max(...rowsRef.current.map(r => r.length)) >
                     Math.min(...rowsRef.current.map(r => r.length)) * 2
@@ -141,7 +153,8 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
                     });
 
                     // Only keep up to maxPhotosPerRow photos per row
-                    rowsRef.current[i] = currentRow.slice(0, maxPhotosPerRow);
+                    // and ensure uniqueness
+                    rowsRef.current[i] = getUniquePhotos(currentRow).slice(0, maxPhotosPerRow);
                 }
             }
         },
@@ -167,19 +180,25 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
             }
 
             if (isMountedRef.current) {
-                const newlyAddedPhotos = getNewPhotos(photos, newData);
+                // Always ensure photo uniqueness
+                const uniqueNewData = getUniquePhotos(newData);
 
-                if (newlyAddedPhotos.length > 0 || newData.length < photos.length) {
+                setIsInitialLoading(false);
+
+                const newlyAddedPhotos = getNewPhotos(photos, uniqueNewData);
+
+                if (newlyAddedPhotos.length > 0 || uniqueNewData.length < photos.length) {
                     // Update rows with new photos without recreating everything
-                    updateRowsWithNewPhotos(newData, newlyAddedPhotos);
+                    updateRowsWithNewPhotos(uniqueNewData, newlyAddedPhotos);
 
                     // Update the main photos state
-                    setPhotos(newData);
+                    setPhotos(uniqueNewData);
                 }
             }
         } catch (err) {
             console.error('Failed to fetch photos:', err);
             if (isMountedRef.current) {
+                setIsInitialLoading(false);
                 setError('Unable to load photos. Please try again later.');
             }
         } finally {
@@ -240,7 +259,6 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
                         rowPhotos={rowPhotos}
                         key={`row-${rowIndex}`}
                         direction={direction}
-                        minCountForMarquee={6}
                     />
                 );
             })}

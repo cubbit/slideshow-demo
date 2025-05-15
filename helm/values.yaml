@@ -61,6 +61,7 @@ cubbit:
     S3_BUCKET_NAME: 'slideshow'
     MAX_FILE_SIZE: '10485760' # 10MB in bytes
     SLIDESHOW_SPEED_S: '200' # Speed of slideshow animation in seconds
+    MIN_COUNT_FOR_MARQUEE: '6' # Minimum number of photos needed to start carousel animation
 
     # Private environment variables (will be stored in a Secret)
     S3_REGION: 'eu-central-1'

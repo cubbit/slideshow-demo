@@ -1,24 +1,34 @@
 .rowContainer {
     width: 100%;
     overflow: hidden;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     height: 17rem;
 }
 
 .staticRow {
     display: flex;
-    gap: 1rem;
+    gap: 2rem;
     height: 15rem;
+    padding: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.staticRow .photoContainer {
+    flex: 0 0 auto;
+    margin: 0;
 }
 
 .scrollLeftRow {
     animation: scrollLeft var(--slideshow-speed, 40s) linear infinite;
     will-change: transform;
+    padding: 0;
 }
 
 .scrollRightRow {
     animation: scrollRight var(--slideshow-speed, 40s) linear infinite;
     will-change: transform;
+    padding: 0;
 }
 
 @keyframes scrollLeft {
@@ -38,5 +48,29 @@
 
     100% {
         transform: translateX(0) translateZ(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .rowContainer {
+        height: 12rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .staticRow {
+        height: 10rem;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rowContainer {
+        height: 10rem;
+        margin-bottom: 1rem;
+    }
+
+    .staticRow {
+        height: 8rem;
+        gap: 1rem;
     }
 }
