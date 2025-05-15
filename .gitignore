@@ -220,3 +220,6 @@ dist
 
 # SSL certificates
 cert/
+
+# Helm
+helm/my-values.yaml
