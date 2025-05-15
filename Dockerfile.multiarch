@@ -40,8 +40,11 @@ LABEL org.opencontainers.image.source="https://github.com/marmos91/cubbit-slides
       org.opencontainers.image.description="Cubbit Slideshow Demo" \
       org.opencontainers.image.licenses="MIT"
 
-# Set production environment variable
+# Set environment variables
 ENV NODE_ENV=production
+
+# Set verbose logging level (info, warn, error, debug, verbose)
+ENV LOG_LEVEL=info
 
 # Create a non-root user with home directory
 RUN addgroup --system --gid 1001 nodejs && \
@@ -72,5 +75,5 @@ USER nextjs
 # Use tini as entrypoint to properly handle signals
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Run the standalone server directly
+# Run the standalone server
 CMD ["node", "server.js"]

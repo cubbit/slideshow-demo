@@ -3,15 +3,15 @@ name: cubbit-slideshow
 description: A Helm chart for deploying the Cubbit Slideshow Demo application
 type: application
 version: 0.1.0
-appVersion: "1.0.0"
+appVersion: '1.0.0'
 maintainers:
-  - name: Marco Moschettini
-    email: info@cubbit.io
+    - name: Marco Moschettini
+      email: info@cubbit.io
 keywords:
-  - nextjs
-  - slideshow
-  - cubbit
+    - nextjs
+    - slideshow
+    - cubbit
 home: https://github.com/cubbit/slideshow-demo
 sources:
-  - https://github.com/cubbit/slideshow-demo
+    - https://github.com/cubbit/slideshow-demo
 icon: https://raw.githubusercontent.com/cubbit/slideshow-demo/main/public/cubbit.png

@@ -31,6 +31,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            # Set Next.js logging level
+            - name: LOG_LEVEL
+              value: {{ .Values.loggingLevel | quote }}
             # Public environment variables
             - name: NEXT_PUBLIC_S3_BUCKET_NAME
               value: {{ .Values.cubbit.S3_BUCKET_NAME | quote }}

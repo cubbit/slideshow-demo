@@ -1,5 +1,6 @@
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
+import winston from 'winston';
 
 // Create the S3 client
 const createS3Client = () => {
@@ -17,6 +18,14 @@ const createS3Client = () => {
     });
 };
 
+// Configure Winston logger with structured logging
+const logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+    defaultMeta: { service: 'image-list-api' },
+    transports: [new winston.transports.Console()],
+});
+
 export async function GET() {
     try {
         // Construct prefix using today's date
@@ -32,6 +41,10 @@ export async function GET() {
             Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
             Prefix: prefix,
         });
+
+        logger.debug(
+            `Performing GET request to ${process.env.NEXT_PUBLIC_S3_BUCKET_NAME!}/${prefix}`
+        );
 
         const response = await s3Client.send(command);
         const objects = response.Contents || [];
@@ -49,6 +62,8 @@ export async function GET() {
                 size: obj.Size,
             }));
 
+        logger.info(`Listed ${images.length} images`);
+
         // Add debug info to response headers
         return NextResponse.json(images, {
             headers: {
@@ -57,7 +72,7 @@ export async function GET() {
             },
         });
     } catch (error) {
-        console.error('Error listing S3 objects:', error);
+        logger.error('Error listing S3 objects:', error);
 
         // Return empty array with error info
         return NextResponse.json([], {

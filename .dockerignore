@@ -22,3 +22,5 @@ dist
 .vscode
 *.swp
 
+# Helm files
+helm
