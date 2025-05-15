@@ -1,4 +1,3 @@
-// Updated CroppedImage.tsx
 import { useState } from 'react';
 import Image from 'next/image';
 import styles from './CroppedImage.module.css';
@@ -13,8 +12,9 @@ const CroppedImage: React.FC<CroppedImageProps> = ({ photo, priority = false }) 
     const [isLoaded, setIsLoaded] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    // Generate placeholder blur data URL
-    const blurDataURL = `data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cfilter id='b' color-interpolation-filters='sRGB'%3E%3CfeGaussianBlur stdDeviation='20'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23555555'/%3E%3C/svg%3E`;
+    // Simple placeholder color instead of SVG for better performance
+    const blurDataURL =
+        'data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
 
     return (
         <div className={styles.photoContainer}>
@@ -30,13 +30,14 @@ const CroppedImage: React.FC<CroppedImageProps> = ({ photo, priority = false }) 
                     priority={priority}
                     loading={priority ? 'eager' : 'lazy'}
                     src={photo.url}
-                    alt={`Photo ${photo.key.split('/').pop() || 'image'}`}
+                    alt=""
+                    aria-hidden="true" // Hide from screen readers since this is just decorative
                     className={`${styles.photo} ${isLoaded ? styles.loaded : ''}`}
                     onLoad={() => setIsLoaded(true)}
                     onError={() => setIsError(true)}
                     placeholder="blur"
                     blurDataURL={blurDataURL}
-                    style={{ objectFit: 'cover' }} // Ensure consistent object-fit in the style prop
+                    style={{ objectFit: 'cover' }}
                 />
             )}
         </div>

@@ -2,12 +2,12 @@
     width: 100%;
     overflow: hidden;
     margin-bottom: 1rem;
-    /* Add space between rows */
 }
 
 .staticRow {
     display: flex;
     gap: 1rem;
+    pointer-events: none;
 }
 
 .scrollLeftRow {

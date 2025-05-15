@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styles from './InfiniteCarousel.module.css';
 import { Photo } from './Photo';
-import VirtualizedCarouselRow from './VirtualizedCarouselRow';
+import CarouselRow from './CarouselRow';
 import { shuffleArray } from './utils';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
@@ -179,7 +179,7 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
                 const direction = rowIndex % 2 === 0 ? 'left' : 'right';
 
                 return (
-                    <VirtualizedCarouselRow
+                    <CarouselRow
                         rowPhotos={rowPhotos}
                         key={`row-${rowIndex}`}
                         direction={direction}

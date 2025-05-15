@@ -77,13 +77,13 @@ The application will be available at `http://localhost:3000`.
 - `S3_SECRET_ACCESS_KEY`: Your S3 secret key for authentication
 - `MULTIPART_THRESHOLD`: The size threshold (in bytes) that triggers multipart upload. Files larger than this will be uploaded in chunks
 
-#### Client-side Variables (NEXT_PUBLIC_*)
+#### Client-side Variables (NEXT*PUBLIC*\*)
 
 - `NEXT_PUBLIC_S3_BUCKET_NAME`: The name of your S3 bucket where files will be stored
 - `NEXT_PUBLIC_MAX_FILE_SIZE`: Maximum allowed file size for uploads (in bytes)
 - `NEXT_PUBLIC_S3_ENDPOINT`: The endpoint URL for your S3-compatible storage service
 
-Note: All `NEXT_PUBLIC_` variables are exposed to the browser. Never put sensitive credentials in NEXT_PUBLIC_ variables.
+Note: All `NEXT_PUBLIC_` variables are exposed to the browser. Never put sensitive credentials in NEXT*PUBLIC* variables.
 
 ### Production Build
 

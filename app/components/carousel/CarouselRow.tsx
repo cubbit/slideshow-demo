@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import styles from './CarouselRow.module.css';
 import CroppedImage from './CroppedImage';
 import { Photo } from './Photo';
@@ -12,12 +13,15 @@ interface CarouselRowProps {
 const CarouselRow: React.FC<CarouselRowProps> = ({
     rowPhotos,
     direction,
+    _rowIndex,
     minCountForMarquee = 6,
 }) => {
-    // Enable Marquee only after threshold
+    const rowRef = useRef<HTMLDivElement>(null);
+
+    // For static row (few photos), just render them all normally
     if (rowPhotos.length < minCountForMarquee) {
         return (
-            <div className={styles.staticRow}>
+            <div className={styles.staticRow} ref={rowRef}>
                 {rowPhotos.map((photo, i) => (
                     <CroppedImage photo={photo} key={`${photo.key}-${i}`} />
                 ))}
@@ -25,12 +29,14 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
         );
     }
 
+    // For animated rows, use the same approach but with doubled array
+    // This ensures the animation has enough content to scroll continuously
     const doubled = [...rowPhotos, ...rowPhotos];
 
-    const containerWidth = 15 * 16;
-    const gapWidth = 16;
-    const itemWidth = containerWidth + gapWidth;
-    const uniqueWidth = rowPhotos.length * itemWidth;
+    // Calculate the width for the animation
+    const itemWidth = 15 * 16; // 15rem in px
+    const gapWidth = 16; // 1rem in px
+    const uniqueWidth = rowPhotos.length * (itemWidth + gapWidth);
 
     const rowStyle: React.CSSProperties = {
         ['--translate' as string]: `${uniqueWidth}px`,
@@ -39,10 +45,12 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
     const rowClass = direction === 'left' ? styles.scrollLeftRow : styles.scrollRightRow;
 
     return (
-        <div className={`${styles.staticRow} ${rowClass}`} style={rowStyle}>
-            {doubled.map((photo, i) => (
-                <CroppedImage photo={photo} key={`${photo.key}-${i}`} />
-            ))}
+        <div className={styles.rowContainer}>
+            <div className={`${styles.staticRow} ${rowClass}`} style={rowStyle} ref={rowRef}>
+                {doubled.map((photo, i) => (
+                    <CroppedImage photo={photo} key={`${photo.key}-${i}`} priority={i < 5} />
+                ))}
+            </div>
         </div>
     );
 };
