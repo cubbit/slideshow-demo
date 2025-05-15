@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cubbit-slideshow.fullname" . }}
+  labels:
+    {{- include "cubbit-slideshow.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cubbit-slideshow.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "cubbit-slideshow.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Public environment variables
+            - name: NEXT_PUBLIC_S3_BUCKET_NAME
+              value: {{ .Values.cubbit.S3_BUCKET_NAME | quote }}
+            - name: NEXT_PUBLIC_MAX_FILE_SIZE
+              value: {{ .Values.cubbit.MAX_FILE_SIZE | quote }}
+            - name: NEXT_PUBLIC_SLIDESHOW_SPEED_S
+              value: {{ .Values.cubbit.SLIDESHOW_SPEED_S | quote }}
+            - name: NEXT_PUBLIC_S3_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: S3_ENDPOINT
+            # Private environment variables from Secret
+            - name: S3_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: S3_REGION
+            - name: S3_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: S3_ACCESS_KEY_ID
+            - name: S3_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: S3_SECRET_ACCESS_KEY
+            - name: MULTIPART_THRESHOLD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
+                  key: MULTIPART_THRESHOLD
+            # Add NODE_ENV for production
+            - name: NODE_ENV
+              value: "production"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

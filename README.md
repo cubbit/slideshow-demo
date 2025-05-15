@@ -1,122 +1,87 @@
-# Cubbit Slideshow Demo
+# Cubbit Slideshow Demo Helm Chart
 
-A Next.js application demonstrating file upload and slideshow capabilities using Cubbit DS3 storage.
-The application allows photos to be uploaded to a designated S3 bucket and displayed in a slideshow. Photos will be grouped by date (with a year/month/day folder structure) and the slideshow will show photos taken during the current day.
-
-![./assets/screenshot2.jpeg](./assets/screenshot2.png)
+A simple Helm chart for deploying the Cubbit Slideshow Demo application on Kubernetes.
 
 ## Prerequisites
 
-- Node.js 18 or later
-- npm
-- Docker (optional, for containerized deployment)
+- Kubernetes 1.19+
+- Helm 3.2.0+
+- A Cubbit DS3 bucket with proper credentials
+- (Optional) TLS certificate for Ingress SSL
 
-## How to run
+## Quick Start
 
-In order to run the webserver directly via docker just run the following command:
-
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e S3_REGION=eu-central-1 \
-  -e S3_ACCESS_KEY_ID=<your-access-key> \
-  -e S3_SECRET_ACCESS_KEY=<your-secret-key> \
-  -e MULTIPART_THRESHOLD=5242880 \
-  -e NEXT_PUBLIC_S3_BUCKET_NAME=<your-bucket> \
-  -e NEXT_PUBLIC_MAX_FILE_SIZE=10485760 \
-  -e NEXT_PUBLIC_S3_ENDPOINT=<your-s3-endpoint> \
-  marmos91c/cubbit-slideshow-demo
-```
-
-## Getting Started
-
-### Local Development
-
-1. Clone the repository:
+1. Edit the `values.yaml` file to include your S3 credentials and configuration
+2. Install the chart:
 
 ```bash
-git clone https://github.com/marmos91/cubbit-slideshow-demo.git
-cd cubbit-slideshow-demo
+helm install slideshow ./cubbit-slideshow
 ```
 
-2. Install dependencies:
+## Configuration
+
+Key parameters you'll want to customize:
+
+### S3 Configuration
+
+```yaml
+cubbit:
+    S3_BUCKET_NAME: 'cubbit-slideshow'
+    MAX_FILE_SIZE: '10485760' # 10MB in bytes
+    SLIDESHOW_SPEED_S: '40' # Speed of slideshow in seconds
+
+    # These will be stored in a Secret
+    S3_REGION: 'eu-central-1'
+    S3_ACCESS_KEY_ID: 'your-access-key'
+    S3_SECRET_ACCESS_KEY: 'your-secret-key'
+    S3_ENDPOINT: 'https://your-s3-endpoint'
+    MULTIPART_THRESHOLD: '5242880' # 5MB in bytes
+```
+
+### Ingress Configuration
+
+The chart is set up to use nginx ingress with SSL by default:
+
+```yaml
+ingress:
+    enabled: true
+    className: 'nginx'
+    annotations:
+        kubernetes.io/ingress.class: nginx
+    hosts:
+        - host: slideshow.example.com
+          paths:
+              - path: /
+                pathType: Prefix
+    tls:
+        - secretName: slideshow-tls # Your existing TLS certificate secret
+          hosts:
+              - slideshow.example.com
+```
+
+### Using Existing TLS Certificate
+
+Make sure your TLS certificate is already created in the same namespace. If you've used certbot, you might need to create a Kubernetes Secret from your certificate files:
 
 ```bash
-npm install
+kubectl create secret tls slideshow-tls --key /path/to/privkey.pem --cert /path/to/fullchain.pem
 ```
 
-3. Create a `.env.local` file with your configuration:
+Then reference this secret in your values file.
 
-```env
-# S3 Configuration (Server-side)
-S3_REGION=eu-central-1                    # The region where your S3 bucket is located
-S3_ACCESS_KEY_ID=your_access_key          # Your S3 access key ID
-S3_SECRET_ACCESS_KEY=your_secret_key      # Your S3 secret access key
-MULTIPART_THRESHOLD=5242880               # Threshold in bytes (5MB) for multipart uploads
+## Accessing the Application
 
-# Public Configuration (Client-side)
-NEXT_PUBLIC_S3_BUCKET_NAME=your_bucket    # Your S3 bucket name
-NEXT_PUBLIC_MAX_FILE_SIZE=10485760        # Maximum file size in bytes (10MB)
-NEXT_PUBLIC_S3_ENDPOINT=your_endpoint     # Your S3-compatible endpoint URL
+The Cubbit Slideshow Demo has two main endpoints:
 
-NEXT_PUBLIC_SLIDESHOW_SPEED_S=200         # Speed of the slideshow animation in seconds
-```
+- `/upload` - Use this to upload photos
+- `/slideshow` - View the slideshow of today's photos
 
-4. Start the development server:
+## Uninstallation
 
 ```bash
-npm run dev
+helm uninstall slideshow
 ```
 
-The application will be available at `http://localhost:3000`.
+## About Cubbit Slideshow Demo
 
-### Environment Variables Explained
-
-#### Server-side Variables
-
-- `S3_REGION`: The geographical region where your S3 bucket is hosted
-- `S3_ACCESS_KEY_ID`: Your S3 access credentials for authentication
-- `S3_SECRET_ACCESS_KEY`: Your S3 secret key for authentication
-- `MULTIPART_THRESHOLD`: The size threshold (in bytes) that triggers multipart upload. Files larger than this will be uploaded in chunks
-
-#### Client-side Variables (NEXT*PUBLIC*\*)
-
-- `NEXT_PUBLIC_S3_BUCKET_NAME`: The name of your S3 bucket where files will be stored
-- `NEXT_PUBLIC_MAX_FILE_SIZE`: Maximum allowed file size for uploads (in bytes)
-- `NEXT_PUBLIC_S3_ENDPOINT`: The endpoint URL for your S3-compatible storage service
-
-Note: All `NEXT_PUBLIC_` variables are exposed to the browser. Never put sensitive credentials in NEXT*PUBLIC* variables.
-
-### Production Build
-
-To create a production build:
-
-```bash
-npm run build
-npm run start
-```
-
-## Docker Deployment
-
-This project includes Docker support for containerized deployment.
-
-1. Build the Docker image:
-
-```bash
-docker build -t cubbit-slideshow-demo .
-```
-
-2. Run with Docker Compose:
-
-```bash
-docker-compose up -d
-```
-
-The application will be available at `http://localhost:3000`.
-
-## Usage
-
-Just visit:
-
-- `http://localhost:3000/upload` to upload new photos
-- `http://localhost:3000/slideshow` to see the slideshow in action.
+The Cubbit Slideshow Demo is a Next.js application demonstrating file upload and slideshow capabilities using Cubbit DS3 storage. For more information, visit the [GitHub repository](https://github.com/marmos91/cubbit-slideshow-demo).

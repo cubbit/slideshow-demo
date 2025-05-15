@@ -1,0 +1,37 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+Application URLs:
+{{- if .Values.ingress.enabled }}
+You can access the application by navigating to:
+{{- range $host := .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}/upload    - Upload photos
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}/slideshow - View slideshow
+{{- end }}
+{{- else }}
+To access the application via port-forwarding:
+
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "cubbit-slideshow.fullname" . }} 8080:{{ .Values.service.port }}
+
+Then you can access:
+  - Upload page: http://localhost:8080/upload
+  - Slideshow page: http://localhost:8080/slideshow
+{{- end }}
+
+IMPORTANT: Make sure you've set these values for proper operation:
+- cubbit.S3_ACCESS_KEY_ID
+- cubbit.S3_SECRET_ACCESS_KEY
+- cubbit.S3_ENDPOINT
+- cubbit.S3_BUCKET_NAME
+
+For more information about the Cubbit Slideshow Demo, visit:
+https://github.com/cubbit/slideshow-demo0].path=/
+
+IMPORTANT: Make sure to set these required values for proper operation:
+- cubbit.config.private.S3_ACCESS_KEY_ID
+- cubbit.config.private.S3_SECRET_ACCESS_KEY
+- cubbit.config.private.S3_ENDPOINT
+
+For more information about the Cubbit Slideshow Demo, visit:
+https://github.com/cubbit/slideshow-demo
