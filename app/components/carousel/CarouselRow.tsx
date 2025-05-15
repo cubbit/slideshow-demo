@@ -22,8 +22,7 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
 }) => {
     const rowRef = useRef<HTMLDivElement>(null);
 
-    // Ensure we're working with the correct photo array
-    // This prevents accidental duplication in static rows
+    // Ensure we're working with unique photos
     const uniquePhotos = [...new Map(rowPhotos.map(photo => [photo.key, photo])).values()];
 
     // For static row (few photos), render with proper spacing
@@ -39,16 +38,19 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
         );
     }
 
-    // For animated rows, use doubled array for seamless looping
-    const doubled = [...uniquePhotos, ...uniquePhotos];
+    // For animated rows, just display the original photos
+    // The animation will handle the infinite scrolling with CSS
 
-    // Get dimensions for animation
-    const itemWidth = 15; // rem
-    const gapWidth = 2; // rem - updated to match the CSS gap value
-    const uniqueWidth = uniquePhotos.length * (itemWidth + gapWidth); // 15rem + 2rem gap
+    // Calculate animation width - the most critical part for infinite scrolling!
+    // A photo width is 15rem, and gap is 2rem
+    // Formula: (numPhotos * photoWidth) + ((numPhotos - 1) * gapWidth)
+    const photoWidth = 15; // rem
+    const gapWidth = 2; // rem
+    const totalWidth = uniquePhotos.length * photoWidth + (uniquePhotos.length - 1) * gapWidth;
 
+    // Use this width for the animation
     const rowStyle: React.CSSProperties = {
-        ['--translate' as string]: `${uniqueWidth}rem`,
+        ['--translate' as string]: `${totalWidth}rem`,
         ['--slideshow-speed' as string]: `${SLIDESHOW_SPEED_S}s`,
     };
 
@@ -57,8 +59,15 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
     return (
         <div className={styles.rowContainer}>
             <div className={`${styles.staticRow} ${rowClass}`} style={rowStyle} ref={rowRef}>
-                {doubled.map((photo, i) => (
-                    <CroppedImage photo={photo} key={`${photo.key}-${i}`} priority={i < 5} />
+                {uniquePhotos.map((photo, i) => (
+                    <CroppedImage photo={photo} key={`${photo.key}-static-${i}`} priority={i < 5} />
+                ))}
+                {uniquePhotos.map((photo, i) => (
+                    <CroppedImage
+                        photo={photo}
+                        key={`${photo.key}-duplicate-${i}`}
+                        priority={false}
+                    />
                 ))}
             </div>
         </div>

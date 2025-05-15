@@ -2,21 +2,37 @@
     width: 100%;
     overflow: hidden;
     margin-bottom: 2rem;
+    /* Vertical spacing between rows */
     height: 17rem;
+    /* Container height to accommodate photos */
 }
 
 .staticRow {
     display: flex;
     gap: 2rem;
+    /* Horizontal gap between photos */
     height: 15rem;
+    /* Height of the photos */
     padding: 0;
-    flex-wrap: wrap;
-    justify-content: center;
+    /* No vertical padding */
+    flex-wrap: nowrap;
+    /* Important: Don't wrap for animation rows */
+    justify-content: flex-start;
+    /* Start from the left for animation */
 }
 
+/* Only center photos in static (non-animated) rows */
+.rowContainer:not(:has(.scrollLeftRow, .scrollRightRow)) .staticRow {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* When photos are in a static row (non-animated), ensure proper spacing */
 .staticRow .photoContainer {
     flex: 0 0 auto;
     margin: 0;
+    /* Remove margin from individual photos */
+    /* Margin is controlled by gap in the flex container */
 }
 
 .scrollLeftRow {
@@ -31,26 +47,28 @@
     padding: 0;
 }
 
+/* Animation keyframes */
 @keyframes scrollLeft {
     0% {
-        transform: translateX(0) translateZ(0);
+        transform: translateX(0);
     }
 
     100% {
-        transform: translateX(calc(-1 * var(--translate))) translateZ(0);
+        transform: translateX(calc(-1 * var(--translate)));
     }
 }
 
 @keyframes scrollRight {
     0% {
-        transform: translateX(calc(-1 * var(--translate))) translateZ(0);
+        transform: translateX(calc(-1 * var(--translate)));
     }
 
     100% {
-        transform: translateX(0) translateZ(0);
+        transform: translateX(0);
     }
 }
 
+/* Add responsive adjustments */
 @media (max-width: 768px) {
     .rowContainer {
         height: 12rem;
