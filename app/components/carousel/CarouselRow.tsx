@@ -6,14 +6,12 @@ import { Photo } from './Photo';
 interface CarouselRowProps {
     rowPhotos: Photo[];
     direction: 'left' | 'right';
-    rowIndex: number;
     minCountForMarquee?: number;
 }
 
 const CarouselRow: React.FC<CarouselRowProps> = ({
     rowPhotos,
     direction,
-    _rowIndex,
     minCountForMarquee = 6,
 }) => {
     const rowRef = useRef<HTMLDivElement>(null);
@@ -29,17 +27,15 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
         );
     }
 
-    // For animated rows, use the same approach but with doubled array
-    // This ensures the animation has enough content to scroll continuously
+    // For animated rows, use doubled array for seamless looping
     const doubled = [...rowPhotos, ...rowPhotos];
 
-    // Calculate the width for the animation
-    const itemWidth = 15 * 16; // 15rem in px
-    const gapWidth = 16; // 1rem in px
-    const uniqueWidth = rowPhotos.length * (itemWidth + gapWidth);
+    // Get dimensions for animation
+    const itemWidth = 15; // rem
+    const uniqueWidth = rowPhotos.length * (itemWidth + 1); // 15rem + 1rem gap
 
     const rowStyle: React.CSSProperties = {
-        ['--translate' as string]: `${uniqueWidth}px`,
+        ['--translate' as string]: `${uniqueWidth}rem`,
     };
 
     const rowClass = direction === 'left' ? styles.scrollLeftRow : styles.scrollRightRow;

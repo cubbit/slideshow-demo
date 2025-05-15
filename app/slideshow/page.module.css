@@ -16,28 +16,22 @@
     opacity: 0;
     animation: headerFade 3s ease forwards;
     height: 5rem;
+    min-height: 5rem;
+    /* Ensure minimum height */
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     /* Allow wrapping on small screens */
+    z-index: 10;
+    /* Keep header above carousel */
 }
 
 .header img {
     margin: 0.5rem;
 }
 
-.header h1 {
-    font-size: 1.2rem;
-    margin: 0 0.5rem;
-    white-space: nowrap;
-}
-
 .header span {
     margin-left: auto;
-    font-size: 0.8rem;
-    opacity: 0.7;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 @keyframes headerFade {
@@ -53,28 +47,10 @@
 }
 
 .carouselContainer {
-    overflow: hidden;
     flex-grow: 1;
-    /* Take remaining space */
-    display: flex;
-    flex-direction: column;
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .header {
-        height: auto;
-        padding: 0.5rem;
-        justify-content: space-between;
-    }
-
-    .header h1 {
-        font-size: 1rem;
-    }
-
-    .header span {
-        width: 100%;
-        margin-left: 0;
-        padding-left: 0.5rem;
-    }
+    flex-shrink: 1;
+    min-height: 0;
+    /* Allow container to shrink */
+    position: relative;
+    overflow: hidden;
 }

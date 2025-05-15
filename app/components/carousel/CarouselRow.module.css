@@ -2,12 +2,15 @@
     width: 100%;
     overflow: hidden;
     margin-bottom: 1rem;
+    height: 17rem;
+    /* Ensure we have enough height for the images + margin */
 }
 
 .staticRow {
     display: flex;
     gap: 1rem;
-    pointer-events: none;
+    height: 15rem;
+    /* Explicit height to match photo containers */
 }
 
 .scrollLeftRow {
