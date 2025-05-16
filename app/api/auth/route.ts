@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sign, verify } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 
 // Get environment variables
 const AUTH_USERNAME = process.env.AUTH_USERNAME;
@@ -48,22 +48,5 @@ export async function POST(request: NextRequest) {
             { success: false, message: 'Authentication error' },
             { status: 500 }
         );
-    }
-}
-
-// Utility function to check if the user is authenticated
-export function isAuthenticated(request: NextRequest) {
-    try {
-        const token = request.cookies.get('auth_token')?.value;
-
-        if (!token) {
-            return false;
-        }
-
-        // Verify the token
-        verify(token, JWT_SECRET);
-        return true;
-    } catch (error) {
-        return false;
     }
 }

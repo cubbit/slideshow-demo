@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import styles from './settings.module.css';
+import styles from './page.module.css';
 import { Orbitron } from 'next/font/google';
 
 const orbitron = Orbitron({

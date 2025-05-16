@@ -1,27 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verify } from 'jsonwebtoken';
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { runtimeSettings, updateSettings } from '@/app/lib/settingsService';
-
-// Get environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-change-in-production';
-
-// Function to check if a user is authenticated
-function isAuthenticated(request: NextRequest) {
-    try {
-        const token = request.cookies.get('auth_token')?.value;
-
-        if (!token) {
-            return false;
-        }
-
-        // Verify the token
-        verify(token, JWT_SECRET);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
+import { isAuthenticated } from '@/app/lib/authService';
 
 // Test S3 connection with current settings
 async function testS3Connection(): Promise<boolean> {
