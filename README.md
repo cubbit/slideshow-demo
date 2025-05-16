@@ -1,6 +1,6 @@
 # Cubbit Slideshow Demo
 
-Show Image
+![Slideshow](./assets/slideshow.png)
 
 A modern web application for uploading and displaying photos in a beautiful slideshow using Cubbit DS3 or any S3-compatible storage.
 
@@ -16,7 +16,9 @@ A modern web application for uploading and displaying photos in a beautiful slid
 
 ## 📷 Screenshots
 
-<!-- Suggested locations for product screenshots: 1. Place screenshots in a 'screenshots' directory at the root of your project 2. Reference them here using relative paths For example: ![Upload Page](screenshots/upload.png) ![Slideshow](screenshots/slideshow.png) ![Settings](screenshots/settings.png) -->
+![Upload](./assets/upload.png)
+![Slideshow](./assets/slideshow.png)
+![Settings](./assets/settings.png)
 
 ## 🚀 Getting Started
 
