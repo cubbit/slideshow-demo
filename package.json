@@ -11,7 +11,8 @@
         "stylelint:fix": "stylelint --fix ./app/**/*.css",
         "test": "lint-staged && npm run stylelint",
         "format": "prettier --write .",
-        "prepare": "husky"
+        "prepare": "husky",
+        "docker:build": "chmod +x ./build-multiarch.sh && ./build-multiarch.sh"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.808.0",

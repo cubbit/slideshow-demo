@@ -1,131 +1,196 @@
-# Cubbit Slideshow Demo Helm Chart
+# Cubbit Slideshow Demo
 
-A simple Helm chart for deploying the Cubbit Slideshow Demo application on Kubernetes.
+Show Image
 
-## Prerequisites
+A modern web application for uploading and displaying photos in a beautiful slideshow using Cubbit DS3 or any S3-compatible storage.
 
-- Kubernetes 1.19+
-- Helm 3.2.0+
-- A Cubbit DS3 bucket with proper credentials
-- (Optional) TLS certificate for Ingress SSL
+## 📸 Features
 
-## Quick Start
+- **Simple Upload Interface**: Easily upload photos from any device
+- **Dynamic Slideshow**: Automatically refreshing slideshow with smooth animations
+- **S3 Integration**: Works with Cubbit DS3 or any S3-compatible storage
+- **Administrative Settings**: Secure admin panel to configure storage settings
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Kubernetes Deployment**: Ready-to-use Helm chart for easy deployment
+- **Multi-Architecture Support**: Docker images available for both amd64 and arm64
 
-1. Edit the `values.yaml` file to include your S3 credentials and configuration
-2. Install the chart:
+## 📷 Screenshots
 
-```bash
-helm install slideshow ./cubbit-slideshow
-```
+<!-- Suggested locations for product screenshots: 1. Place screenshots in a 'screenshots' directory at the root of your project 2. Reference them here using relative paths For example: ![Upload Page](screenshots/upload.png) ![Slideshow](screenshots/slideshow.png) ![Settings](screenshots/settings.png) -->
 
-## Configuration
+## 🚀 Getting Started
 
-Key parameters you'll want to customize:
+### Prerequisites
 
-### S3 Configuration
+- Node.js 18+ (or 20+ for optimal performance)
+- npm 9+
+- S3-compatible storage (Cubbit DS3, AWS S3, MinIO, etc.)
 
-```yaml
-cubbit:
-    S3_BUCKET_NAME: 'cubbit-slideshow'
-    MAX_FILE_SIZE: '10485760' # 10MB in bytes
-    SLIDESHOW_SPEED_S: '40' # Speed of slideshow in seconds
+### Development Setup
 
-    # These will be stored in a Secret
-    S3_REGION: 'eu-central-1'
-    S3_ACCESS_KEY_ID: 'your-access-key'
-    S3_SECRET_ACCESS_KEY: 'your-secret-key'
-    S3_ENDPOINT: 'https://your-s3-endpoint'
-    MULTIPART_THRESHOLD: '5242880' # 5MB in bytes
-```
+1. Clone the repository:
 
-### Verbose Logging
+    ```bash
+    git clone <https://github.com/cubbit/slideshow-demo.git>
+    cd slideshow-demo
+    ```
 
-You can enable verbose Next.js server logs:
+    Install dependencies:
 
-```yaml
-# Enable verbose logging
-verbose: true
-```
+    ```bash
+    npm install
+    ```
 
-When enabled, this:
+2. Create a `.env.local` file with your S3 credentials:
 
-- Sets `DEBUG="next:*,http"` to show detailed Next.js framework logs
-- Sets `NODE_OPTIONS="--trace-warnings --trace-deprecation"` to show more detailed Node.js warnings
-- Makes server logs much more detailed for debugging purposes
+    ```
+    # Public settings (available on client)
 
-### Ingress Configuration
+    NEXT_PUBLIC_S3_BUCKET_NAME=your-bucket-name
+    NEXT_PUBLIC_MAX_FILE_SIZE=10485760
+    NEXT_PUBLIC_SLIDESHOW_SPEED_S=40
+    NEXT_PUBLIC_MIN_COUNT_FOR_MARQUEE=6
+    NEXT_PUBLIC_S3_ENDPOINT=<https://your-s3-endpoint>
 
-The chart is set up to use nginx ingress with SSL by default:
+    # Private settings (server only)
 
-```yaml
-ingress:
-    enabled: true
-    className: 'nginx'
-    annotations:
-        kubernetes.io/ingress.class: nginx
-    hosts:
-        - host: slideshow.example.com
-          paths:
-              - path: /
-                pathType: Prefix
-    tls:
-        - secretName: slideshow-tls # Your existing TLS certificate secret
-          hosts:
-              - slideshow.example.com
-```
+    S3_REGION=eu-central-1
+    S3_ACCESS_KEY_ID=your-access-key
+    S3_SECRET_ACCESS_KEY=your-secret-key
+    MULTIPART_THRESHOLD=5242880
 
-### Using Existing TLS Certificate
+    # Authentication for settings page
 
-Make sure your TLS certificate is already created in the same namespace. If you've used certbot, you might need to create a Kubernetes Secret from your certificate files:
+    AUTH_USERNAME=admin
+    AUTH_PASSWORD=secure-password
+    JWT_SECRET=your-random-jwt-secret
+    ```
 
-```bash
-kubectl create secret tls slideshow-tls --key /path/to/privkey.pem --cert /path/to/fullchain.pem
-```
+3. Start the development server:
 
-Then reference this secret in your values file.
+    ```bash
+    npm run dev
+    ```
 
-## Accessing the Application
+4. Open <http://localhost:3000> in your browser.
 
-The Cubbit Slideshow Demo has two main endpoints:
+## 🐳 Docker Deployment
 
-- `/upload` - Use this to upload photos
-- `/slideshow` - View the slideshow of today's photos
+### Building Docker Images
 
-## Uninstallation
+#### Standard Build
 
 ```bash
-helm uninstall slideshow
+docker build -t cubbit/slideshow-demo:latest .
 ```
 
-## About Cubbit Slideshow Demo
+#### Multi-Architecture Build
 
-The Cubbit Slideshow Demo is a Next.js application demonstrating file upload and slideshow capabilities using Cubbit DS3 storage. For more information, visit the [GitHub repository](https://github.com/marmos91/cubbit-slideshow-demo).com
-
-````
-
-### Using Existing TLS Certificate
-
-Make sure your TLS certificate is already created in the same namespace. If you've used certbot, you might need to create a Kubernetes Secret from your certificate files:
+The repository includes a script for building multi-architecture images (amd64/arm64):
 
 ```bash
-kubectl create secret tls slideshow-tls --key /path/to/privkey.pem --cert /path/to/fullchain.pem
-````
+# Build image with default settings (Node.js 18, tag: latest)
 
-Then reference this secret in your values file.
+npm run docker:build
 
-## Accessing the Application
+# Build with specific Node.js version and tag
 
-The Cubbit Slideshow Demo has two main endpoints:
+npm run docker:build -- -v 1.2.0 -n 20
 
-- `/upload` - Use this to upload photos
-- `/slideshow` - View the slideshow of today's photos
+# Build and push to registry
 
-## Uninstallation
-
-```bash
-helm uninstall slideshow
+npm run docker:build -- -v 1.2.0 -p
 ```
 
-## About Cubbit Slideshow Demo
+For more advanced build options, see the [Multi-Architecture Build Guide](docs/MULTIARCH-BUILD-GUIDE.md).
 
-The Cubbit Slideshow Demo is a Next.js application demonstrating file upload and slideshow capabilities using Cubbit DS3 storage. For more information, visit the [GitHub repository](https://github.com/marmos91/cubbit-slideshow-demo).
+## ☸️ Kubernetes Deployment with Helm
+
+The application can be deployed to Kubernetes using the included Helm chart.
+
+### Quick Start
+
+```bash
+
+# Create your values file
+
+cp helm/values.yaml my-values.yaml
+
+# Edit my-values.yaml with your S3 credentials and settings
+
+nano my-values.yaml
+
+# Install the chart
+
+helm install slideshow ./helm -f my-values.yaml
+```
+
+### Advanced Configuration
+
+For complete installation and configuration details, see [Installation Guide](docs/HOW-TO-INSTALL.md).
+
+## ⚙️ Configuration Options
+
+The application can be configured via environment variables or through the settings UI.
+
+Key Configuration Parameters
+
+|       Parameter       |                  Description                  |     Default     |
+| :-------------------: | :-------------------------------------------: | :-------------: |
+|    S3_BUCKET_NAME     |             Name of the S3 bucket             |    slideshow    |
+|     MAX_FILE_SIZE     |       Maximum upload file size (bytes)        | 10485760 (10MB) |
+|   SLIDESHOW_SPEED_S   |   Duration of slideshow animation (seconds)   |       40        |
+| MIN_COUNT_FOR_MARQUEE | Minimum photos before enabling marquee effect |        6        |
+|       S3_REGION       |                   S3 region                   |  eu-central-1   |
+|      S3_ENDPOINT      |                S3 endpoint URL                |    Required     |
+|   S3_ACCESS_KEY_ID    |                 S3 access key                 |    Required     |
+| S3_SECRET_ACCESS_KEY  |                 S3 secret key                 |    Required     |
+
+## Settings UI
+
+Once deployed, you can access the settings page at `/settings` using the credentials defined in your configuration.
+
+## 🔒 Security Considerations
+
+- Change default admin credentials before deployment
+- Use HTTPS in production with a valid TLS certificate
+- Consider rate limiting and firewall rules for public instances
+- Review Kubernetes security best practices if deploying to production clusters
+
+## 🧑‍💻 Development
+
+### Core Technologies
+
+- **Next.js**: React framework with server-side rendering
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **AWS SDK**: For S3 integration
+- **Docker/Kubernetes**: For containerization and orchestration
+
+### Project Structure
+
+- `/app`: Next.js application code
+- `/public`: Static assets
+- `/helm`: Kubernetes Helm chart
+- `/app/components`: React components
+- `/app/api`: API routes
+
+### Running Tests
+
+```bash
+npm test
+```
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
