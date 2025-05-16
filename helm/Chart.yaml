@@ -1,8 +1,8 @@
 apiVersion: v2
-name: cubbit-slideshow
+name: slideshow-demo
 description: A Helm chart for deploying the Cubbit Slideshow Demo application
 type: application
-version: 0.1.0
+version: 1.0.0-chart
 appVersion: '1.0.0'
 maintainers:
     - name: Marco Moschettini

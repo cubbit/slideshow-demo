@@ -12,7 +12,11 @@
         "test": "lint-staged && npm run stylelint",
         "format": "prettier --write .",
         "prepare": "husky",
-        "docker:build": "chmod +x ./build-multiarch.sh && ./build-multiarch.sh"
+        "docker:login": "docker login",
+        "docker:build": "chmod +x ./build-multiarch.sh && ./build-multiarch.sh -v 1.0.0",
+        "docker:build-and-push": "npm run docker:login && chmod +x ./build-multiarch.sh -p -v 1.0.0",
+        "helm:package": "helm package ./helm",
+        "helm:push": "helm push slideshow-demo*.tgz oci://registry.hub.docker.com/cubbit"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.808.0",
