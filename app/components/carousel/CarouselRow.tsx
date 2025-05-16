@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import styles from './CarouselRow.module.css';
 import CroppedImage from './CroppedImage';
 import { Photo } from './Photo';
+import { usePublicSettings } from '@/app/hooks/usePublicSettings';
 
 interface CarouselRowProps {
     rowPhotos: Photo[];
@@ -9,18 +10,18 @@ interface CarouselRowProps {
     minCountForMarquee?: number;
 }
 
-// Get environment variables
-export const SLIDESHOW_SPEED_S = process.env.NEXT_PUBLIC_SLIDESHOW_SPEED_S || '40';
-export const MIN_COUNT_FOR_MARQUEE = process.env.NEXT_PUBLIC_MIN_COUNT_FOR_MARQUEE
-    ? parseInt(process.env.NEXT_PUBLIC_MIN_COUNT_FOR_MARQUEE, 10)
-    : 6;
-
 const CarouselRow: React.FC<CarouselRowProps> = ({
     rowPhotos,
     direction,
-    minCountForMarquee = MIN_COUNT_FOR_MARQUEE, // Use ENV variable with fallback
+    minCountForMarquee = 6, // Fallback default
 }) => {
     const rowRef = useRef<HTMLDivElement>(null);
+
+    // Get settings from our hook - we don't need to refresh too often here
+    const { settings } = usePublicSettings(60000);
+
+    // Get slideshow speed from settings
+    const slideshowSpeed = settings.SLIDESHOW_SPEED_S || '40';
 
     // Ensure we're working with unique photos
     const uniquePhotos = [...new Map(rowPhotos.map(photo => [photo.key, photo])).values()];
@@ -51,7 +52,7 @@ const CarouselRow: React.FC<CarouselRowProps> = ({
     // Use this width for the animation
     const rowStyle: React.CSSProperties = {
         ['--translate' as string]: `${totalWidth}rem`,
-        ['--slideshow-speed' as string]: `${SLIDESHOW_SPEED_S}s`,
+        ['--slideshow-speed' as string]: `${slideshowSpeed}s`,
     };
 
     const rowClass = direction === 'left' ? styles.scrollLeftRow : styles.scrollRightRow;

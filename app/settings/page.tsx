@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import styles from './page.module.css';
+import styles from './settings.module.css';
 import { Orbitron } from 'next/font/google';
 
 const orbitron = Orbitron({
@@ -312,8 +312,8 @@ export default function SettingsPage() {
                     <div className={styles.notes}>
                         <p>
                             Note: These settings will be applied immediately but will reset on
-                            application restart unless you update your environment variables or
-                            Kubernetes secrets.
+                            application restart. If you want the changes to persist, you&apos;ll
+                            need to update your environment variables or Kubernetes secrets.
                         </p>
                     </div>
                 </form>

@@ -3,10 +3,11 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styles from './InfiniteCarousel.module.css';
 import { Photo } from './Photo';
-import CarouselRow, { MIN_COUNT_FOR_MARQUEE } from './CarouselRow';
+import CarouselRow from './CarouselRow';
 import { shuffleArray } from './utils';
 import LoadingState from './LoadingState';
 import ErrorState from './ErrorState';
+import { usePublicSettings } from '@/app/hooks/usePublicSettings';
 
 interface InfiniteCarouselProps {
     pollInterval?: number;
@@ -44,6 +45,15 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Use our settings hook to get real-time settings
+    // Refresh settings every 30 seconds
+    const { settings } = usePublicSettings(30000);
+
+    // Parse the MIN_COUNT_FOR_MARQUEE setting
+    const minCountForMarquee = settings.MIN_COUNT_FOR_MARQUEE
+        ? parseInt(settings.MIN_COUNT_FOR_MARQUEE, 10)
+        : 6;
 
     // Use refs for row data to prevent unnecessary re-renders
     const rowsRef = useRef<Photo[][]>([]);
@@ -120,7 +130,7 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
             // If any single row has fewer than MIN_COUNT_FOR_MARQUEE,
             // or if we have more photos than allowed, recreate the rows
             const anyRowTooSmall = rowsRef.current.some(
-                row => getUniquePhotos(row).length < MIN_COUNT_FOR_MARQUEE
+                row => getUniquePhotos(row).length < minCountForMarquee
             );
 
             if (
@@ -157,7 +167,7 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
                 }
             }
         },
-        [createOptimalRows, maxPhotosPerRow]
+        [createOptimalRows, maxPhotosPerRow, minCountForMarquee]
     );
 
     // Callback for photo fetching that doesn't depend on the photos state
@@ -256,6 +266,7 @@ const InfiniteCarousel: React.FC<InfiniteCarouselProps> = ({
                         rowPhotos={rowPhotos}
                         key={`row-${rowIndex}`}
                         direction={direction}
+                        minCountForMarquee={minCountForMarquee}
                     />
                 );
             })}

@@ -11,40 +11,7 @@ import { NextResponse } from 'next/server';
 import { fileTypeFromBuffer } from 'file-type'; // Add this package for content validation
 import { Readable } from 'stream';
 import http from 'http';
-
-// Environment variables with strong typing and validation
-const ENV = {
-    S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID || '',
-    S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY || '',
-    NEXT_PUBLIC_S3_BUCKET_NAME: process.env.NEXT_PUBLIC_S3_BUCKET_NAME || '',
-    S3_REGION: process.env.S3_REGION || '',
-    NEXT_PUBLIC_S3_ENDPOINT: process.env.NEXT_PUBLIC_S3_ENDPOINT || '',
-    MAX_FILE_SIZE: parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '41943040', 10), // 40MB default
-    MULTIPART_THRESHOLD: parseInt(process.env.MULTIPART_THRESHOLD || '5242880', 10), // 5MB default
-    RATE_LIMIT_POINTS: parseInt(process.env.RATE_LIMIT_POINTS || '10', 10),
-    RATE_LIMIT_DURATION: parseInt(process.env.RATE_LIMIT_DURATION || '60', 10),
-    RETRY_COUNT: parseInt(process.env.RETRY_COUNT || '3', 10),
-    RETRY_DELAY_MS: parseInt(process.env.RETRY_DELAY_MS || '500', 10),
-    CORS_ORIGINS: (process.env.CORS_ORIGINS || '').split(',').filter(Boolean),
-    UPLOAD_PATH_PREFIX: process.env.UPLOAD_PATH_PREFIX || '',
-};
-
-// Validate required environment variables early
-function validateEnv() {
-    const requiredVars = [
-        'S3_ACCESS_KEY_ID',
-        'S3_SECRET_ACCESS_KEY',
-        'NEXT_PUBLIC_S3_BUCKET_NAME',
-        'S3_REGION',
-        'NEXT_PUBLIC_S3_ENDPOINT',
-    ];
-
-    const missing = requiredVars.filter(varName => !ENV[varName as keyof typeof ENV]);
-
-    if (missing.length > 0) {
-        throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-    }
-}
+import { runtimeSettings } from '@/app/lib/settingsService';
 
 // Allowed image MIME types with extensions
 const ALLOWED_MIME_TYPES = new Map([
@@ -101,26 +68,21 @@ function createNodeRequest(request: Request, bodyBuffer: Buffer): http.IncomingM
 
 // Create an in-memory rate limiter.
 const rateLimiter = new RateLimiterMemory({
-    points: ENV.RATE_LIMIT_POINTS,
-    duration: ENV.RATE_LIMIT_DURATION,
+    points: parseInt(process.env.RATE_LIMIT_POINTS || '10', 10),
+    duration: parseInt(process.env.RATE_LIMIT_DURATION || '60', 10),
 });
 
-// Create a global S3 client instance (lazy initialization)
-let s3Client: S3Client | null = null;
-
+// Get a fresh S3 client for each upload operation
 function getS3Client(): S3Client {
-    if (!s3Client) {
-        s3Client = new S3Client({
-            region: ENV.S3_REGION,
-            credentials: {
-                accessKeyId: ENV.S3_ACCESS_KEY_ID,
-                secretAccessKey: ENV.S3_SECRET_ACCESS_KEY,
-            },
-            endpoint: ENV.NEXT_PUBLIC_S3_ENDPOINT,
-            forcePathStyle: true,
-        });
-    }
-    return s3Client;
+    return new S3Client({
+        region: runtimeSettings.S3_REGION,
+        credentials: {
+            accessKeyId: runtimeSettings.S3_ACCESS_KEY_ID,
+            secretAccessKey: runtimeSettings.S3_SECRET_ACCESS_KEY,
+        },
+        endpoint: runtimeSettings.S3_ENDPOINT,
+        forcePathStyle: true,
+    });
 }
 
 // Check content type by examining file contents
@@ -156,7 +118,7 @@ async function validateFileContents(filePath: string, mimeType: string): Promise
 function generateSecureFilePath(originalFileName: string): string {
     // Create folder structure based on today's date
     const today = new Date();
-    const folderPath = `${ENV.UPLOAD_PATH_PREFIX}${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+    const folderPath = `${process.env.UPLOAD_PATH_PREFIX || ''}${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
 
     // Generate a UUID for the file name
     const fileName = `${uuidv4()}${path.extname(originalFileName || '')}`;
@@ -184,13 +146,11 @@ export async function POST(request: Request) {
     const requestLogger = logger.child({ requestId, ip, userAgent });
 
     try {
-        // Validate environment before proceeding
-        validateEnv();
-
         // Check CORS if configured
         const origin = request.headers.get('origin');
-        if (ENV.CORS_ORIGINS.length > 0 && origin) {
-            if (!ENV.CORS_ORIGINS.includes(origin) && !ENV.CORS_ORIGINS.includes('*')) {
+        const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').filter(Boolean);
+        if (corsOrigins.length > 0 && origin) {
+            if (!corsOrigins.includes(origin) && !corsOrigins.includes('*')) {
                 return createErrorResponse(403, 'CORS not allowed', 'Origin not permitted');
             }
         }
@@ -229,7 +189,9 @@ export async function POST(request: Request) {
 
         // Parse the multipart form data
         requestLogger.debug('Parsing form data');
-        const form = new IncomingForm({ maxFileSize: ENV.MAX_FILE_SIZE });
+        const form = new IncomingForm({
+            maxFileSize: parseInt(runtimeSettings.MAX_FILE_SIZE, 10),
+        });
 
         const { files } = await new Promise<{ files: Files }>((resolve, reject) => {
             form.parse(nodeReq, (err, _fields, files) => {
@@ -239,7 +201,7 @@ export async function POST(request: Request) {
         }).catch((err: unknown) => {
             if (err instanceof Error && err.message.includes('maxFileSize')) {
                 throw new Error(
-                    `File too large. Maximum size is ${ENV.MAX_FILE_SIZE / (1024 * 1024)}MB.`
+                    `File too large. Maximum size is ${parseInt(runtimeSettings.MAX_FILE_SIZE) / (1024 * 1024)}MB.`
                 );
             }
             if (err instanceof Error) {
@@ -308,7 +270,7 @@ export async function POST(request: Request) {
                     const fileStream = fs.createReadStream(file.filepath);
 
                     const uploadParams: PutObjectCommandInput = {
-                        Bucket: ENV.NEXT_PUBLIC_S3_BUCKET_NAME,
+                        Bucket: runtimeSettings.S3_BUCKET_NAME,
                         Key: fullPath,
                         Body: fileStream,
                         ContentType: reportedMimeType,
@@ -325,10 +287,11 @@ export async function POST(request: Request) {
 
                     const client = getS3Client();
 
-                    if (file.size > ENV.MULTIPART_THRESHOLD) {
+                    const multipartThreshold = parseInt(runtimeSettings.MULTIPART_THRESHOLD, 10);
+                    if (file.size > multipartThreshold) {
                         requestLogger.info('Using multipart upload', {
                             fileSize: file.size,
-                            threshold: ENV.MULTIPART_THRESHOLD,
+                            threshold: multipartThreshold,
                         });
 
                         const multipartUpload = new Upload({
@@ -348,8 +311,8 @@ export async function POST(request: Request) {
                     }
                 },
                 {
-                    retries: ENV.RETRY_COUNT,
-                    minTimeout: ENV.RETRY_DELAY_MS,
+                    retries: parseInt(process.env.RETRY_COUNT || '3', 10),
+                    minTimeout: parseInt(process.env.RETRY_DELAY_MS || '500', 10),
                     onRetry: (error, attempt) => {
                         requestLogger.warn(`Retry attempt ${attempt} after error`, { error });
                     },
@@ -361,7 +324,7 @@ export async function POST(request: Request) {
                 requestLogger.warn('Failed to clean up temporary file', { error });
             });
 
-            const fileUrl = `${ENV.NEXT_PUBLIC_S3_ENDPOINT}/${ENV.NEXT_PUBLIC_S3_BUCKET_NAME}/${fullPath}`;
+            const fileUrl = `${runtimeSettings.S3_ENDPOINT}/${runtimeSettings.S3_BUCKET_NAME}/${fullPath}`;
 
             requestLogger.info('File uploaded successfully', {
                 fileUrl,

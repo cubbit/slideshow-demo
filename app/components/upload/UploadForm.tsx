@@ -2,6 +2,7 @@
 
 import { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react';
 import styles from './UploadForm.module.css';
+import { usePublicSettings } from '@/app/hooks/usePublicSettings';
 
 interface UploadResponse {
     message: string;
@@ -17,11 +18,6 @@ interface ErrorResponse {
     errorId?: string;
     retryAfter?: number;
 }
-
-// Parse the environment variable or fallback to 40MB
-const MAX_FILE_SIZE = process.env.NEXT_PUBLIC_MAX_FILE_SIZE
-    ? parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE, 10)
-    : 40 * 1024 * 1024;
 
 // Supported image types
 const SUPPORTED_IMAGE_TYPES = [
@@ -49,6 +45,10 @@ const UploadForm: React.FC = () => {
     const [uploadResult, setUploadResult] = useState<{ url?: string; fileName?: string } | null>(
         null
     );
+
+    // Get settings including max file size - refresh every 30 seconds
+    const { settings } = usePublicSettings(30000);
+    const maxFileSize = parseInt(settings.MAX_FILE_SIZE || '41943040', 10); // Default to 40MB
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +79,7 @@ const UploadForm: React.FC = () => {
     };
 
     const isValidFileSize = (file: File): boolean => {
-        return file.size <= MAX_FILE_SIZE;
+        return file.size <= maxFileSize;
     };
 
     // Reset the form
@@ -113,23 +113,25 @@ const UploadForm: React.FC = () => {
                 setErrorMessage('Invalid file type. Only images are allowed.');
                 setUploadState('error');
                 e.target.value = '';
-                console.error('File validation failed: Invalid file type', {
-                    type: selectedFile.type,
-                });
+                // Use non-console logging or remove in production
+                // console.error('File validation failed: Invalid file type', {
+                //     type: selectedFile.type,
+                // });
                 return;
             }
 
             // Validate file size
             if (!isValidFileSize(selectedFile)) {
                 setErrorMessage(
-                    `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`
+                    `File too large. Maximum size is ${maxFileSize / (1024 * 1024)}MB.`
                 );
                 setUploadState('error');
                 e.target.value = '';
-                console.error('File validation failed: File too large', {
-                    size: selectedFile.size,
-                    maxSize: MAX_FILE_SIZE,
-                });
+                // Use non-console logging or remove in production
+                // console.error('File validation failed: File too large', {
+                //     size: selectedFile.size,
+                //     maxSize: maxFileSize,
+                // });
                 return;
             }
 
@@ -148,7 +150,8 @@ const UploadForm: React.FC = () => {
         if (!file) {
             setErrorMessage('Please select a file first.');
             setUploadState('error');
-            console.error('Upload attempted without selecting a file');
+            // Use non-console logging or remove in production
+            // console.error('Upload attempted without selecting a file');
             return;
         }
 
@@ -158,13 +161,6 @@ const UploadForm: React.FC = () => {
             setErrorMessage(null);
             setSuccessMessage(null);
             setUploadResult(null);
-
-            // Log upload start
-            console.log('Starting file upload', {
-                fileName: file.name,
-                fileSize: file.size,
-                fileType: file.type,
-            });
 
             // Create form data
             const formData = new FormData();
@@ -186,7 +182,8 @@ const UploadForm: React.FC = () => {
                         percentComplete === 75 ||
                         percentComplete === 100
                     ) {
-                        console.log(`Upload progress: ${percentComplete}%`);
+                        // Use non-console logging or remove in production
+                        // console.log(`Upload progress: ${percentComplete}%`);
                     }
                 }
             });
@@ -233,12 +230,6 @@ const UploadForm: React.FC = () => {
             // Wait for upload to complete
             const response = await uploadPromise;
 
-            // Log successful upload
-            console.log('File uploaded successfully', {
-                fileName: response.fileName,
-                fileUrl: response.fileUrl,
-            });
-
             // Handle success with result display
             setSuccessMessage('Photo uploaded successfully to Cubbit DS3!');
             setUploadState('success');
@@ -278,7 +269,7 @@ const UploadForm: React.FC = () => {
                         <h3>Upload a Photo to Cubbit DS3</h3>
                         <p>Select a photo from your device</p>
                         <p className={styles.sizeLimit}>
-                            Max size: {MAX_FILE_SIZE / (1024 * 1024)}MB
+                            Max size: {maxFileSize / (1024 * 1024)}MB
                         </p>
                     </div>
 

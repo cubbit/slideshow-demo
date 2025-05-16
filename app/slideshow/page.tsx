@@ -4,6 +4,7 @@ import styles from './page.module.css';
 import { Orbitron } from 'next/font/google';
 import InfiniteCarousel from '../components/carousel/InfiniteCarousel';
 import Image from 'next/image';
+import { usePublicSettings } from '@/app/hooks/usePublicSettings';
 
 const orbitron = Orbitron({
     weight: '500',
@@ -11,11 +12,14 @@ const orbitron = Orbitron({
     style: 'normal',
 });
 
-const S3_ENDPOINT = process.env.NEXT_PUBLIC_S3_ENDPOINT;
-const S3_BUCKET = process.env.NEXT_PUBLIC_S3_BUCKET_NAME;
-
 export default function SlideshowPage() {
     const today = new Date();
+
+    // Use settings hook to get the latest S3 settings
+    const { settings } = usePublicSettings();
+
+    const s3Endpoint = settings.S3_ENDPOINT || '';
+    const s3Bucket = settings.S3_BUCKET_NAME || '';
 
     const formattedDate = today.toLocaleDateString(undefined, {
         weekday: 'long',
@@ -30,10 +34,8 @@ export default function SlideshowPage() {
                 <Image src="/cubbit.png" alt="Cubbit logo" width={30} height={40} priority />
 
                 <h1>{formattedDate}</h1>
-                {S3_ENDPOINT !== undefined ? (
-                    <span>{`URL: ${S3_ENDPOINT}/${S3_BUCKET}`}</span>
-                ) : (
-                    <></>
+                {s3Endpoint !== '' && s3Bucket !== '' && (
+                    <span>{`URL: ${s3Endpoint}/${s3Bucket}`}</span>
                 )}
             </header>
 

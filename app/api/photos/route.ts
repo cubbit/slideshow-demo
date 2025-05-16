@@ -1,22 +1,7 @@
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 import winston from 'winston';
-
-// Create the S3 client
-const createS3Client = () => {
-    const { S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION, NEXT_PUBLIC_S3_ENDPOINT } =
-        process.env;
-
-    return new S3Client({
-        region: S3_REGION!,
-        credentials: {
-            accessKeyId: S3_ACCESS_KEY_ID!,
-            secretAccessKey: S3_SECRET_ACCESS_KEY!,
-        },
-        endpoint: NEXT_PUBLIC_S3_ENDPOINT,
-        forcePathStyle: true,
-    });
-};
+import { runtimeSettings } from '@/app/lib/settingsService';
 
 // Configure Winston logger with structured logging
 const logger = winston.createLogger({
@@ -35,16 +20,23 @@ export async function GET() {
         const day = String(today.getDate()).padStart(2, '0');
         const prefix = `${year}/${month}/${day}/`;
 
-        const s3Client = createS3Client();
+        // Create a new S3 client with current settings
+        const s3Client = new S3Client({
+            region: runtimeSettings.S3_REGION,
+            credentials: {
+                accessKeyId: runtimeSettings.S3_ACCESS_KEY_ID,
+                secretAccessKey: runtimeSettings.S3_SECRET_ACCESS_KEY,
+            },
+            endpoint: runtimeSettings.S3_ENDPOINT,
+            forcePathStyle: true,
+        });
 
         const command = new ListObjectsV2Command({
-            Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
+            Bucket: runtimeSettings.S3_BUCKET_NAME,
             Prefix: prefix,
         });
 
-        logger.debug(
-            `Performing GET request to ${process.env.NEXT_PUBLIC_S3_BUCKET_NAME!}/${prefix}`
-        );
+        logger.debug(`Performing GET request to ${runtimeSettings.S3_BUCKET_NAME}/${prefix}`);
 
         const response = await s3Client.send(command);
         const objects = response.Contents || [];
@@ -57,7 +49,7 @@ export async function GET() {
             .map(obj => ({
                 key: obj.Key,
                 // Make sure the URL is properly formed
-                url: `${process.env.NEXT_PUBLIC_S3_ENDPOINT}/${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}/${obj.Key}`,
+                url: `${runtimeSettings.S3_ENDPOINT}/${runtimeSettings.S3_BUCKET_NAME}/${obj.Key}`,
                 lastModified: obj.LastModified?.toISOString(),
                 size: obj.Size,
             }));
