@@ -27,7 +27,7 @@
         "file-type": "^20.5.0",
         "formidable": "^3.5.4",
         "jsonwebtoken": "^9.0.2",
-        "next": "^15.3.2",
+        "next": "^15.3.3",
         "rate-limiter-flexible": "^7.1.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
