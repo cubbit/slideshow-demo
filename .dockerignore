@@ -1,26 +1,16 @@
-# Node dependencies (we'll install them inside the image)
 node_modules
 npm-debug.log
-
-# Next.js build output (built in Docker)
 .next
 out
 build
 dist
-
-# Local environment files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Git related files
+.env*
 .git
 .gitignore
-
-# IDE and editor files
 .vscode
+.idea
 *.swp
-
-# Helm files
 helm
+data
+*.db
+.DS_Store

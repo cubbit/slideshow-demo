@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+@theme {
+    /* Cubbit Blue Scale */
+    --color-blue-50: #E6F0FF;
+    --color-blue-100: #B0CFFF;
+    --color-blue-200: #8AB8FF;
+    --color-blue-300: #5498FF;
+    --color-blue-400: #3384FF;
+    --color-blue-500: #0065FF;
+    --color-blue-600: #005CE8;
+    --color-blue-700: #0048B5;
+    --color-blue-800: #00388C;
+    --color-blue-900: #002A6B;
+
+    /* Brand Colors */
+    --color-brand-black: #0E0E15;
+    --color-brand-white: #F7F8FA;
+
+    /* Semantic Colors */
+    --color-success: #26AB75;
+    --color-error: #D32C20;
+    --color-warning: #C49224;
+
+    /* Font */
+    --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Dark mode variables (slideshow) */
+.dark {
+    --text-primary: rgba(255, 255, 255, 0.9);
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-tertiary: rgba(255, 255, 255, 0.5);
+    --text-disabled: rgba(255, 255, 255, 0.3);
+    --text-accent: #5498FF;
+    --border-primary: rgba(255, 255, 255, 0.3);
+    --border-secondary: rgba(255, 255, 255, 0.1);
+    --border-accent: #5498FF;
+    --bg-primary: #0E0E15;
+    --bg-secondary: #1a1a24;
+    --bg-tertiary: #252530;
+}
+
+/* Light mode variables (admin, upload) */
+.light {
+    --text-primary: rgba(14, 14, 21, 0.9);
+    --text-secondary: rgba(14, 14, 21, 0.7);
+    --text-tertiary: rgba(14, 14, 21, 0.5);
+    --text-disabled: rgba(14, 14, 21, 0.3);
+    --text-accent: #0065FF;
+    --border-primary: rgba(14, 14, 21, 0.3);
+    --border-secondary: rgba(14, 14, 21, 0.1);
+    --border-accent: #0065FF;
+    --bg-primary: #F7F8FA;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #E8EAED;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

@@ -11,112 +11,93 @@ spec:
       {{- include "cubbit-slideshow.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "cubbit-slideshow.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
           env:
-            # Set Next.js logging level
             - name: LOG_LEVEL
-              value: {{ .Values.loggingLevel | quote }}
-            # Public environment variables
-            - name: NEXT_PUBLIC_S3_BUCKET_NAME
-              value: {{ .Values.cubbit.S3_BUCKET_NAME | quote }}
-            - name: NEXT_PUBLIC_MAX_FILE_SIZE
-              value: {{ .Values.cubbit.MAX_FILE_SIZE | quote }}
-            - name: NEXT_PUBLIC_SLIDESHOW_SPEED_S
-              value: {{ .Values.cubbit.SLIDESHOW_SPEED_S | quote }}
-            - name: NEXT_PUBLIC_MIN_COUNT_FOR_MARQUEE
-              value: {{ .Values.cubbit.MIN_COUNT_FOR_MARQUEE | default "6" | quote }}
-            - name: NEXT_PUBLIC_S3_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: S3_ENDPOINT
-            # Private environment variables from Secret
+              value: {{ .Values.app.logLevel | quote }}
+            - name: DATA_DIR
+              value: {{ .Values.app.dataDir | quote }}
+            - name: S3_BUCKET_NAME
+              value: {{ .Values.s3.bucketName | quote }}
+            - name: S3_PREFIX
+              value: {{ .Values.s3.prefix | quote }}
             - name: S3_REGION
+              value: {{ .Values.s3.region | quote }}
+            - name: SLIDESHOW_SPEED_S
+              value: {{ .Values.slideshow.speedS | quote }}
+            - name: SLIDESHOW_ROWS
+              value: {{ .Values.slideshow.rows | quote }}
+            - name: MIN_COUNT_FOR_MARQUEE
+              value: {{ .Values.slideshow.minCountForMarquee | quote }}
+            - name: CACHE_TTL_S
+              value: {{ .Values.slideshow.cacheTtlS | quote }}
+            - name: MAX_FILE_SIZE
+              value: {{ .Values.slideshow.maxFileSize | quote }}
+            - name: MULTIPART_THRESHOLD
+              value: {{ .Values.slideshow.multipartThreshold | quote }}
+            - name: S3_ENDPOINT
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: S3_REGION
+                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  key: s3-endpoint
             - name: S3_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: S3_ACCESS_KEY_ID
+                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  key: s3-access-key-id
             - name: S3_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: S3_SECRET_ACCESS_KEY
-            - name: MULTIPART_THRESHOLD
+                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  key: s3-secret-access-key
+            {{- if .Values.auth.adminPassword }}
+            - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: MULTIPART_THRESHOLD
-            # Settings authentication
-            - name: AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: AUTH_USERNAME
-            - name: AUTH_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: AUTH_PASSWORD
+                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  key: admin-password
+            {{- end }}
+            {{- if .Values.auth.jwtSecret }}
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}-secret
-                  key: JWT_SECRET
-            # Add NODE_ENV for production
-            - name: NODE_ENV
-              value: "production"
-          ports:
-            - name: http
-              containerPort: 3000
-              protocol: TCP
+                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  key: jwt-secret
+            {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.app.dataDir }}
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: http
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            timeoutSeconds: 3
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      volumes:
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "cubbit-slideshow.fullname" . }}-data
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

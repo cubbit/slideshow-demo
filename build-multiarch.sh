@@ -1,96 +1,50 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-# Configuration
-IMAGE_NAME="cubbit/slideshow-demo"
-PLATFORMS="linux/amd64,linux/arm64"
-
-# Colors for output
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Parse command line arguments
+IMAGE_NAME="cubbit/slideshow"
 VERSION="latest"
-NODE_VERSION="18"
+NODE_VERSION="20"
 PUSH=false
 
-print_usage() {
-    echo -e "${YELLOW}Usage:${NC} $0 [-v version] [-n node_version] [-p]"
-    echo -e "  ${BLUE}-v version${NC}      : Tag version (default: latest)"
-    echo -e "  ${BLUE}-n node_version${NC} : Node.js version to use (default: 18)"
-    echo -e "  ${BLUE}-p${NC}              : Push to registry after build"
-    echo -e "  ${BLUE}-h${NC}              : Show this help message"
-}
-
-while getopts ":v:n:ph" opt; do
+while getopts "v:n:p" opt; do
     case $opt in
-    v)
-        VERSION="$OPTARG"
-        ;;
-    n)
-        NODE_VERSION="$OPTARG"
-        ;;
-    p)
-        PUSH=true
-        ;;
-    h)
-        print_usage
-        exit 0
-        ;;
-    \?)
-        echo -e "${YELLOW}Invalid option: -$OPTARG${NC}" >&2
-        print_usage
-        exit 1
-        ;;
-    :)
-        echo -e "${YELLOW}Option -$OPTARG requires an argument.${NC}" >&2
-        print_usage
-        exit 1
-        ;;
+        v) VERSION="$OPTARG" ;;
+        n) NODE_VERSION="$OPTARG" ;;
+        p) PUSH=true ;;
+        *) echo "Usage: $0 [-v version] [-n node_version] [-p push]"; exit 1 ;;
     esac
 done
 
-# Check if Docker and Buildx are available
-if ! command -v docker &>/dev/null; then
-    echo -e "${YELLOW}Docker is not installed. Please install Docker first.${NC}"
-    exit 1
-fi
+echo "Building ${IMAGE_NAME}:${VERSION} (Node ${NODE_VERSION})"
 
-# Setup buildx if not already set up
-echo -e "${BLUE}Setting up Docker Buildx...${NC}"
-docker buildx ls | grep -q mybuilder || docker buildx create --name mybuilder --use
+# Ensure buildx builder exists
+docker buildx inspect mybuilder > /dev/null 2>&1 || \
+    docker buildx create --name mybuilder --use
 
-# Build the multi-architecture image
-echo -e "${BLUE}Building multi-architecture image for: ${PLATFORMS}${NC}"
-echo -e "${BLUE}Image: ${IMAGE_NAME}:${VERSION} with Node.js ${NODE_VERSION}${NC}"
+docker buildx use mybuilder
 
-BUILD_ARGS="--platform ${PLATFORMS} --build-arg NODE_VERSION=${NODE_VERSION} -t ${IMAGE_NAME}:${VERSION}"
+build_args=(
+    --platform linux/amd64,linux/arm64
+    --build-arg "NODE_VERSION=${NODE_VERSION}"
+    -t "${IMAGE_NAME}:${VERSION}"
+    -f Dockerfile
+)
 
-# Add latest tag if version is not latest
 if [ "$VERSION" != "latest" ]; then
-    BUILD_ARGS="$BUILD_ARGS -t ${IMAGE_NAME}:latest"
+    build_args+=(-t "${IMAGE_NAME}:latest")
 fi
 
-# Add --push flag if PUSH is true
 if [ "$PUSH" = true ]; then
-    echo -e "${BLUE}Will push to registry after build.${NC}"
-    BUILD_ARGS="$BUILD_ARGS --push"
+    build_args+=(--push)
 else
-    echo -e "${BLUE}Will NOT push to registry (use -p to push).${NC}"
-    BUILD_ARGS="$BUILD_ARGS --load"
+    # Multi-arch requires --push; fall back to local single-arch build
+    local_platform="linux/$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+    build_args=(--platform "$local_platform" --build-arg "NODE_VERSION=${NODE_VERSION}" -t "${IMAGE_NAME}:${VERSION}" -f Dockerfile --load)
+    if [ "$VERSION" != "latest" ]; then
+        build_args+=(-t "${IMAGE_NAME}:latest")
+    fi
 fi
 
-echo -e "${BLUE}Running build...${NC}"
-docker buildx build $BUILD_ARGS -f Dockerfile.multiarch .
+docker buildx build "${build_args[@]}" .
 
-# Success message
-echo -e "${GREEN}Build completed successfully!${NC}"
-if [ "$PUSH" = true ]; then
-    echo -e "${GREEN}Images have been pushed to the registry.${NC}"
-    echo -e "${GREEN}Pull with: docker pull ${IMAGE_NAME}:${VERSION}${NC}"
-else
-    echo -e "${GREEN}Images are available locally.${NC}"
-    echo -e "${GREEN}To push to the registry, run with -p flag: $0 -v ${VERSION} -p${NC}"
-fi
+echo "Done: ${IMAGE_NAME}:${VERSION}"

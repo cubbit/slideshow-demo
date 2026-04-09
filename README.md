@@ -1,198 +1,126 @@
-# Cubbit Slideshow Demo
+# Cubbit Slideshow
 
-![Slideshow](./assets/slideshow.png)
+A modern photo slideshow app powered by S3-compatible storage. Upload photos from mobile, display them in a beautiful infinite-scrolling carousel.
 
-A modern web application for uploading and displaying photos in a beautiful slideshow using Cubbit DS3 or any S3-compatible storage.
+## Features
 
-## 📸 Features
+- **Mobile-first upload**: Multi-photo selection with per-file progress tracking
+- **Infinite carousel**: Configurable rows with alternating scroll directions and GPU-accelerated CSS animations
+- **Real-time updates**: New photos appear in the slideshow within seconds, highlighted with a glow animation
+- **Interactive slideshow**: Hover to pause rows, click to zoom, Space key to toggle pause
+- **Photo management**: Download or delete photos from the zoom modal
+- **Admin panel**: Configure S3 backend, slideshow settings, and change password — all persisted in SQLite
+- **S3 health monitoring**: Live connectivity indicator in the slideshow header
+- **Auto-generated thumbnails**: 480x480 JPEG thumbnails for fast carousel loading
+- **Declarative configuration**: All settings configurable via environment variables
+- **Kubernetes-ready**: Helm chart with PVC for persistent settings
 
-- **Simple Upload Interface**: Easily upload photos from any device
-- **Dynamic Slideshow**: Automatically refreshing slideshow with smooth animations
-- **S3 Integration**: Works with Cubbit DS3 or any S3-compatible storage
-- **Administrative Settings**: Secure admin panel to configure storage settings
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Kubernetes Deployment**: Ready-to-use Helm chart for easy deployment
-- **Multi-Architecture Support**: Docker images available for both amd64 and arm64
-
-## 📷 Screenshots
-
-![Upload](./assets/upload.png)
-![Slideshow](./assets/slideshow.png)
-![Settings](./assets/settings.png)
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ (or 20+ for optimal performance)
-- npm 9+
-- S3-compatible storage (Cubbit DS3, AWS S3, MinIO, etc.)
+- Node.js 20+
+- Docker (for MinIO local dev)
 
-### Development Setup
-
-1. Clone the repository:
-
-    ```bash
-    git clone <https://github.com/cubbit/slideshow-demo.git>
-    cd slideshow-demo
-    ```
-
-    Install dependencies:
-
-    ```bash
-    npm install
-    ```
-
-2. Create a `.env.local` file with your S3 credentials:
-
-    ```
-    # Public settings (available on client)
-
-    NEXT_PUBLIC_S3_BUCKET_NAME=your-bucket-name
-    NEXT_PUBLIC_MAX_FILE_SIZE=10485760
-    NEXT_PUBLIC_SLIDESHOW_SPEED_S=40
-    NEXT_PUBLIC_MIN_COUNT_FOR_MARQUEE=6
-    NEXT_PUBLIC_S3_ENDPOINT=<https://your-s3-endpoint>
-
-    # Private settings (server only)
-
-    S3_REGION=eu-central-1
-    S3_ACCESS_KEY_ID=your-access-key
-    S3_SECRET_ACCESS_KEY=your-secret-key
-    MULTIPART_THRESHOLD=5242880
-
-    # Authentication for settings page
-
-    AUTH_USERNAME=admin
-    AUTH_PASSWORD=secure-password
-    JWT_SECRET=your-random-jwt-secret
-    ```
-
-3. Start the development server:
-
-    ```bash
-    npm run dev
-    ```
-
-4. Open <http://localhost:3000> in your browser.
-
-## 🐳 Docker Deployment
-
-### Building Docker Images
-
-#### Standard Build
+### Local Development
 
 ```bash
-docker build -t cubbit/slideshow-demo:latest .
+# Start MinIO (S3-compatible storage)
+docker compose up -d
+
+# Copy and configure environment
+cp .env.local.example .env.local
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
 ```
 
-#### Multi-Architecture Build
+Open http://localhost:3000 — the admin password is logged to the console on first run.
 
-The repository includes a script for building multi-architecture images (amd64/arm64):
+### Configuration
+
+All settings can be configured via environment variables (see `.env.local.example`) or through the admin panel at `/admin`.
+
+| Variable | Default | Description |
+|---|---|---|
+| `S3_BUCKET_NAME` | `slideshow` | S3 bucket name |
+| `S3_PREFIX` | `` | Key prefix for photos |
+| `S3_ENDPOINT` | `` | S3 endpoint URL |
+| `S3_REGION` | `eu-central-1` | S3 region |
+| `S3_ACCESS_KEY_ID` | `` | S3 access key |
+| `S3_SECRET_ACCESS_KEY` | `` | S3 secret key |
+| `ADMIN_PASSWORD` | (generated) | Admin password (logged on first run if not set) |
+| `JWT_SECRET` | (generated) | JWT signing secret |
+| `SLIDESHOW_SPEED_S` | `200` | Animation speed in seconds |
+| `SLIDESHOW_ROWS` | `3` | Number of carousel rows |
+| `MAX_FILE_SIZE` | `10485760` | Max upload size in bytes |
+| `DATA_DIR` | `./data` | SQLite database directory |
+| `LOG_LEVEL` | `info` | Logging level |
+
+## Docker
+
+### Build
 
 ```bash
-# Build image with default settings (Node.js 18, tag: latest)
+# Standard build
+docker build -t cubbit/slideshow:latest .
 
-npm run docker:build
+# Multi-architecture (amd64 + arm64)
+./build-multiarch.sh -v 2.0.0
 
-# Build with specific Node.js version and tag
-
-npm run docker:build -- -v 1.2.0 -n 20
-
-# Build and push to registry
-
-npm run docker:build -- -v 1.2.0 -p
+# Build and push
+./build-multiarch.sh -v 2.0.0 -p
 ```
 
-For more advanced build options, see the [Multi-Architecture Build Guide](docs/MULTIARCH-BUILD-GUIDE.md).
-
-## ☸️ Kubernetes Deployment with Helm
-
-The application can be deployed to Kubernetes using the included Helm chart.
-
-### Quick Start
+### Run
 
 ```bash
+docker run -p 3000:3000 \
+  -e S3_ENDPOINT=https://s3.cubbit.eu \
+  -e S3_BUCKET_NAME=my-bucket \
+  -e S3_ACCESS_KEY_ID=key \
+  -e S3_SECRET_ACCESS_KEY=secret \
+  -v slideshow-data:/data \
+  cubbit/slideshow:latest
+```
 
-# Create your values file
+## Kubernetes (Helm)
 
+```bash
+# Create values file
 cp helm/values.yaml my-values.yaml
+# Edit my-values.yaml with your S3 credentials
 
-# Edit my-values.yaml with your S3 credentials and settings
-
-nano my-values.yaml
-
-# Install the chart
-
+# Install
 helm install slideshow ./helm -f my-values.yaml
+
+# Upgrade
+helm upgrade slideshow ./helm -f my-values.yaml
 ```
 
-### Advanced Configuration
+## Architecture
 
-For complete installation and configuration details, see [Installation Guide](docs/HOW-TO-INSTALL.md).
+- **Next.js 15** with App Router, Server Components, and Server Actions
+- **SQLite** (better-sqlite3) for persistent settings and auth
+- **AWS SDK v3** for S3 operations with multipart upload support
+- **sharp** for thumbnail generation on upload
+- **jose** for Edge-compatible JWT authentication
+- **Tailwind CSS v4** with Cubbit design system tokens
 
-## ⚙️ Configuration Options
+### Routes
 
-The application can be configured via environment variables or through the settings UI.
+| Route | Description |
+|---|---|
+| `/` | Slideshow (default) |
+| `/upload` | Mobile-first photo upload |
+| `/admin` | Admin panel (protected) |
+| `/admin/login` | Admin login |
+| `/admin/settings` | S3 and slideshow configuration |
+| `/admin/password` | Change admin password |
 
-Key Configuration Parameters
+## License
 
-|       Parameter       |                  Description                  |     Default     |
-| :-------------------: | :-------------------------------------------: | :-------------: |
-|    S3_BUCKET_NAME     |             Name of the S3 bucket             |    slideshow    |
-|     MAX_FILE_SIZE     |       Maximum upload file size (bytes)        | 10485760 (10MB) |
-|   SLIDESHOW_SPEED_S   |   Duration of slideshow animation (seconds)   |       40        |
-| MIN_COUNT_FOR_MARQUEE | Minimum photos before enabling marquee effect |        6        |
-|       S3_REGION       |                   S3 region                   |  eu-central-1   |
-|      S3_ENDPOINT      |                S3 endpoint URL                |    Required     |
-|   S3_ACCESS_KEY_ID    |                 S3 access key                 |    Required     |
-| S3_SECRET_ACCESS_KEY  |                 S3 secret key                 |    Required     |
-
-## Settings UI
-
-Once deployed, you can access the settings page at `/settings` using the credentials defined in your configuration.
-
-## 🔒 Security Considerations
-
-- Change default admin credentials before deployment
-- Use HTTPS in production with a valid TLS certificate
-- Consider rate limiting and firewall rules for public instances
-- Review Kubernetes security best practices if deploying to production clusters
-
-## 🧑‍💻 Development
-
-### Core Technologies
-
-- **Next.js**: React framework with server-side rendering
-- **TypeScript**: Type-safe JavaScript
-- **Tailwind CSS**: Utility-first CSS framework
-- **AWS SDK**: For S3 integration
-- **Docker/Kubernetes**: For containerization and orchestration
-
-### Project Structure
-
-- `/app`: Next.js application code
-- `/public`: Static assets
-- `/helm`: Kubernetes Helm chart
-- `/app/components`: React components
-- `/app/api`: API routes
-
-### Running Tests
-
-```bash
-npm test
-```
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+MIT

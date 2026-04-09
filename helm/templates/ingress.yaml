@@ -1,10 +1,8 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "cubbit-slideshow.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "cubbit-slideshow.fullname" . }}
   labels:
     {{- include "cubbit-slideshow.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
@@ -12,16 +10,12 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
@@ -33,9 +27,9 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ $fullName }}
+                name: {{ include "cubbit-slideshow.fullname" $ }}
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ $.Values.service.port }}
           {{- end }}
     {{- end }}
 {{- end }}
