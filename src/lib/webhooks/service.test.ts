@@ -147,6 +147,47 @@ describe('emitWebhookEvent', () => {
         expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
     });
 
+    it('dispatches photos.download.started event', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photos.download.started', { photoCount: 10, date: '2026/04/10' });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photos.download.started');
+        expect(payload.data.photoCount).toBe(10);
+    });
+
+    it('dispatches photos.download.progress event', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photos.download.progress', {
+            photoCount: 10,
+            completedCount: 5,
+            date: '2026/04/10',
+        });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photos.download.progress');
+        expect(payload.data.photoCount).toBe(10);
+        expect(payload.data.completedCount).toBe(5);
+    });
+
+    it('dispatches batch.progress event', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('batch.progress', {
+            batchId: 'b-1',
+            fileCount: 5,
+            completedCount: 3,
+            successCount: 2,
+            failedCount: 1,
+        });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('batch.progress');
+        expect(payload.data.completedCount).toBe(3);
+    });
+
     it('dispatches photos.download.completed event with date', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
