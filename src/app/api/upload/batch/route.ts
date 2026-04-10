@@ -14,10 +14,14 @@ export async function POST(request: NextRequest) {
 
         const batchId = uuid();
 
-        emitWebhookEvent('batch.started', {
-            batchId,
-            fileCount,
-        } satisfies BatchStartedData, { batchId });
+        emitWebhookEvent(
+            'batch.started',
+            {
+                batchId,
+                fileCount,
+            } satisfies BatchStartedData,
+            { batchId }
+        );
 
         return NextResponse.json({ batchId });
     } catch {
@@ -34,12 +38,16 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: 'batchId is required' }, { status: 400 });
         }
 
-        emitWebhookEvent('batch.completed', {
-            batchId,
-            fileCount: Number(fileCount) || 0,
-            successCount: Number(successCount) || 0,
-            failedCount: Number(failedCount) || 0,
-        } satisfies BatchCompletedData, { batchId });
+        emitWebhookEvent(
+            'batch.completed',
+            {
+                batchId,
+                fileCount: Number(fileCount) || 0,
+                successCount: Number(successCount) || 0,
+                failedCount: Number(failedCount) || 0,
+            } satisfies BatchCompletedData,
+            { batchId }
+        );
 
         return NextResponse.json({ success: true });
     } catch {

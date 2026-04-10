@@ -97,6 +97,6 @@ export function dispatchWebhook(webhook: WebhookConfig, payload: WebhookPayload)
 export async function deliverOnce(
     webhook: WebhookConfig,
     payload: WebhookPayload
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; status?: number; error?: string }> {
     return sendRequest(webhook, payload);
 }

@@ -16,7 +16,10 @@ const MAX_CARD_HEIGHT = 280; // px — don't go bigger than this
  * @param maxRows - configured maximum rows (from settings)
  * @returns { rowCount, cardSize } — optimal row count and card dimensions
  */
-export function useOptimalRows(photoCount: number, maxRows: number): { rowCount: number; cardSize: number } {
+export function useOptimalRows(
+    photoCount: number,
+    maxRows: number
+): { rowCount: number; cardSize: number } {
     const [result, setResult] = useState({ rowCount: maxRows, cardSize: 240 });
 
     useEffect(() => {

@@ -15,7 +15,7 @@ const cache = new Map<string, CacheEntry>();
 
 function isImageKey(key: string): boolean {
     const ext = key.split('.').pop()?.toLowerCase() || '';
-    return SUPPORTED_EXTENSIONS.includes(ext as typeof SUPPORTED_EXTENSIONS[number]);
+    return SUPPORTED_EXTENSIONS.includes(ext as (typeof SUPPORTED_EXTENSIONS)[number]);
 }
 
 export function invalidatePhotoCache(datePrefix?: string): void {
@@ -29,9 +29,7 @@ export function invalidatePhotoCache(datePrefix?: string): void {
 async function fetchAllPhotos(datePrefix: string): Promise<PhotoMeta[]> {
     const settings = getSettings();
     const client = getS3Client();
-    const prefix = settings.prefix
-        ? `${settings.prefix}/${datePrefix}/`
-        : `${datePrefix}/`;
+    const prefix = settings.prefix ? `${settings.prefix}/${datePrefix}/` : `${datePrefix}/`;
 
     const photos: PhotoMeta[] = [];
     let continuationToken: string | undefined;
@@ -51,10 +49,10 @@ async function fetchAllPhotos(datePrefix: string): Promise<PhotoMeta[]> {
             // Skip thumbnails
             if (obj.Key.includes(`/${THUMBNAIL_PREFIX}/`)) continue;
 
-            const thumbnailKey = obj.Key.replace(
-                /\/([^/]+)$/,
-                `/${THUMBNAIL_PREFIX}/$1`
-            ).replace(/\.[^.]+$/, '_thumb.jpg');
+            const thumbnailKey = obj.Key.replace(/\/([^/]+)$/, `/${THUMBNAIL_PREFIX}/$1`).replace(
+                /\.[^.]+$/,
+                '_thumb.jpg'
+            );
 
             photos.push({
                 key: obj.Key,
@@ -69,9 +67,7 @@ async function fetchAllPhotos(datePrefix: string): Promise<PhotoMeta[]> {
     } while (continuationToken);
 
     // Sort by most recent first
-    photos.sort(
-        (a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
-    );
+    photos.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
 
     return photos;
 }

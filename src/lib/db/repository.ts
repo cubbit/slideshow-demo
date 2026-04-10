@@ -31,9 +31,9 @@ export function getAuth(): AuthRow {
 
 export function updatePasswordHash(newHash: string): void {
     const db = getDb();
-    db.prepare(
-        "UPDATE auth SET password_hash = ?, updated_at = datetime('now') WHERE id = 1"
-    ).run(newHash);
+    db.prepare("UPDATE auth SET password_hash = ?, updated_at = datetime('now') WHERE id = 1").run(
+        newHash
+    );
 }
 
 export function getSettings(): AllSettings {

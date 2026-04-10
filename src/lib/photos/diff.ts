@@ -16,7 +16,11 @@ export function shuffleArray<T>(arr: T[]): T[] {
  * @param visibleCount - how many items are roughly visible on screen (default 5).
  *   New photos are inserted within this range so users see them appear.
  */
-export function diffPhotos(existing: PhotoMeta[], incoming: PhotoMeta[], visibleCount = 5): PhotoMeta[] {
+export function diffPhotos(
+    existing: PhotoMeta[],
+    incoming: PhotoMeta[],
+    visibleCount = 5
+): PhotoMeta[] {
     const incomingKeys = new Set(incoming.map(p => p.key));
     const existingKeys = new Set(existing.map(p => p.key));
 

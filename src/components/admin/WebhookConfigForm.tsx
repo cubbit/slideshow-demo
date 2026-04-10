@@ -94,7 +94,9 @@ export default function WebhookConfigForm() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState<WebhookFormState>(DEFAULT_FORM);
-    const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(
+        null
+    );
     const [saving, setSaving] = useState(false);
     const [testing, setTesting] = useState<string | null>(null);
 
@@ -142,7 +144,10 @@ export default function WebhookConfigForm() {
         setSaving(false);
 
         if (result.success) {
-            setStatus({ type: 'success', message: editingId ? 'Webhook updated' : 'Webhook created' });
+            setStatus({
+                type: 'success',
+                message: editingId ? 'Webhook updated' : 'Webhook created',
+            });
             await loadWebhooks();
             resetForm();
         } else {
@@ -191,14 +196,23 @@ export default function WebhookConfigForm() {
                         border: '1px solid rgba(255,255,255,0.08)',
                     }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '8px',
+                        }}
+                    >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span
                                 style={{
                                     width: '8px',
                                     height: '8px',
                                     borderRadius: '50%',
-                                    backgroundColor: wh.enabled ? '#22c55e' : 'rgba(255,255,255,0.2)',
+                                    backgroundColor: wh.enabled
+                                        ? '#22c55e'
+                                        : 'rgba(255,255,255,0.2)',
                                     display: 'inline-block',
                                 }}
                             />
@@ -238,7 +252,15 @@ export default function WebhookConfigForm() {
                             </button>
                         </div>
                     </div>
-                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div
+                        style={{
+                            fontSize: '12px',
+                            color: 'rgba(255,255,255,0.4)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
                         {wh.url}
                     </div>
                 </div>
@@ -246,16 +268,26 @@ export default function WebhookConfigForm() {
 
             {/* Status message */}
             {status && (
-                <p style={{ fontSize: '13px', color: status.type === 'success' ? '#22c55e' : '#ef4444' }}>
+                <p
+                    style={{
+                        fontSize: '13px',
+                        color: status.type === 'success' ? '#22c55e' : '#ef4444',
+                    }}
+                >
                     {status.message}
                 </p>
             )}
 
             {/* Add / Edit form */}
             {showForm ? (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form
+                    onSubmit={handleSubmit}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                >
                     <div>
-                        <label className={labelClass} style={labelStyle}>Name</label>
+                        <label className={labelClass} style={labelStyle}>
+                            Name
+                        </label>
                         <input
                             className={inputClass}
                             style={inputStyle}
@@ -266,7 +298,9 @@ export default function WebhookConfigForm() {
                     </div>
 
                     <div>
-                        <label className={labelClass} style={labelStyle}>URL *</label>
+                        <label className={labelClass} style={labelStyle}>
+                            URL *
+                        </label>
                         <input
                             className={inputClass}
                             style={inputStyle}
@@ -278,14 +312,23 @@ export default function WebhookConfigForm() {
                     </div>
 
                     <div>
-                        <label className={labelClass} style={labelStyle}>Secret</label>
+                        <label className={labelClass} style={labelStyle}>
+                            Secret
+                        </label>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <input
                                 className={inputClass}
-                                style={{ ...inputStyle, flex: 1, fontFamily: 'monospace', fontSize: '12px' }}
+                                style={{
+                                    ...inputStyle,
+                                    flex: 1,
+                                    fontFamily: 'monospace',
+                                    fontSize: '12px',
+                                }}
                                 placeholder="HMAC-SHA256 signing secret"
                                 value={form.secret}
-                                onChange={e => setForm(prev => ({ ...prev, secret: e.target.value }))}
+                                onChange={e =>
+                                    setForm(prev => ({ ...prev, secret: e.target.value }))
+                                }
                             />
                             <button
                                 type="button"
@@ -296,13 +339,18 @@ export default function WebhookConfigForm() {
                                 Generate
                             </button>
                         </div>
-                        <p style={hintStyle}>Used to sign webhook payloads. Leave empty to skip signing.</p>
+                        <p style={hintStyle}>
+                            Used to sign webhook payloads. Leave empty to skip signing.
+                        </p>
                     </div>
 
                     {/* Event toggles */}
                     {EVENT_GROUPS.map(group => (
                         <div key={group.label}>
-                            <label className={labelClass} style={{ ...labelStyle, marginBottom: '10px' }}>
+                            <label
+                                className={labelClass}
+                                style={{ ...labelStyle, marginBottom: '10px' }}
+                            >
                                 {group.label}
                             </label>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
@@ -322,7 +370,10 @@ export default function WebhookConfigForm() {
                                             type="checkbox"
                                             checked={form[ev.key as EventKey]}
                                             onChange={e =>
-                                                setForm(prev => ({ ...prev, [ev.key]: e.target.checked }))
+                                                setForm(prev => ({
+                                                    ...prev,
+                                                    [ev.key]: e.target.checked,
+                                                }))
                                             }
                                             style={{ accentColor: '#0065FF' }}
                                         />

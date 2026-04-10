@@ -17,8 +17,12 @@ export async function listAllKeys(date?: string): Promise<string[]> {
     const settings = getSettings();
     const client = getS3Client();
     const prefix = settings.prefix
-        ? date ? `${settings.prefix}/${date}/` : `${settings.prefix}/`
-        : date ? `${date}/` : '';
+        ? date
+            ? `${settings.prefix}/${date}/`
+            : `${settings.prefix}/`
+        : date
+          ? `${date}/`
+          : '';
 
     const keys: string[] = [];
     let continuationToken: string | undefined;
@@ -70,8 +74,12 @@ export async function deleteAllPhotos(date?: string): Promise<number> {
     const settings = getSettings();
     const client = getS3Client();
     const prefix = settings.prefix
-        ? date ? `${settings.prefix}/${date}/` : `${settings.prefix}/`
-        : date ? `${date}/` : '';
+        ? date
+            ? `${settings.prefix}/${date}/`
+            : `${settings.prefix}/`
+        : date
+          ? `${date}/`
+          : '';
 
     let totalDeleted = 0;
     let continuationToken: string | undefined;

@@ -38,7 +38,15 @@ export default function LoginForm() {
     }
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0E0E15' }}>
+        <div
+            style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#0E0E15',
+            }}
+        >
             <div style={{ width: '100%', maxWidth: '400px', padding: '0 16px' }}>
                 <div
                     style={{
@@ -50,22 +58,48 @@ export default function LoginForm() {
                     }}
                 >
                     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: '16px', backgroundColor: 'rgba(0,101,255,0.1)', marginBottom: '20px' }}>
+                        <div
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '56px',
+                                height: '56px',
+                                borderRadius: '16px',
+                                backgroundColor: 'rgba(0,101,255,0.1)',
+                                marginBottom: '20px',
+                            }}
+                        >
                             <CubbitLogo size={28} className="text-blue-400" />
                         </div>
                         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#FFFFFF' }}>
                             Cubbit Slideshow
                         </h1>
-                        <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                        <p
+                            style={{
+                                fontSize: '14px',
+                                color: 'rgba(255,255,255,0.4)',
+                                marginTop: '6px',
+                            }}
+                        >
                             Sign in to the admin panel
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <form
+                        onSubmit={handleSubmit}
+                        style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+                    >
                         <div>
                             <label
                                 htmlFor="password"
-                                style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}
+                                style={{
+                                    display: 'block',
+                                    fontSize: '14px',
+                                    fontWeight: 500,
+                                    color: 'rgba(255,255,255,0.5)',
+                                    marginBottom: '8px',
+                                }}
                             >
                                 Password
                             </label>
@@ -94,8 +128,17 @@ export default function LoginForm() {
                         </div>
 
                         {error && (
-                            <div style={{ padding: '12px 16px', borderRadius: '12px', backgroundColor: 'rgba(211,44,32,0.1)', border: '1px solid rgba(211,44,32,0.2)' }}>
-                                <p style={{ fontSize: '14px', fontWeight: 500, color: '#E63629' }}>{error}</p>
+                            <div
+                                style={{
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    backgroundColor: 'rgba(211,44,32,0.1)',
+                                    border: '1px solid rgba(211,44,32,0.2)',
+                                }}
+                            >
+                                <p style={{ fontSize: '14px', fontWeight: 500, color: '#E63629' }}>
+                                    {error}
+                                </p>
                             </div>
                         )}
 
@@ -122,7 +165,14 @@ export default function LoginForm() {
                     </form>
                 </div>
 
-                <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '24px' }}>
+                <p
+                    style={{
+                        textAlign: 'center',
+                        fontSize: '12px',
+                        color: 'rgba(255,255,255,0.3)',
+                        marginTop: '24px',
+                    }}
+                >
                     Password is shown in server logs on first run
                 </p>
             </div>

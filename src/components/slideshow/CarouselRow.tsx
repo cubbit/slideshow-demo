@@ -5,7 +5,6 @@ import styles from './CarouselRow.module.css';
 import PhotoCard from './PhotoCard';
 import type { PhotoMeta } from '@/types/photo';
 
-
 interface Props {
     rowIndex: number;
     photos: PhotoMeta[];
@@ -62,7 +61,7 @@ export default memo(function CarouselRow({
     // Base: ~6 cards worth of movement per speedS seconds, independent of row photo count.
     const pxPerSecond = useMemo(() => {
         return (6 * cardWidth) / speedS;
-    }, [speedS]);
+    }, [speedS, cardWidth]);
 
     // When new photos appear, scroll so the first new one is centered on screen
     useEffect(() => {
@@ -77,7 +76,7 @@ export default memo(function CarouselRow({
             const halfWidth = photos.length * cardWidth;
             offsetRef.current = ((targetOffset % halfWidth) + halfWidth) % halfWidth;
         }
-    }, [photos, isAnimated]);
+    }, [photos, isAnimated, cardWidth]);
 
     // Repeat photos enough times to fill at least 2x the viewport width for seamless looping.
     // Use state so the initial render matches the server (2 repeats), then adjust after mount.
@@ -87,6 +86,7 @@ export default memo(function CarouselRow({
         const singleSetWidth = photos.length * cardWidth;
         const needed = Math.max(2, Math.ceil((window.innerWidth * 2) / singleSetWidth));
         if (needed !== repeats) setRepeats(needed);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- repeats is the setter target, not a dependency
     }, [photos.length, cardWidth, isAnimated]);
 
     const displayPhotos = useMemo(() => {
@@ -134,7 +134,7 @@ export default memo(function CarouselRow({
             cancelAnimationFrame(rafRef.current);
             lastTimeRef.current = 0;
         };
-    }, [isAnimated, direction, pxPerSecond, photos.length]);
+    }, [isAnimated, direction, pxPerSecond, photos.length, cardWidth]);
 
     // Trackpad/wheel scroll handler
     const handleWheel = useCallback((e: React.WheelEvent) => {
@@ -184,4 +184,4 @@ export default memo(function CarouselRow({
             </div>
         </div>
     );
-}, arePropsEqual)
+}, arePropsEqual);

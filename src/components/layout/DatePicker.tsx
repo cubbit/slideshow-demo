@@ -31,7 +31,9 @@ export default function DatePicker() {
                     borderRadius: '6px',
                     transition: 'background-color 0.2s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)')}
+                onMouseEnter={e =>
+                    (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)')
+                }
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
                 {displayDate}

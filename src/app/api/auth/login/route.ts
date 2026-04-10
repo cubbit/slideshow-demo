@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
         const parsed = loginSchema.safeParse(body);
 
         if (!parsed.success) {
-            return NextResponse.json(
-                { error: parsed.error.errors[0].message },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
         }
 
         const { password } = parsed.data;

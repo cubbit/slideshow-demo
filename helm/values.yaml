@@ -62,6 +62,16 @@ auth:
   adminPassword: ""
   jwtSecret: ""
 
+# Webhooks (optional — seeded on first run if no webhooks exist in DB)
+# Single webhook shorthand:
+webhook:
+  url: ""
+  secret: ""
+  name: ""
+# Multiple webhooks (JSON array):
+# webhooks: '[{"name":"LED Controller","url":"https://led.example.com/hook","secret":"s3cret"}]'
+webhooks: ""
+
 probes:
   liveness:
     initialDelaySeconds: 15

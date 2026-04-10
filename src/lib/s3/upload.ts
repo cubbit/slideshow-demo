@@ -7,7 +7,12 @@ import { v4 as uuid } from 'uuid';
 import { getS3Client } from './client';
 import { getTodayPrefix, buildS3Url } from './utils';
 import { getSettings } from '@/lib/settings/service';
-import { SUPPORTED_MIME_TYPES, THUMBNAIL_SIZE, THUMBNAIL_QUALITY, THUMBNAIL_PREFIX } from '@/lib/constants';
+import {
+    SUPPORTED_MIME_TYPES,
+    THUMBNAIL_SIZE,
+    THUMBNAIL_QUALITY,
+    THUMBNAIL_PREFIX,
+} from '@/lib/constants';
 import logger from '@/lib/logger';
 
 interface UploadResult {
@@ -27,7 +32,7 @@ export async function uploadPhoto(
     const detectedType = await fileTypeFromBuffer(buffer);
     const effectiveMime = detectedType?.mime || mimeType;
 
-    if (!SUPPORTED_MIME_TYPES.includes(effectiveMime as typeof SUPPORTED_MIME_TYPES[number])) {
+    if (!SUPPORTED_MIME_TYPES.includes(effectiveMime as (typeof SUPPORTED_MIME_TYPES)[number])) {
         throw new Error(`Unsupported file type: ${effectiveMime}`);
     }
 
@@ -59,7 +64,7 @@ export async function uploadPhoto(
             partSize: 10 * 1024 * 1024, // 10MB parts
         });
         if (onProgress) {
-            upload.on('httpUploadProgress', (progress) => {
+            upload.on('httpUploadProgress', progress => {
                 if (progress.loaded != null && progress.total != null) {
                     onProgress(progress.loaded, progress.total);
                 }

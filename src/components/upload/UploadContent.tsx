@@ -21,14 +21,24 @@ export default function UploadContent({ initialEnabled }: { initialEnabled: bool
 
     if (!uploadsEnabled) {
         return (
-            <div style={{
-                padding: '24px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(211,44,32,0.08)',
-                border: '1px solid rgba(211,44,32,0.2)',
-                textAlign: 'center',
-            }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF5350" strokeWidth="1.5" style={{ margin: '0 auto 12px' }}>
+            <div
+                style={{
+                    padding: '24px',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(211,44,32,0.08)',
+                    border: '1px solid rgba(211,44,32,0.2)',
+                    textAlign: 'center',
+                }}
+            >
+                <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#EF5350"
+                    strokeWidth="1.5"
+                    style={{ margin: '0 auto 12px' }}
+                >
                     <circle cx="12" cy="12" r="10" />
                     <line x1="15" y1="9" x2="9" y2="15" />
                     <line x1="9" y1="9" x2="15" y2="15" />

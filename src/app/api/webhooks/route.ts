@@ -13,10 +13,7 @@ export async function POST(request: NextRequest) {
         const parsed = webhookSchema.safeParse(body);
 
         if (!parsed.success) {
-            return NextResponse.json(
-                { error: parsed.error.errors[0].message },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
         }
 
         const webhook = createWebhook(parsed.data);

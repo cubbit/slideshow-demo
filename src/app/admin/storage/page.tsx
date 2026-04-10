@@ -8,7 +8,10 @@ export default function StoragePage() {
     const settings = getSettings();
 
     return (
-        <AdminSection title="S3 Storage" description="Configure the S3-compatible backend for photo storage">
+        <AdminSection
+            title="S3 Storage"
+            description="Configure the S3-compatible backend for photo storage"
+        >
             <S3ConfigForm initialSettings={settings} />
         </AdminSection>
     );

@@ -53,10 +53,7 @@ export default function PhotoModal({ photo, onClose }: Props) {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-modal-backdrop"
             onClick={onClose}
         >
-            <div
-                className="modal-panel animate-modal-content"
-                onClick={e => e.stopPropagation()}
-            >
+            <div className="modal-panel animate-modal-content" onClick={e => e.stopPropagation()}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photo.url} alt="" />
 

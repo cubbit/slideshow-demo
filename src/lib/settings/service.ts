@@ -1,4 +1,7 @@
-import { getSettings as dbGetSettings, updateSettings as dbUpdateSettings } from '@/lib/db/repository';
+import {
+    getSettings as dbGetSettings,
+    updateSettings as dbUpdateSettings,
+} from '@/lib/db/repository';
 import type { AllSettings, PublicSettings } from '@/types/settings';
 
 let cachedSettings: AllSettings | null = null;

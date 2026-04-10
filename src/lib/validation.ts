@@ -31,7 +31,10 @@ export const webhookSchema = z.object({
     url: z
         .string()
         .url('Must be a valid URL')
-        .refine(u => u.startsWith('http://') || u.startsWith('https://'), 'Only HTTP/HTTPS URLs are allowed'),
+        .refine(
+            u => u.startsWith('http://') || u.startsWith('https://'),
+            'Only HTTP/HTTPS URLs are allowed'
+        ),
     secret: z.string().default(''),
     enabled: boolPreprocess.default(true),
     onUploadStarted: boolPreprocess.default(true),

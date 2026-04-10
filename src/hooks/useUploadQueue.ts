@@ -143,9 +143,8 @@ export function useUploadQueue() {
         formData.append('file', item.file);
 
         // Send the selected date so photos go to the correct day folder
-        const selectedDate = typeof sessionStorage !== 'undefined'
-            ? sessionStorage.getItem('slideshow-date')
-            : null;
+        const selectedDate =
+            typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('slideshow-date') : null;
         if (selectedDate) {
             const today = new Date().toISOString().split('T')[0];
             if (selectedDate !== today) {
@@ -197,19 +196,16 @@ export function useUploadQueue() {
         xhr.send(formData);
     }, [items]);
 
-    const addFiles = useCallback(
-        (files: File[]) => {
-            dispatch({ type: 'ADD_FILES', files });
-            startBatch(files.length).then(batchId => {
-                if (batchId) {
-                    batchRef.current = { id: batchId, fileCount: files.length };
-                    // If uploads already finished while awaiting batch creation, complete now
-                    tryCompleteBatch(itemsRef.current, batchRef);
-                }
-            });
-        },
-        []
-    );
+    const addFiles = useCallback((files: File[]) => {
+        dispatch({ type: 'ADD_FILES', files });
+        startBatch(files.length).then(batchId => {
+            if (batchId) {
+                batchRef.current = { id: batchId, fileCount: files.length };
+                // If uploads already finished while awaiting batch creation, complete now
+                tryCompleteBatch(itemsRef.current, batchRef);
+            }
+        });
+    }, []);
 
     const removeFile = useCallback((id: string) => {
         dispatch({ type: 'REMOVE', id });
