@@ -100,7 +100,7 @@ describe('emitWebhookEvent', () => {
         const progressData = {
             fileName: 'test.jpg',
             percentage: 50,
-            bytesUploaded: 500,
+            bytesTransferred: 500,
             totalBytes: 1000,
         };
 
@@ -119,7 +119,7 @@ describe('emitWebhookEvent', () => {
         const progressData = {
             fileName: 'test.jpg',
             percentage: 50,
-            bytesUploaded: 500,
+            bytesTransferred: 500,
             totalBytes: 1000,
         };
 
