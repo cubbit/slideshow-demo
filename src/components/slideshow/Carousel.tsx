@@ -24,6 +24,15 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const { photos, newKeys } = usePhotos(initialPhotos, apiDate);
     const settings = usePublicSettings(initialSettings);
     const s3Status = useS3Health();
+
+    // Detect mobile — must be before any conditional returns
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
     const { rowCount: autoRowCount, cardSize: autoCardSize } = useOptimalRows(photos.length, settings.rows);
     const baseCardSize = settings.autoRows ? autoCardSize : 240;
     const [sizeOverride, setSizeOverride] = useState<number | null>(null);
@@ -169,15 +178,6 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
             </div>
         );
     }
-
-    // Detect mobile
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-        const check = () => setIsMobile(window.innerWidth < 768);
-        check();
-        window.addEventListener('resize', check);
-        return () => window.removeEventListener('resize', check);
-    }, []);
 
     if (photos.length === 0 || s3Status === 'error') {
         return <EmptyState />;
