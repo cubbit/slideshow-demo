@@ -76,6 +76,7 @@ export default async function SlideshowPage() {
                     <DatePicker />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                    <S3HealthBadgeClient />
                     {settings.endpoint && (
                         <span
                             style={{
@@ -86,12 +87,16 @@ export default async function SlideshowPage() {
                                 padding: '6px 12px',
                                 borderRadius: '6px',
                                 border: '1px solid rgba(255,255,255,0.06)',
+                                maxWidth: '300px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
                             }}
+                            title={settings.endpoint}
                         >
                             {settings.endpoint}
                         </span>
                     )}
-                    <S3HealthBadgeClient />
                     <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
                     <HeaderUploadLink />
                     <Link

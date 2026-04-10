@@ -121,16 +121,23 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         return () => window.removeEventListener('keydown', handleKey);
     }, [togglePause, selectedPhoto]);
 
-    // Show splash while initial photos are loading (avoid flash of empty state)
-    const [ready, setReady] = useState(initialPhotos.length > 0);
+    // Show splash for at least 2s, then until shuffled photos are ready
+    const [splashDone, setSplashDone] = useState(false);
+    const [minTimeElapsed, setMinTimeElapsed] = useState(false);
     useEffect(() => {
-        if (photos.length > 0) setReady(true);
-        // Give the first fetch 3s before showing empty state
-        const timer = setTimeout(() => setReady(true), 3000);
+        const timer = setTimeout(() => setMinTimeElapsed(true), 2000);
         return () => clearTimeout(timer);
-    }, [photos.length]);
+    }, []);
+    useEffect(() => {
+        if (minTimeElapsed && (displayPhotos.length > 0 || s3Status === 'error')) {
+            setSplashDone(true);
+        }
+        // Fallback: show content after 5s regardless
+        const fallback = setTimeout(() => setSplashDone(true), 5000);
+        return () => clearTimeout(fallback);
+    }, [minTimeElapsed, displayPhotos.length, s3Status]);
 
-    if (!ready) {
+    if (!splashDone) {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', gap: '20px' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
