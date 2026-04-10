@@ -26,12 +26,14 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const s3Status = useS3Health();
     const { rowCount: autoRowCount, cardSize: autoCardSize } = useOptimalRows(photos.length, settings.rows);
     const baseCardSize = settings.autoRows ? autoCardSize : 240;
-    const [sizeOverride, setSizeOverride] = useState<number | null>(() => {
-        if (typeof window === 'undefined') return null;
-        const stored = localStorage.getItem('slideshow-card-size');
-        return stored ? parseInt(stored, 10) : null;
-    });
+    const [sizeOverride, setSizeOverride] = useState<number | null>(null);
     const cardSize = sizeOverride ?? baseCardSize;
+
+    // Restore slider value from localStorage after mount (avoids hydration mismatch)
+    useEffect(() => {
+        const stored = localStorage.getItem('slideshow-card-size');
+        if (stored) setSizeOverride(parseInt(stored, 10));
+    }, []);
 
     const handleSizeChange = useCallback((value: number) => {
         setSizeOverride(value);

@@ -32,7 +32,7 @@ export default memo(function PhotoCard({ photo, isNew, priority, size = 240, onC
         <div
             className={`${styles.photo} ${isNew ? styles.highlight : ''}`}
             onClick={() => onClick?.(photo)}
-            style={{ width: size, height: size, backgroundColor: loaded ? 'transparent' : 'rgba(255,255,255,0.06)' }}
+            style={{ width: `${size}px`, height: `${size}px`, backgroundColor: loaded ? 'transparent' : 'rgba(255,255,255,0.06)' }}
         >
             {!loaded && (
                 <div style={{
