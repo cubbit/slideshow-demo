@@ -5,7 +5,6 @@ import styles from './CarouselRow.module.css';
 import PhotoCard from './PhotoCard';
 import type { PhotoMeta } from '@/types/photo';
 
-const CARD_WIDTH = 248; // 240px card + 8px gap
 
 interface Props {
     rowIndex: number;
@@ -15,19 +14,19 @@ interface Props {
     minCount: number;
     paused: boolean;
     newKeys: Set<string>;
+    cardSize?: number;
     onPhotoClick: (photo: PhotoMeta) => void;
     onMouseEnter: (row: number) => void;
     onMouseLeave: () => void;
 }
 
 function arePropsEqual(prev: Props, next: Props): boolean {
-    // Only re-render if photos, paused, or relevant newKeys changed
     if (prev.photos !== next.photos) return false;
     if (prev.paused !== next.paused) return false;
     if (prev.direction !== next.direction) return false;
     if (prev.speedS !== next.speedS) return false;
     if (prev.minCount !== next.minCount) return false;
-    // Check if newKeys relevant to THIS row changed
+    if (prev.cardSize !== next.cardSize) return false;
     const prevHasNew = prev.photos.some(p => prev.newKeys.has(p.key));
     const nextHasNew = next.photos.some(p => next.newKeys.has(p.key));
     if (prevHasNew !== nextHasNew) return false;
@@ -42,10 +41,12 @@ export default memo(function CarouselRow({
     minCount,
     paused,
     newKeys,
+    cardSize = 240,
     onPhotoClick,
     onMouseEnter,
     onMouseLeave,
 }: Props) {
+    const cardWidth = cardSize + 8; // card + gap
     const isAnimated = photos.length >= minCount;
     const trackRef = useRef<HTMLDivElement>(null);
     const offsetRef = useRef(0);
@@ -60,7 +61,7 @@ export default memo(function CarouselRow({
     // Constant velocity across all rows (pixels per second).
     // Base: ~6 cards worth of movement per speedS seconds, independent of row photo count.
     const pxPerSecond = useMemo(() => {
-        return (6 * CARD_WIDTH) / speedS;
+        return (6 * cardWidth) / speedS;
     }, [speedS]);
 
     // When new photos appear, scroll so the first new one is centered on screen
@@ -72,8 +73,8 @@ export default memo(function CarouselRow({
 
         if (newIndex >= 0 && typeof window !== 'undefined') {
             const viewportCenter = window.innerWidth / 2;
-            const targetOffset = newIndex * CARD_WIDTH - viewportCenter + CARD_WIDTH / 2;
-            const halfWidth = photos.length * CARD_WIDTH;
+            const targetOffset = newIndex * cardWidth - viewportCenter + cardWidth / 2;
+            const halfWidth = photos.length * cardWidth;
             offsetRef.current = ((targetOffset % halfWidth) + halfWidth) % halfWidth;
         }
     }, [photos, isAnimated]);
@@ -88,7 +89,7 @@ export default memo(function CarouselRow({
     useEffect(() => {
         if (!isAnimated || !trackRef.current) return;
 
-        const halfWidth = photos.length * CARD_WIDTH;
+        const halfWidth = photos.length * cardWidth;
 
         function animate(time: number) {
             if (!lastTimeRef.current) lastTimeRef.current = time;
@@ -143,6 +144,7 @@ export default memo(function CarouselRow({
                         photo={photo}
                         isNew={newKeys.has(photo.key)}
                         priority={i < 5}
+                        size={cardSize}
                         onClick={onPhotoClick}
                     />
                 ))}
@@ -164,6 +166,7 @@ export default memo(function CarouselRow({
                         photo={photo}
                         isNew={newKeys.has(photo.key)}
                         priority={i < 10}
+                        size={cardSize}
                         onClick={onPhotoClick}
                     />
                 ))}

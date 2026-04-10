@@ -8,10 +8,11 @@ interface Props {
     photo: PhotoMeta;
     isNew?: boolean;
     priority?: boolean;
+    size?: number;
     onClick?: (photo: PhotoMeta) => void;
 }
 
-export default memo(function PhotoCard({ photo, isNew, priority, onClick }: Props) {
+export default memo(function PhotoCard({ photo, isNew, priority, size = 240, onClick }: Props) {
     const [loaded, setLoaded] = useState(false);
     const [src, setSrc] = useState(photo.thumbnailUrl);
     const [hidden, setHidden] = useState(false);
@@ -31,7 +32,7 @@ export default memo(function PhotoCard({ photo, isNew, priority, onClick }: Prop
         <div
             className={`${styles.photo} ${isNew ? styles.highlight : ''}`}
             onClick={() => onClick?.(photo)}
-            style={{ backgroundColor: loaded ? 'transparent' : 'rgba(255,255,255,0.06)' }}
+            style={{ width: size, height: size, backgroundColor: loaded ? 'transparent' : 'rgba(255,255,255,0.06)' }}
         >
             {!loaded && (
                 <div style={{

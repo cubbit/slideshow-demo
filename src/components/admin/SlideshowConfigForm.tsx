@@ -131,8 +131,18 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
                     <p className={hintClass} style={hintStyle}>Duration for a full scroll cycle (10-600s)</p>
                 </div>
                 <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                        <label className={labelClass} style={{ ...labelStyle, marginBottom: 0 }}>Number of Rows</label>
+                    <label className={labelClass} style={labelStyle}>Number of Rows</label>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <input
+                            className={inputClass}
+                            style={{ ...inputStyle, flex: 1, opacity: settings.autoRows ? 0.3 : 1 }}
+                            type="number"
+                            value={settings.rows}
+                            onChange={e => handleChange('rows', parseInt(e.target.value))}
+                            min={1}
+                            max={10}
+                            disabled={settings.autoRows}
+                        />
                         <button
                             type="button"
                             onClick={() => {
@@ -140,32 +150,24 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
                                 setStatus(null);
                             }}
                             style={{
-                                fontSize: '11px',
-                                fontWeight: 600,
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                border: 'none',
+                                height: '40px',
+                                padding: '0 16px',
+                                borderRadius: '6px',
+                                border: settings.autoRows ? '1px solid rgba(0,101,255,0.3)' : '1px solid rgba(255,255,255,0.1)',
                                 cursor: 'pointer',
-                                backgroundColor: settings.autoRows ? 'rgba(0,101,255,0.15)' : 'rgba(255,255,255,0.08)',
+                                backgroundColor: settings.autoRows ? 'rgba(0,101,255,0.12)' : 'rgba(255,255,255,0.04)',
                                 color: settings.autoRows ? '#5498FF' : 'rgba(255,255,255,0.4)',
+                                fontSize: '13px',
+                                fontWeight: 600,
                                 transition: 'all 0.15s',
+                                whiteSpace: 'nowrap',
                             }}
                         >
                             Auto
                         </button>
                     </div>
-                    <input
-                        className={inputClass}
-                        style={{ ...inputStyle, opacity: settings.autoRows ? 0.4 : 1 }}
-                        type="number"
-                        value={settings.rows}
-                        onChange={e => handleChange('rows', parseInt(e.target.value))}
-                        min={1}
-                        max={10}
-                        disabled={settings.autoRows}
-                    />
                     <p className={hintClass} style={hintStyle}>
-                        {settings.autoRows ? 'Calculated based on screen size' : 'Fixed number of rows'}
+                        {settings.autoRows ? 'Rows calculated based on screen size' : 'Fixed number of rows'}
                     </p>
                 </div>
                 <div>

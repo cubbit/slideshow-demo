@@ -10,8 +10,10 @@ const defaultSettings: PublicSettings = {
     endpoint: '',
     speedS: 200,
     rows: 3,
+    autoRows: true,
     minCountForMarquee: 6,
     maxFileSize: 10485760,
+    uploadsEnabled: true,
 };
 
 export function usePublicSettings(initial?: PublicSettings) {

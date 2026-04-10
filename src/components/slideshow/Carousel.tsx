@@ -24,8 +24,11 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const { photos, newKeys } = usePhotos(initialPhotos, apiDate);
     const settings = usePublicSettings(initialSettings);
     const s3Status = useS3Health();
-    const autoRowCount = useOptimalRows(photos.length, settings.rows);
+    const { rowCount: autoRowCount, cardSize: autoCardSize } = useOptimalRows(photos.length, settings.rows);
     const effectiveRows = settings.autoRows ? autoRowCount : settings.rows;
+    const baseCardSize = settings.autoRows ? autoCardSize : 240;
+    const [sizeOverride, setSizeOverride] = useState<number | null>(null);
+    const cardSize = sizeOverride ?? baseCardSize;
     const [globalPaused, setGlobalPaused] = useState(false);
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [selectedPhoto, setSelectedPhoto] = useState<PhotoMeta | null>(null);
@@ -115,20 +118,80 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                     minCount={settings.minCountForMarquee}
                     paused={globalPaused || hoveredRow === i}
                     newKeys={newKeys}
+                    cardSize={cardSize}
                     onPhotoClick={handlePhotoClick}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                 />
             ))}
 
-            {/* Pause button */}
-            <button
-                onClick={togglePause}
-                className={`fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all z-10${!globalPaused ? ' animate-pause-ring' : ''}`}
-                aria-label={globalPaused ? 'Resume slideshow' : 'Pause slideshow'}
-            >
-                {globalPaused ? '▶' : '⏸'}
-            </button>
+            {/* Bottom controls */}
+            <div style={{
+                position: 'fixed',
+                bottom: 24,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                backgroundColor: 'rgba(22,22,33,0.8)',
+                backdropFilter: 'blur(12px)',
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                padding: '8px 16px',
+                zIndex: 10,
+            }}>
+                {/* Pause/Resume */}
+                <button
+                    onClick={togglePause}
+                    style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        color: 'rgba(255,255,255,0.7)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        transition: 'all 0.15s',
+                    }}
+                    aria-label={globalPaused ? 'Resume slideshow' : 'Pause slideshow'}
+                >
+                    {globalPaused ? '▶' : '⏸'}
+                </button>
+
+                <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+
+                {/* Size slider */}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                <input
+                    type="range"
+                    min={120}
+                    max={320}
+                    value={cardSize}
+                    onChange={e => setSizeOverride(parseInt(e.target.value))}
+                    style={{
+                        width: '120px',
+                        accentColor: '#0065FF',
+                        cursor: 'pointer',
+                    }}
+                    aria-label="Photo size"
+                />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+            </div>
 
             {/* Photo modal */}
             {selectedPhoto && (
