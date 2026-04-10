@@ -25,45 +25,72 @@ interface WebhookRow {
     updated_at: string;
 }
 
-const EVENT_TO_COLUMN: Record<WebhookEventType, keyof WebhookRow> = {
-    'upload.started': 'on_upload_started',
-    'upload.progress': 'on_upload_progress',
-    'upload.completed': 'on_upload_completed',
-    'upload.failed': 'on_upload_failed',
-    'batch.started': 'on_batch_started',
-    'batch.completed': 'on_batch_completed',
-    'photo.download.started': 'on_photo_download_started',
-    'photo.download.completed': 'on_photo_download_completed',
-    'photos.download.started': 'on_photos_download_started',
-    'photos.download.completed': 'on_photos_download_completed',
-    'photo.deleted': 'on_photo_deleted',
-    'photos.deleted': 'on_photos_deleted',
-    's3.health.changed': 'on_s3_health_changed',
-};
+/**
+ * Single source of truth mapping event types to their DB column and config field.
+ * Adding a new event only requires a new entry here (plus the schema migration).
+ */
+const EVENT_FIELDS: {
+    event: WebhookEventType;
+    column: keyof WebhookRow;
+    configKey: keyof WebhookConfig;
+}[] = [
+    { event: 'upload.started', column: 'on_upload_started', configKey: 'onUploadStarted' },
+    { event: 'upload.progress', column: 'on_upload_progress', configKey: 'onUploadProgress' },
+    { event: 'upload.completed', column: 'on_upload_completed', configKey: 'onUploadCompleted' },
+    { event: 'upload.failed', column: 'on_upload_failed', configKey: 'onUploadFailed' },
+    { event: 'batch.started', column: 'on_batch_started', configKey: 'onBatchStarted' },
+    { event: 'batch.completed', column: 'on_batch_completed', configKey: 'onBatchCompleted' },
+    {
+        event: 'photo.download.started',
+        column: 'on_photo_download_started',
+        configKey: 'onPhotoDownloadStarted',
+    },
+    {
+        event: 'photo.download.completed',
+        column: 'on_photo_download_completed',
+        configKey: 'onPhotoDownloadCompleted',
+    },
+    {
+        event: 'photos.download.started',
+        column: 'on_photos_download_started',
+        configKey: 'onPhotosDownloadStarted',
+    },
+    {
+        event: 'photos.download.completed',
+        column: 'on_photos_download_completed',
+        configKey: 'onPhotosDownloadCompleted',
+    },
+    { event: 'photo.deleted', column: 'on_photo_deleted', configKey: 'onPhotoDeleted' },
+    { event: 'photos.deleted', column: 'on_photos_deleted', configKey: 'onPhotosDeleted' },
+    { event: 's3.health.changed', column: 'on_s3_health_changed', configKey: 'onS3HealthChanged' },
+];
+
+const EVENT_TO_COLUMN: Record<WebhookEventType, keyof WebhookRow> = Object.fromEntries(
+    EVENT_FIELDS.map(f => [f.event, f.column])
+) as Record<WebhookEventType, keyof WebhookRow>;
+
+const EVENT_COLUMNS = EVENT_FIELDS.map(f => f.column);
+const EVENT_CONFIG_KEYS = EVENT_FIELDS.map(f => f.configKey);
 
 function rowToConfig(row: WebhookRow): WebhookConfig {
-    return {
+    const config: Record<string, unknown> = {
         id: row.id,
         name: row.name,
         url: row.url,
         secret: row.secret,
         enabled: row.enabled === 1,
-        onUploadStarted: row.on_upload_started === 1,
-        onUploadProgress: row.on_upload_progress === 1,
-        onUploadCompleted: row.on_upload_completed === 1,
-        onUploadFailed: row.on_upload_failed === 1,
-        onBatchStarted: row.on_batch_started === 1,
-        onBatchCompleted: row.on_batch_completed === 1,
-        onPhotoDownloadStarted: row.on_photo_download_started === 1,
-        onPhotoDownloadCompleted: row.on_photo_download_completed === 1,
-        onPhotosDownloadStarted: row.on_photos_download_started === 1,
-        onPhotosDownloadCompleted: row.on_photos_download_completed === 1,
-        onPhotoDeleted: row.on_photo_deleted === 1,
-        onPhotosDeleted: row.on_photos_deleted === 1,
-        onS3HealthChanged: row.on_s3_health_changed === 1,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     };
+    for (const { column, configKey } of EVENT_FIELDS) {
+        config[configKey] = (row[column] as number) === 1;
+    }
+    return config as unknown as WebhookConfig;
+}
+
+/** Convert a WebhookConfig (or partial) into ordered boolean params for SQL statements. */
+function eventBoolParams(config: Record<string, unknown>): number[] {
+    return EVENT_CONFIG_KEYS.map(key => (config[key] ? 1 : 0));
 }
 
 export function getAllWebhooks(): WebhookConfig[] {
@@ -88,42 +115,36 @@ export function getWebhooksForEvent(event: WebhookEventType): WebhookConfig[] {
     return rows.map(rowToConfig);
 }
 
+const INSERT_COLUMNS = ['id', 'name', 'url', 'secret', 'enabled', ...EVENT_COLUMNS].join(', ');
+const INSERT_PLACEHOLDERS = Array.from(
+    { length: 5 + EVENT_COLUMNS.length },
+    () => '?'
+).join(', ');
+
 export function createWebhook(
     config: Omit<WebhookConfig, 'id' | 'createdAt' | 'updatedAt'>
 ): WebhookConfig {
     const db = getDb();
     const id = uuid();
-    db.prepare(
-        `INSERT INTO webhooks (id, name, url, secret, enabled,
-            on_upload_started, on_upload_progress, on_upload_completed, on_upload_failed,
-            on_batch_started, on_batch_completed,
-            on_photo_download_started, on_photo_download_completed,
-            on_photos_download_started, on_photos_download_completed,
-            on_photo_deleted, on_photos_deleted,
-            on_s3_health_changed)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
+    db.prepare(`INSERT INTO webhooks (${INSERT_COLUMNS}) VALUES (${INSERT_PLACEHOLDERS})`).run(
         id,
         config.name,
         config.url,
         config.secret,
         config.enabled ? 1 : 0,
-        config.onUploadStarted ? 1 : 0,
-        config.onUploadProgress ? 1 : 0,
-        config.onUploadCompleted ? 1 : 0,
-        config.onUploadFailed ? 1 : 0,
-        config.onBatchStarted ? 1 : 0,
-        config.onBatchCompleted ? 1 : 0,
-        config.onPhotoDownloadStarted ? 1 : 0,
-        config.onPhotoDownloadCompleted ? 1 : 0,
-        config.onPhotosDownloadStarted ? 1 : 0,
-        config.onPhotosDownloadCompleted ? 1 : 0,
-        config.onPhotoDeleted ? 1 : 0,
-        config.onPhotosDeleted ? 1 : 0,
-        config.onS3HealthChanged ? 1 : 0
+        ...eventBoolParams(config as unknown as Record<string, unknown>)
     );
     return getWebhookById(id)!;
 }
+
+const UPDATE_SET = [
+    'name = ?',
+    'url = ?',
+    'secret = ?',
+    'enabled = ?',
+    ...EVENT_COLUMNS.map(col => `${col} = ?`),
+    "updated_at = datetime('now')",
+].join(', ');
 
 export function updateWebhook(
     id: string,
@@ -134,35 +155,12 @@ export function updateWebhook(
 
     const merged = { ...existing, ...config };
     const db = getDb();
-    db.prepare(
-        `UPDATE webhooks SET
-            name = ?, url = ?, secret = ?, enabled = ?,
-            on_upload_started = ?, on_upload_progress = ?, on_upload_completed = ?, on_upload_failed = ?,
-            on_batch_started = ?, on_batch_completed = ?,
-            on_photo_download_started = ?, on_photo_download_completed = ?,
-            on_photos_download_started = ?, on_photos_download_completed = ?,
-            on_photo_deleted = ?, on_photos_deleted = ?,
-            on_s3_health_changed = ?,
-            updated_at = datetime('now')
-        WHERE id = ?`
-    ).run(
+    db.prepare(`UPDATE webhooks SET ${UPDATE_SET} WHERE id = ?`).run(
         merged.name,
         merged.url,
         merged.secret,
         merged.enabled ? 1 : 0,
-        merged.onUploadStarted ? 1 : 0,
-        merged.onUploadProgress ? 1 : 0,
-        merged.onUploadCompleted ? 1 : 0,
-        merged.onUploadFailed ? 1 : 0,
-        merged.onBatchStarted ? 1 : 0,
-        merged.onBatchCompleted ? 1 : 0,
-        merged.onPhotoDownloadStarted ? 1 : 0,
-        merged.onPhotoDownloadCompleted ? 1 : 0,
-        merged.onPhotosDownloadStarted ? 1 : 0,
-        merged.onPhotosDownloadCompleted ? 1 : 0,
-        merged.onPhotoDeleted ? 1 : 0,
-        merged.onPhotosDeleted ? 1 : 0,
-        merged.onS3HealthChanged ? 1 : 0,
+        ...eventBoolParams(merged as unknown as Record<string, unknown>),
         id
     );
     return getWebhookById(id);

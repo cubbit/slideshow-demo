@@ -13,6 +13,12 @@ const mockWebhook: WebhookConfig = {
     onUploadFailed: true,
     onBatchStarted: true,
     onBatchCompleted: true,
+    onPhotoDownloadStarted: true,
+    onPhotoDownloadCompleted: true,
+    onPhotosDownloadStarted: true,
+    onPhotosDownloadCompleted: true,
+    onPhotoDeleted: true,
+    onPhotosDeleted: true,
     onS3HealthChanged: true,
     createdAt: '',
     updatedAt: '',
@@ -117,6 +123,47 @@ describe('emitWebhookEvent', () => {
         emitWebhookEvent('upload.progress', progressData, { uploadId: 'unique-b' });
 
         expect(mockDispatch).toHaveBeenCalledTimes(2);
+    });
+
+    it('dispatches photo.download.started event', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photo.download.started', { key: 'photos/2026/04/10/test.jpg' });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photo.download.started');
+        expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
+    });
+
+    it('dispatches photos.download.completed event with date', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photos.download.completed', { photoCount: 15, date: '2026/04/10' });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photos.download.completed');
+        expect(payload.data.photoCount).toBe(15);
+        expect(payload.data.date).toBe('2026/04/10');
+    });
+
+    it('dispatches photo.deleted event', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photo.deleted', { key: 'photos/2026/04/10/test.jpg' });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photo.deleted');
+        expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
+    });
+
+    it('dispatches photos.deleted event with count', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photos.deleted', { deletedCount: 42, date: '2026/04/10' });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photos.deleted');
+        expect(payload.data.deletedCount).toBe(42);
     });
 
     it('never throws even if repository throws', () => {

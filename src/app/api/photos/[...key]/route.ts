@@ -7,7 +7,7 @@ import { emitWebhookEvent } from '@/lib/webhooks/service';
 import logger from '@/lib/logger';
 
 export async function GET(
-    _request: NextRequest,
+    request: NextRequest,
     { params }: { params: Promise<{ key: string[] }> }
 ) {
     try {
@@ -18,7 +18,12 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid key' }, { status: 400 });
         }
 
-        emitWebhookEvent('photo.download.started', { key: photoKey });
+        // Only emit download webhooks for explicit downloads, not carousel image serving
+        const isDownload = request.nextUrl.searchParams.get('download') === 'true';
+
+        if (isDownload) {
+            emitWebhookEvent('photo.download.started', { key: photoKey });
+        }
 
         const settings = getSettings();
         const client = getS3Client();
@@ -34,7 +39,11 @@ export async function GET(
         if (response.ContentLength) headers.set('Content-Length', String(response.ContentLength));
         headers.set('Cache-Control', 'public, max-age=86400');
 
-        emitWebhookEvent('photo.download.completed', { key: photoKey });
+        if (isDownload) {
+            const filename = photoKey.split('/').pop() || 'photo';
+            headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+            emitWebhookEvent('photo.download.completed', { key: photoKey });
+        }
 
         return new Response(response.Body as ReadableStream, { headers });
     } catch (error) {

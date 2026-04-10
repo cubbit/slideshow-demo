@@ -38,11 +38,10 @@ export default function PhotoModal({ photo, onClose }: Props) {
     }
 
     function handleDownload() {
+        const keyPath = photo.key.split('/').map(encodeURIComponent).join('/');
         const a = document.createElement('a');
-        a.href = photo.url;
+        a.href = `/api/photos/${keyPath}?download=true`;
         a.download = photo.key.split('/').pop() || 'photo';
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

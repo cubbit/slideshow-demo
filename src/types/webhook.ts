@@ -51,11 +51,8 @@ export type WebhookEventData =
     | UploadFailedData
     | BatchStartedData
     | BatchCompletedData
-    | PhotoDownloadStartedData
-    | PhotoDownloadCompletedData
-    | PhotosDownloadStartedData
-    | PhotosDownloadCompletedData
-    | PhotoDeletedData
+    | SinglePhotoKeyData
+    | BulkPhotosData
     | PhotosDeletedData
     | S3HealthChangedData;
 
@@ -97,26 +94,13 @@ export interface BatchCompletedData {
     failedCount: number;
 }
 
-export interface PhotoDownloadStartedData {
+export interface SinglePhotoKeyData {
     key: string;
 }
 
-export interface PhotoDownloadCompletedData {
-    key: string;
-}
-
-export interface PhotosDownloadStartedData {
+export interface BulkPhotosData {
     photoCount: number;
     date?: string;
-}
-
-export interface PhotosDownloadCompletedData {
-    photoCount: number;
-    date?: string;
-}
-
-export interface PhotoDeletedData {
-    key: string;
 }
 
 export interface PhotosDeletedData {
