@@ -37,12 +37,15 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // Emit completed when the archive stream finishes (all bytes written)
+        passthrough.on('finish', () => {
+            emitWebhookEvent('photos.download.completed', { photoCount: keys.length, date });
+        });
+
         archive.finalize();
 
         const webStream = Readable.toWeb(passthrough) as ReadableStream;
         const dateSuffix = date ? `-${date.replace(/\//g, '-')}` : '';
-
-        emitWebhookEvent('photos.download.completed', { photoCount: keys.length, date });
 
         return new Response(webStream, {
             headers: {

@@ -135,6 +135,16 @@ describe('emitWebhookEvent', () => {
         expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
     });
 
+    it('dispatches photo.download.completed event', () => {
+        mockGetWebhooks.mockReturnValue([mockWebhook]);
+
+        emitWebhookEvent('photo.download.completed', { key: 'photos/2026/04/10/test.jpg' });
+
+        const payload = mockDispatch.mock.calls[0][1];
+        expect(payload.event).toBe('photo.download.completed');
+        expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
+    });
+
     it('dispatches photos.download.completed event with date', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 

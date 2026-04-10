@@ -168,6 +168,27 @@ export function parseWebhooksFromEnv(): WebhookEnvEntry[] {
     return webhooks;
 }
 
+/**
+ * Event config keys with their default-on status for env seeding.
+ * "defaultOn: true" means the event is enabled unless explicitly set to false.
+ * "defaultOn: false" means the event is disabled unless explicitly set to true.
+ */
+const SEED_EVENT_FIELDS: { key: string; column: string; defaultOn: boolean }[] = [
+    { key: 'onUploadStarted', column: 'on_upload_started', defaultOn: true },
+    { key: 'onUploadProgress', column: 'on_upload_progress', defaultOn: false },
+    { key: 'onUploadCompleted', column: 'on_upload_completed', defaultOn: true },
+    { key: 'onUploadFailed', column: 'on_upload_failed', defaultOn: true },
+    { key: 'onBatchStarted', column: 'on_batch_started', defaultOn: true },
+    { key: 'onBatchCompleted', column: 'on_batch_completed', defaultOn: true },
+    { key: 'onPhotoDownloadStarted', column: 'on_photo_download_started', defaultOn: false },
+    { key: 'onPhotoDownloadCompleted', column: 'on_photo_download_completed', defaultOn: false },
+    { key: 'onPhotosDownloadStarted', column: 'on_photos_download_started', defaultOn: false },
+    { key: 'onPhotosDownloadCompleted', column: 'on_photos_download_completed', defaultOn: false },
+    { key: 'onPhotoDeleted', column: 'on_photo_deleted', defaultOn: true },
+    { key: 'onPhotosDeleted', column: 'on_photos_deleted', defaultOn: true },
+    { key: 'onS3HealthChanged', column: 'on_s3_health_changed', defaultOn: false },
+];
+
 function seedWebhooksFromEnv(db: Database.Database): void {
     const existingCount = (
         db.prepare('SELECT COUNT(*) as count FROM webhooks').get() as { count: number }
@@ -177,15 +198,11 @@ function seedWebhooksFromEnv(db: Database.Database): void {
     const webhooks = parseWebhooksFromEnv();
     if (webhooks.length === 0) return;
 
+    const eventColumns = SEED_EVENT_FIELDS.map(f => f.column).join(', ');
+    const eventPlaceholders = SEED_EVENT_FIELDS.map(() => '?').join(', ');
     const insert = db.prepare(
-        `INSERT INTO webhooks (id, name, url, secret, enabled,
-            on_upload_started, on_upload_progress, on_upload_completed, on_upload_failed,
-            on_batch_started, on_batch_completed,
-            on_photo_download_started, on_photo_download_completed,
-            on_photos_download_started, on_photos_download_completed,
-            on_photo_deleted, on_photos_deleted,
-            on_s3_health_changed)
-        VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO webhooks (id, name, url, secret, enabled, ${eventColumns})
+        VALUES (?, ?, ?, ?, 1, ${eventPlaceholders})`
     );
 
     for (const wh of webhooks) {
@@ -194,25 +211,12 @@ function seedWebhooksFromEnv(db: Database.Database): void {
             continue;
         }
         const events = wh.events || {};
-        insert.run(
-            uuid(),
-            wh.name || '',
-            wh.url,
-            wh.secret || '',
-            events.onUploadStarted !== false ? 1 : 0,
-            events.onUploadProgress === true ? 1 : 0,
-            events.onUploadCompleted !== false ? 1 : 0,
-            events.onUploadFailed !== false ? 1 : 0,
-            events.onBatchStarted !== false ? 1 : 0,
-            events.onBatchCompleted !== false ? 1 : 0,
-            events.onPhotoDownloadStarted === true ? 1 : 0,
-            events.onPhotoDownloadCompleted === true ? 1 : 0,
-            events.onPhotosDownloadStarted === true ? 1 : 0,
-            events.onPhotosDownloadCompleted === true ? 1 : 0,
-            events.onPhotoDeleted !== false ? 1 : 0,
-            events.onPhotosDeleted !== false ? 1 : 0,
-            events.onS3HealthChanged === true ? 1 : 0
-        );
+        const eventValues = SEED_EVENT_FIELDS.map(f => {
+            const value = events[f.key];
+            if (f.defaultOn) return value !== false ? 1 : 0;
+            return value === true ? 1 : 0;
+        });
+        insert.run(uuid(), wh.name || '', wh.url, wh.secret || '', ...eventValues);
         logger.info('Webhook seeded from environment', { name: wh.name, url: wh.url });
     }
 }
