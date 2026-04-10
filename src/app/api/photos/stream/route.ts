@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
             // Poll for new photos
             intervalRef = setInterval(async () => {
                 if (closed) {
-                    clearInterval(interval);
+                    clearInterval(intervalRef);
                     return;
                 }
 
