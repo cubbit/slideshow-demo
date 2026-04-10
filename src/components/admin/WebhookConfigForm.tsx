@@ -42,6 +42,7 @@ const EVENT_GROUPS = [
         label: 'Batch Events',
         events: [
             { key: 'onBatchStarted', label: 'Started' },
+            { key: 'onBatchProgress', label: 'Progress' },
             { key: 'onBatchCompleted', label: 'Completed' },
         ],
     },
@@ -51,6 +52,7 @@ const EVENT_GROUPS = [
             { key: 'onPhotoDownloadStarted', label: 'Single Started' },
             { key: 'onPhotoDownloadCompleted', label: 'Single Completed' },
             { key: 'onPhotosDownloadStarted', label: 'Bulk Started' },
+            { key: 'onPhotosDownloadProgress', label: 'Bulk Progress' },
             { key: 'onPhotosDownloadCompleted', label: 'Bulk Completed' },
         ],
     },
@@ -79,10 +81,12 @@ const DEFAULT_FORM: WebhookFormState = {
     onUploadCompleted: true,
     onUploadFailed: true,
     onBatchStarted: true,
+    onBatchProgress: false,
     onBatchCompleted: true,
     onPhotoDownloadStarted: false,
     onPhotoDownloadCompleted: false,
     onPhotosDownloadStarted: false,
+    onPhotosDownloadProgress: false,
     onPhotosDownloadCompleted: false,
     onPhotoDeleted: true,
     onPhotosDeleted: true,
@@ -99,10 +103,12 @@ interface WebhookFormState {
     onUploadCompleted: boolean;
     onUploadFailed: boolean;
     onBatchStarted: boolean;
+    onBatchProgress: boolean;
     onBatchCompleted: boolean;
     onPhotoDownloadStarted: boolean;
     onPhotoDownloadCompleted: boolean;
     onPhotosDownloadStarted: boolean;
+    onPhotosDownloadProgress: boolean;
     onPhotosDownloadCompleted: boolean;
     onPhotoDeleted: boolean;
     onPhotosDeleted: boolean;
@@ -286,12 +292,14 @@ export default function WebhookConfigForm() {
                                 </optgroup>
                                 <optgroup label="Batch">
                                     <option value="batch.started">batch.started</option>
+                                    <option value="batch.progress">batch.progress</option>
                                     <option value="batch.completed">batch.completed</option>
                                 </optgroup>
                                 <optgroup label="Download">
                                     <option value="photo.download.started">photo.download.started</option>
                                     <option value="photo.download.completed">photo.download.completed</option>
                                     <option value="photos.download.started">photos.download.started</option>
+                                    <option value="photos.download.progress">photos.download.progress</option>
                                     <option value="photos.download.completed">photos.download.completed</option>
                                 </optgroup>
                                 <optgroup label="Delete">

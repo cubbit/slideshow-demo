@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
 
         archive.pipe(passthrough);
 
-        // Stream each photo into the zip
+        // Stream each photo into the zip, emitting progress per file
+        let completedCount = 0;
         for (const key of keys) {
             try {
                 const body = await getObjectStream(key);
@@ -32,6 +33,12 @@ export async function GET(request: NextRequest) {
                     const dateDir = key.split('/').slice(0, 3).join('-');
                     archive.append(body as unknown as Readable, { name: `${dateDir}/${filename}` });
                 }
+                completedCount++;
+                emitWebhookEvent('photos.download.progress', {
+                    photoCount: keys.length,
+                    completedCount,
+                    date,
+                });
             } catch {
                 logger.warn('Failed to fetch photo for zip', { key });
             }

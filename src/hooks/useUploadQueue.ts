@@ -82,6 +82,24 @@ async function startBatch(fileCount: number): Promise<string | null> {
     return null;
 }
 
+async function reportBatchProgress(
+    batchId: string,
+    fileCount: number,
+    completedCount: number,
+    successCount: number,
+    failedCount: number
+): Promise<void> {
+    try {
+        await fetch('/api/upload/batch', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ batchId, fileCount, completedCount, successCount, failedCount }),
+        });
+    } catch {
+        // Best-effort
+    }
+}
+
 async function completeBatch(
     batchId: string,
     fileCount: number,
@@ -99,7 +117,7 @@ async function completeBatch(
     }
 }
 
-function tryCompleteBatch(
+function tryUpdateBatch(
     items: UploadItem[],
     batchRef: React.RefObject<{ id: string; fileCount: number } | null>
 ) {
@@ -107,15 +125,30 @@ function tryCompleteBatch(
 
     let successCount = 0;
     let failedCount = 0;
+    let hasPending = false;
     for (const item of items) {
-        if (item.status === 'pending' || item.status === 'uploading') return;
-        if (item.status === 'success') successCount++;
-        else failedCount++;
+        if (item.status === 'pending' || item.status === 'uploading') {
+            hasPending = true;
+        } else if (item.status === 'success') {
+            successCount++;
+        } else {
+            failedCount++;
+        }
     }
 
     const batch = batchRef.current;
-    batchRef.current = null;
-    completeBatch(batch.id, batch.fileCount, successCount, failedCount);
+    const completedCount = successCount + failedCount;
+
+    if (hasPending) {
+        // Batch still in progress — report progress if any items completed
+        if (completedCount > 0) {
+            reportBatchProgress(batch.id, batch.fileCount, completedCount, successCount, failedCount);
+        }
+    } else {
+        // All items done — complete the batch
+        batchRef.current = null;
+        completeBatch(batch.id, batch.fileCount, successCount, failedCount);
+    }
 }
 
 export function useUploadQueue() {
@@ -127,7 +160,7 @@ export function useUploadQueue() {
 
     // Check if batch is complete after each state change
     useEffect(() => {
-        tryCompleteBatch(items, batchRef);
+        tryUpdateBatch(items, batchRef);
     }, [items]);
 
     const processNext = useCallback(() => {
@@ -202,7 +235,7 @@ export function useUploadQueue() {
             if (batchId) {
                 batchRef.current = { id: batchId, fileCount: files.length };
                 // If uploads already finished while awaiting batch creation, complete now
-                tryCompleteBatch(itemsRef.current, batchRef);
+                tryUpdateBatch(itemsRef.current, batchRef);
             }
         });
     }, []);

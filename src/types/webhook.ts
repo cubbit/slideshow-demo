@@ -4,10 +4,12 @@ export type WebhookEventType =
     | 'upload.completed'
     | 'upload.failed'
     | 'batch.started'
+    | 'batch.progress'
     | 'batch.completed'
     | 'photo.download.started'
     | 'photo.download.completed'
     | 'photos.download.started'
+    | 'photos.download.progress'
     | 'photos.download.completed'
     | 'photo.deleted'
     | 'photos.deleted'
@@ -24,10 +26,12 @@ export interface WebhookConfig {
     onUploadCompleted: boolean;
     onUploadFailed: boolean;
     onBatchStarted: boolean;
+    onBatchProgress: boolean;
     onBatchCompleted: boolean;
     onPhotoDownloadStarted: boolean;
     onPhotoDownloadCompleted: boolean;
     onPhotosDownloadStarted: boolean;
+    onPhotosDownloadProgress: boolean;
     onPhotosDownloadCompleted: boolean;
     onPhotoDeleted: boolean;
     onPhotosDeleted: boolean;
@@ -50,9 +54,11 @@ export type WebhookEventData =
     | UploadCompletedData
     | UploadFailedData
     | BatchStartedData
+    | BatchProgressData
     | BatchCompletedData
     | SinglePhotoKeyData
     | BulkPhotosData
+    | BulkProgressData
     | PhotosDeletedData
     | S3HealthChangedData;
 
@@ -87,6 +93,14 @@ export interface BatchStartedData {
     fileCount: number;
 }
 
+export interface BatchProgressData {
+    batchId: string;
+    fileCount: number;
+    completedCount: number;
+    successCount: number;
+    failedCount: number;
+}
+
 export interface BatchCompletedData {
     batchId: string;
     fileCount: number;
@@ -100,6 +114,12 @@ export interface SinglePhotoKeyData {
 
 export interface BulkPhotosData {
     photoCount: number;
+    date?: string;
+}
+
+export interface BulkProgressData {
+    photoCount: number;
+    completedCount: number;
     date?: string;
 }
 

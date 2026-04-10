@@ -13,10 +13,12 @@ interface WebhookRow {
     on_upload_completed: number;
     on_upload_failed: number;
     on_batch_started: number;
+    on_batch_progress: number;
     on_batch_completed: number;
     on_photo_download_started: number;
     on_photo_download_completed: number;
     on_photos_download_started: number;
+    on_photos_download_progress: number;
     on_photos_download_completed: number;
     on_photo_deleted: number;
     on_photos_deleted: number;
@@ -39,6 +41,7 @@ const EVENT_FIELDS: {
     { event: 'upload.completed', column: 'on_upload_completed', configKey: 'onUploadCompleted' },
     { event: 'upload.failed', column: 'on_upload_failed', configKey: 'onUploadFailed' },
     { event: 'batch.started', column: 'on_batch_started', configKey: 'onBatchStarted' },
+    { event: 'batch.progress', column: 'on_batch_progress', configKey: 'onBatchProgress' },
     { event: 'batch.completed', column: 'on_batch_completed', configKey: 'onBatchCompleted' },
     {
         event: 'photo.download.started',
@@ -54,6 +57,11 @@ const EVENT_FIELDS: {
         event: 'photos.download.started',
         column: 'on_photos_download_started',
         configKey: 'onPhotosDownloadStarted',
+    },
+    {
+        event: 'photos.download.progress',
+        column: 'on_photos_download_progress',
+        configKey: 'onPhotosDownloadProgress',
     },
     {
         event: 'photos.download.completed',

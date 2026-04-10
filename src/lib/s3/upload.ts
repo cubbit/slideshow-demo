@@ -72,6 +72,7 @@ export async function uploadPhoto(
         }
         await upload.done();
     } else {
+        if (onProgress) onProgress(0, buffer.length);
         await client.send(
             new PutObjectCommand({
                 Bucket: settings.bucketName,
@@ -81,6 +82,7 @@ export async function uploadPhoto(
                 Metadata: metadata,
             })
         );
+        if (onProgress) onProgress(buffer.length, buffer.length);
     }
 
     logger.info('Photo uploaded', { key, size: buffer.length });
