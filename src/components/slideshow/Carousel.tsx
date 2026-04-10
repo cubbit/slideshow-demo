@@ -170,8 +170,36 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         );
     }
 
+    // Detect mobile
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
     if (photos.length === 0 || s3Status === 'error') {
         return <EmptyState />;
+    }
+
+    // Mobile: camera roll grid
+    if (isMobile) {
+        return (
+            <>
+                <div className="mobile-grid">
+                    {displayPhotos.map(photo => (
+                        <div key={photo.key} className="mobile-grid-item" onClick={() => handlePhotoClick(photo)}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={photo.thumbnailUrl} alt="" loading="lazy" />
+                        </div>
+                    ))}
+                </div>
+                {selectedPhoto && (
+                    <PhotoModal photo={selectedPhoto} onClose={handleCloseModal} />
+                )}
+            </>
+        );
     }
 
     return (

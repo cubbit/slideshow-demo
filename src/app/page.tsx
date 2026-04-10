@@ -47,11 +47,13 @@ export default async function SlideshowPage() {
                 style={{
                     backgroundColor: '#161621',
                     borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    padding: '20px 40px',
+                    padding: '12px 16px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     flexShrink: 0,
+                    flexWrap: 'wrap',
+                    gap: '8px',
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -79,6 +81,7 @@ export default async function SlideshowPage() {
                     <S3HealthBadgeClient />
                     {settings.endpoint && (
                         <span
+                            className="desktop-only"
                             style={{
                                 fontSize: '12px',
                                 color: 'rgba(255,255,255,0.25)',
@@ -97,11 +100,12 @@ export default async function SlideshowPage() {
                             {settings.endpoint}
                         </span>
                     )}
-                    <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
+                    <div className="desktop-only" style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
                     <HeaderUploadLink />
                     <Link
                         href="/admin"
                         title="Settings"
+                        className="desktop-only"
                         style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
