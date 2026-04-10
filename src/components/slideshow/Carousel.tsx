@@ -6,6 +6,7 @@ import PhotoModal from './PhotoModal';
 import EmptyState from './EmptyState';
 import { usePhotos } from '@/hooks/usePhotos';
 import { usePublicSettings } from '@/hooks/usePublicSettings';
+import { useS3Health } from '@/contexts/S3HealthContext';
 import type { PhotoMeta } from '@/types/photo';
 import type { PublicSettings } from '@/types/settings';
 
@@ -26,6 +27,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const { photos, newKeys } = usePhotos(initialPhotos);
     const settings = usePublicSettings(initialSettings);
+    const s3Status = useS3Health();
     const [globalPaused, setGlobalPaused] = useState(false);
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [selectedPhoto, setSelectedPhoto] = useState<PhotoMeta | null>(null);
@@ -71,7 +73,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         return () => window.removeEventListener('keydown', handleKey);
     }, [togglePause, selectedPhoto]);
 
-    if (photos.length === 0) {
+    if (photos.length === 0 || s3Status === 'error') {
         return <EmptyState />;
     }
 

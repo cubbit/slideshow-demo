@@ -1,6 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useS3Health } from '@/contexts/S3HealthContext';
 
 export default function EmptyState() {
+    const s3Status = useS3Health();
+    const s3Down = s3Status === 'error';
+
     return (
         <div className="flex flex-col items-center justify-center gap-8 h-full min-h-[60vh]">
             <div className="relative w-36 h-36">
@@ -18,28 +24,47 @@ export default function EmptyState() {
             <div className="text-center space-y-3">
                 <h2 className="text-2xl font-bold text-white">No photos yet</h2>
                 <p className="text-sm max-w-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                    Upload photos from your device to start the slideshow.<br />
-                    Photos will appear here in real-time.
+                    {s3Down
+                        ? 'S3 storage is not reachable. Configure your S3 connection to get started.'
+                        : <>Upload photos from your device to start the slideshow.<br />Photos will appear here in real-time.</>
+                    }
                 </p>
             </div>
 
             <div className="flex gap-4 mt-2">
-                <Link
-                    href="/upload"
-                    className="inline-flex items-center justify-center"
-                    style={{
-                        backgroundColor: '#0065FF',
-                        color: '#FFFFFF',
-                        padding: '12px 28px',
-                        borderRadius: '12px',
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        textDecoration: 'none',
-                        boxShadow: '0 4px 14px rgba(0,101,255,0.4)',
-                    }}
-                >
-                    Upload Photos
-                </Link>
+                {s3Down ? (
+                    <span
+                        className="inline-flex items-center justify-center"
+                        style={{
+                            backgroundColor: 'rgba(255,255,255,0.08)',
+                            color: 'rgba(255,255,255,0.25)',
+                            padding: '12px 28px',
+                            borderRadius: '12px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: 'not-allowed',
+                        }}
+                    >
+                        Upload Photos
+                    </span>
+                ) : (
+                    <Link
+                        href="/upload"
+                        className="inline-flex items-center justify-center"
+                        style={{
+                            backgroundColor: '#0065FF',
+                            color: '#FFFFFF',
+                            padding: '12px 28px',
+                            borderRadius: '12px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            boxShadow: '0 4px 14px rgba(0,101,255,0.4)',
+                        }}
+                    >
+                        Upload Photos
+                    </Link>
+                )}
                 <Link
                     href="/admin/settings"
                     className="inline-flex items-center justify-center"

@@ -3,6 +3,8 @@ import { getPublicSettings } from '@/lib/settings/service';
 import Carousel from '@/components/slideshow/Carousel';
 import S3HealthBadgeClient from '@/components/layout/S3HealthBadge';
 import CubbitLogo from '@/components/layout/CubbitLogo';
+import HeaderUploadLink from '@/components/layout/HeaderUploadLink';
+import { S3HealthProvider } from '@/contexts/S3HealthContext';
 import Link from 'next/link';
 import type { PhotoMeta } from '@/types/photo';
 
@@ -26,6 +28,7 @@ export default async function SlideshowPage() {
     });
 
     return (
+        <S3HealthProvider>
         <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
             <header
@@ -65,12 +68,7 @@ export default async function SlideshowPage() {
                     )}
                     <S3HealthBadgeClient />
                     <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
-                    <Link
-                        href="/upload"
-                        style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}
-                    >
-                        Upload
-                    </Link>
+                    <HeaderUploadLink />
                     <Link
                         href="/admin"
                         style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
@@ -85,5 +83,6 @@ export default async function SlideshowPage() {
                 <Carousel initialPhotos={initialPhotos} initialSettings={settings} />
             </main>
         </div>
+        </S3HealthProvider>
     );
 }
