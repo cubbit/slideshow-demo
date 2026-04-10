@@ -8,7 +8,7 @@ import {
     deleteWebhookAction,
     testWebhookAction,
 } from '@/actions/webhooks';
-import type { WebhookConfig } from '@/types/webhook';
+import type { WebhookConfig, WebhookEventType } from '@/types/webhook';
 import {
     inputClass,
     inputStyle,
@@ -127,6 +127,7 @@ export default function WebhookConfigForm() {
     );
     const [saving, setSaving] = useState(false);
     const [testing, setTesting] = useState<string | null>(null);
+    const [testEvents, setTestEvents] = useState<Record<string, WebhookEventType>>({});
 
     const loadWebhooks = useCallback(async () => {
         const result = await getWebhooksAction();
@@ -194,11 +195,12 @@ export default function WebhookConfigForm() {
 
     async function handleTest(id: string) {
         setTesting(id);
-        const result = await testWebhookAction(id);
+        const event = testEvents[id] || 'upload.started';
+        const result = await testWebhookAction(id, event);
         setTesting(null);
         setStatus(
             result.success
-                ? { type: 'success', message: 'Test event sent' }
+                ? { type: 'success', message: `Test ${event} sent` }
                 : { type: 'error', message: result.error }
         );
         setTimeout(() => setStatus(null), 3000);
@@ -248,7 +250,7 @@ export default function WebhookConfigForm() {
                                 {wh.name || 'Unnamed webhook'}
                             </span>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             <button
                                 className={btnSecondaryClass}
                                 style={smallBtnStyle}
@@ -256,6 +258,50 @@ export default function WebhookConfigForm() {
                             >
                                 {wh.enabled ? 'Disable' : 'Enable'}
                             </button>
+                            <select
+                                value={testEvents[wh.id] || 'upload.started'}
+                                onChange={e =>
+                                    setTestEvents(prev => ({
+                                        ...prev,
+                                        [wh.id]: e.target.value as WebhookEventType,
+                                    }))
+                                }
+                                disabled={!wh.enabled}
+                                style={{
+                                    ...smallBtnStyle,
+                                    backgroundColor: 'rgba(255,255,255,0.04)',
+                                    color: 'rgba(255,255,255,0.7)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '6px',
+                                    outline: 'none',
+                                    cursor: 'pointer',
+                                    width: 'auto',
+                                }}
+                            >
+                                <optgroup label="Upload">
+                                    <option value="upload.started">upload.started</option>
+                                    <option value="upload.progress">upload.progress</option>
+                                    <option value="upload.completed">upload.completed</option>
+                                    <option value="upload.failed">upload.failed</option>
+                                </optgroup>
+                                <optgroup label="Batch">
+                                    <option value="batch.started">batch.started</option>
+                                    <option value="batch.completed">batch.completed</option>
+                                </optgroup>
+                                <optgroup label="Download">
+                                    <option value="photo.download.started">photo.download.started</option>
+                                    <option value="photo.download.completed">photo.download.completed</option>
+                                    <option value="photos.download.started">photos.download.started</option>
+                                    <option value="photos.download.completed">photos.download.completed</option>
+                                </optgroup>
+                                <optgroup label="Delete">
+                                    <option value="photo.deleted">photo.deleted</option>
+                                    <option value="photos.deleted">photos.deleted</option>
+                                </optgroup>
+                                <optgroup label="System">
+                                    <option value="s3.health.changed">s3.health.changed</option>
+                                </optgroup>
+                            </select>
                             <button
                                 className={btnSecondaryClass}
                                 style={smallBtnStyle}

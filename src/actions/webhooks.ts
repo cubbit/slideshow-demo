@@ -11,7 +11,7 @@ import { deliverOnce } from '@/lib/webhooks/dispatcher';
 import { webhookSchema } from '@/lib/validation';
 import logger from '@/lib/logger';
 import type { ActionResult } from '@/types/api';
-import type { WebhookConfig } from '@/types/webhook';
+import type { WebhookConfig, WebhookEventType, WebhookEventData } from '@/types/webhook';
 
 function parseWebhookFormData(formData: FormData): ActionResult<WebhookConfig> {
     const raw = Object.fromEntries(formData.entries());
@@ -84,21 +84,41 @@ export async function deleteWebhookAction(id: string): Promise<ActionResult> {
     }
 }
 
-export async function testWebhookAction(id: string): Promise<ActionResult> {
+const TEST_PAYLOADS: Record<WebhookEventType, WebhookEventData> = {
+    'upload.started': { fileName: 'test-photo.jpg', fileSize: 2048000, mimeType: 'image/jpeg' },
+    'upload.progress': { fileName: 'test-photo.jpg', percentage: 50, bytesUploaded: 1024000, totalBytes: 2048000 },
+    'upload.completed': { fileName: 'test-photo.jpg', fileSize: 2048000, key: 'photos/2026/01/01/test.jpg', url: 'https://example.com/test.jpg', thumbnailUrl: 'https://example.com/test_thumb.jpg' },
+    'upload.failed': { fileName: 'test-photo.jpg', error: 'Test error' },
+    'batch.started': { batchId: 'test-batch-id', fileCount: 5 },
+    'batch.completed': { batchId: 'test-batch-id', fileCount: 5, successCount: 4, failedCount: 1 },
+    'photo.download.started': { key: 'photos/2026/01/01/test.jpg' },
+    'photo.download.completed': { key: 'photos/2026/01/01/test.jpg' },
+    'photos.download.started': { photoCount: 10, date: '2026/01/01' },
+    'photos.download.completed': { photoCount: 10, date: '2026/01/01' },
+    'photo.deleted': { key: 'photos/2026/01/01/test.jpg' },
+    'photos.deleted': { deletedCount: 10, date: '2026/01/01' },
+    's3.health.changed': { status: 'ok', previousStatus: 'error', endpoint: 'https://s3.example.com', bucket: 'slideshow' },
+};
+
+export async function testWebhookAction(
+    id: string,
+    event: WebhookEventType = 'upload.started'
+): Promise<ActionResult> {
     try {
         const webhook = getWebhookById(id);
         if (!webhook) {
             return { success: false, error: 'Webhook not found' };
         }
 
+        const data = TEST_PAYLOADS[event];
+        if (!data) {
+            return { success: false, error: `Unknown event type: ${event}` };
+        }
+
         const result = await deliverOnce(webhook, {
-            event: 'upload.started',
+            event,
             timestamp: new Date().toISOString(),
-            data: {
-                fileName: 'test-ping.jpg',
-                fileSize: 0,
-                mimeType: 'image/jpeg',
-            },
+            data,
         });
 
         if (!result.ok) {
