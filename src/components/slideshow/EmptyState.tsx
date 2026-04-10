@@ -2,15 +2,60 @@ import Link from 'next/link';
 
 export default function EmptyState() {
     return (
-        <div className="flex flex-col items-center justify-center gap-4 py-20">
-            <p className="text-5xl">📷</p>
-            <p className="text-lg text-[var(--text-secondary)]">No photos uploaded today</p>
-            <Link
-                href="/upload"
-                className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
-            >
-                Upload Photos
-            </Link>
+        <div className="flex flex-col items-center justify-center gap-8 h-full min-h-[60vh]">
+            <div className="relative w-36 h-36">
+                <div className="absolute inset-0 rounded-full animate-pulse" style={{ backgroundColor: 'rgba(0, 101, 255, 0.15)' }} />
+                <div className="absolute inset-3 rounded-full" style={{ backgroundColor: 'rgba(0, 101, 255, 0.08)' }} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#5498FF" strokeWidth="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                </div>
+            </div>
+
+            <div className="text-center space-y-3">
+                <h2 className="text-2xl font-bold text-white">No photos yet</h2>
+                <p className="text-sm max-w-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                    Upload photos from your device to start the slideshow.<br />
+                    Photos will appear here in real-time.
+                </p>
+            </div>
+
+            <div className="flex gap-4 mt-2">
+                <Link
+                    href="/upload"
+                    className="inline-flex items-center justify-center"
+                    style={{
+                        backgroundColor: '#0065FF',
+                        color: '#FFFFFF',
+                        padding: '12px 28px',
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        boxShadow: '0 4px 14px rgba(0,101,255,0.4)',
+                    }}
+                >
+                    Upload Photos
+                </Link>
+                <Link
+                    href="/admin/settings"
+                    className="inline-flex items-center justify-center"
+                    style={{
+                        color: 'rgba(255,255,255,0.6)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        padding: '12px 28px',
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        textDecoration: 'none',
+                    }}
+                >
+                    Configure S3
+                </Link>
+            </div>
         </div>
     );
 }

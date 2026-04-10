@@ -15,54 +15,61 @@ function formatSize(bytes: number): string {
 
 export default function UploadItem({ item, onRemove }: Props) {
     return (
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-secondary)]">
-            {/* Status indicator */}
-            <div className="shrink-0">
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '14px 16px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+            }}
+        >
+            <div style={{ flexShrink: 0 }}>
                 {item.status === 'pending' && (
-                    <div className="w-5 h-5 rounded-full border-2 border-[var(--border-primary)]" />
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)' }} />
                 )}
                 {item.status === 'uploading' && (
-                    <div className="w-5 h-5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                    <div className="animate-spin" style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid #0065FF', borderTopColor: 'transparent' }} />
                 )}
                 {item.status === 'success' && (
-                    <div className="w-5 h-5 rounded-full bg-success flex items-center justify-center text-white text-xs">
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#26AB75', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px' }}>
                         ✓
                     </div>
                 )}
                 {item.status === 'error' && (
-                    <div className="w-5 h-5 rounded-full bg-error flex items-center justify-center text-white text-xs">
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#D32C20', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px' }}>
                         ✕
                     </div>
                 )}
             </div>
 
-            {/* File info */}
-            <div className="flex-1 min-w-0">
-                <p className="text-sm text-[var(--text-primary)] truncate">{item.file.name}</p>
-                <p className="text-xs text-[var(--text-tertiary)]">
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.85)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {item.file.name}
+                </p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
                     {formatSize(item.file.size)}
                     {item.status === 'uploading' && ` — ${item.progress}%`}
                     {item.status === 'error' && (
-                        <span className="text-error ml-1">{item.error}</span>
+                        <span style={{ color: '#D32C20', marginLeft: '4px' }}>{item.error}</span>
                     )}
                 </p>
 
-                {/* Progress bar */}
                 {item.status === 'uploading' && (
-                    <div className="mt-1.5 h-1 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
+                    <div style={{ marginTop: '8px', height: '4px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                         <div
-                            className="h-full bg-blue-500 rounded-full transition-all duration-200"
-                            style={{ width: `${item.progress}%` }}
+                            style={{ height: '100%', borderRadius: '4px', backgroundColor: '#0065FF', width: `${item.progress}%`, transition: 'width 0.2s' }}
                         />
                     </div>
                 )}
             </div>
 
-            {/* Remove button */}
             {item.status !== 'uploading' && (
                 <button
                     onClick={() => onRemove(item.id)}
-                    className="shrink-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors text-lg"
+                    style={{ flexShrink: 0, color: 'rgba(255,255,255,0.3)', fontSize: '18px', background: 'none', border: 'none', cursor: 'pointer' }}
                     aria-label="Remove"
                 >
                     ×

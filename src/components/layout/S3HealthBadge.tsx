@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
+const colorMap = { ok: '#26AB75', error: '#D32C20', loading: 'rgba(255,255,255,0.3)' } as const;
+
 export default function S3HealthBadgeClient() {
     const [status, setStatus] = useState<'ok' | 'error' | 'loading'>('loading');
 
@@ -21,13 +23,10 @@ export default function S3HealthBadgeClient() {
         return () => clearInterval(interval);
     }, []);
 
-    const colorMap = { ok: 'bg-success', error: 'bg-error', loading: 'bg-[var(--text-tertiary)]' } as const;
-    const color = colorMap[status];
-
     return (
-        <div className="flex items-center gap-1.5" title={`S3: ${status}`}>
-            <div className={`w-2 h-2 rounded-full ${color}`} />
-            <span className="text-xs text-[var(--text-tertiary)]">S3</span>
+        <div className="flex items-center gap-2" title={`S3: ${status}`}>
+            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colorMap[status] }} />
+            <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>S3</span>
         </div>
     );
 }

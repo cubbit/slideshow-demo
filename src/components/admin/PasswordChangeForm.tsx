@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import { changePassword } from '@/actions/password';
-import { inputClass, labelClass } from './styles';
+import { inputClass, inputStyle, labelClass, labelStyle, btnPrimaryClass, btnPrimaryStyle, hintClass, hintStyle } from './styles';
 
 export default function PasswordChangeForm() {
-    const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(
-        null
-    );
+    const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [saving, setSaving] = useState(false);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -28,54 +26,28 @@ export default function PasswordChangeForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+        <form onSubmit={handleSubmit} className="max-w-md space-y-5">
             <div>
-                <label className={labelClass}>Current Password</label>
-                <input
-                    className={inputClass}
-                    type="password"
-                    name="currentPassword"
-                    required
-                    autoComplete="current-password"
-                />
+                <label className={labelClass} style={labelStyle}>Current Password</label>
+                <input className={inputClass} style={inputStyle} type="password" name="currentPassword" required autoComplete="current-password" />
             </div>
             <div>
-                <label className={labelClass}>New Password</label>
-                <input
-                    className={inputClass}
-                    type="password"
-                    name="newPassword"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                />
-                <p className="text-xs text-[var(--text-tertiary)] mt-1">Minimum 8 characters</p>
+                <label className={labelClass} style={labelStyle}>New Password</label>
+                <input className={inputClass} style={inputStyle} type="password" name="newPassword" required minLength={8} autoComplete="new-password" />
+                <p className={hintClass} style={hintStyle}>Minimum 8 characters</p>
             </div>
             <div>
-                <label className={labelClass}>Confirm New Password</label>
-                <input
-                    className={inputClass}
-                    type="password"
-                    name="confirmPassword"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                />
+                <label className={labelClass} style={labelStyle}>Confirm New Password</label>
+                <input className={inputClass} style={inputStyle} type="password" name="confirmPassword" required minLength={8} autoComplete="new-password" />
             </div>
 
             {status && (
-                <p
-                    className={`text-sm font-medium ${status.type === 'success' ? 'text-success' : 'text-error'}`}
-                >
+                <p className="text-sm font-medium" style={{ color: status.type === 'success' ? '#26AB75' : '#D32C20' }}>
                     {status.message}
                 </p>
             )}
 
-            <button
-                type="submit"
-                disabled={saving}
-                className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors"
-            >
+            <button type="submit" disabled={saving} className={btnPrimaryClass} style={btnPrimaryStyle}>
                 {saving ? 'Changing...' : 'Change Password'}
             </button>
         </form>

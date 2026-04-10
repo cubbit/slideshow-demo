@@ -22,38 +22,26 @@
     --color-error: #D32C20;
     --color-warning: #C49224;
 
+    /* Dark theme (slideshow) */
+    --color-dark-bg: #0E0E15;
+    --color-dark-surface: #161621;
+    --color-dark-surface2: #1e1e2d;
+    --color-dark-border: rgba(255, 255, 255, 0.08);
+    --color-dark-text: rgba(255, 255, 255, 0.92);
+    --color-dark-text2: rgba(255, 255, 255, 0.6);
+    --color-dark-text3: rgba(255, 255, 255, 0.4);
+
+    /* Light theme (admin, upload) */
+    --color-light-bg: #F7F8FA;
+    --color-light-surface: #FFFFFF;
+    --color-light-surface2: #F0F1F3;
+    --color-light-border: #E0E2E7;
+    --color-light-text: #0E0E15;
+    --color-light-text2: #5A5D65;
+    --color-light-text3: #8E929A;
+
     /* Font */
     --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
-}
-
-/* Dark mode variables (slideshow) */
-.dark {
-    --text-primary: rgba(255, 255, 255, 0.9);
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-tertiary: rgba(255, 255, 255, 0.5);
-    --text-disabled: rgba(255, 255, 255, 0.3);
-    --text-accent: #5498FF;
-    --border-primary: rgba(255, 255, 255, 0.3);
-    --border-secondary: rgba(255, 255, 255, 0.1);
-    --border-accent: #5498FF;
-    --bg-primary: #0E0E15;
-    --bg-secondary: #1a1a24;
-    --bg-tertiary: #252530;
-}
-
-/* Light mode variables (admin, upload) */
-.light {
-    --text-primary: rgba(14, 14, 21, 0.9);
-    --text-secondary: rgba(14, 14, 21, 0.7);
-    --text-tertiary: rgba(14, 14, 21, 0.5);
-    --text-disabled: rgba(14, 14, 21, 0.3);
-    --text-accent: #0065FF;
-    --border-primary: rgba(14, 14, 21, 0.3);
-    --border-secondary: rgba(14, 14, 21, 0.1);
-    --border-accent: #0065FF;
-    --bg-primary: #F7F8FA;
-    --bg-secondary: #FFFFFF;
-    --bg-tertiary: #E8EAED;
 }
 
 * {

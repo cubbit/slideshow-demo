@@ -8,24 +8,24 @@ export default function SettingsPage() {
     const settings = getSettings();
 
     return (
-        <div className="space-y-10 max-w-3xl">
+        <div style={{ maxWidth: '720px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
             <div>
-                <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-1">
+                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', marginBottom: '4px' }}>
                     S3 Storage
                 </h2>
-                <p className="text-sm text-[var(--text-tertiary)] mb-6">
+                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '28px' }}>
                     Configure the S3-compatible backend for photo storage
                 </p>
                 <S3ConfigForm initialSettings={settings} />
             </div>
 
-            <hr className="border-[var(--border-secondary)]" />
+            <hr style={{ borderColor: 'rgba(255,255,255,0.06)' }} />
 
             <div>
-                <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-1">
+                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', marginBottom: '4px' }}>
                     Slideshow
                 </h2>
-                <p className="text-sm text-[var(--text-tertiary)] mb-6">
+                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '28px' }}>
                     Configure the slideshow display settings
                 </p>
                 <SlideshowConfigForm initialSettings={settings} />

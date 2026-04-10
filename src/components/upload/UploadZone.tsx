@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useCallback, DragEvent } from 'react';
+import { useRef, useState, useEffect, DragEvent } from 'react';
 import { useUploadQueue } from '@/hooks/useUploadQueue';
 import UploadItem from './UploadItem';
 
@@ -12,7 +12,6 @@ export default function UploadZone() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [dragActive, setDragActive] = useState(false);
 
-    // Process queue whenever items change
     useEffect(() => {
         processNext();
     }, [items, processNext]);
@@ -43,7 +42,7 @@ export default function UploadZone() {
     const hasItems = items.length > 0;
 
     return (
-        <div className="w-full max-w-lg mx-auto space-y-4">
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Drop zone */}
             <div
                 onDragEnter={handleDrag}
@@ -51,11 +50,15 @@ export default function UploadZone() {
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-                    dragActive
-                        ? 'border-blue-500 bg-blue-500/5'
-                        : 'border-[var(--border-primary)] hover:border-[var(--border-accent)]'
-                }`}
+                style={{
+                    border: dragActive ? '2px dashed #0065FF' : '2px dashed rgba(255,255,255,0.12)',
+                    backgroundColor: dragActive ? 'rgba(0,101,255,0.05)' : 'rgba(255,255,255,0.03)',
+                    borderRadius: '16px',
+                    padding: '48px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                }}
             >
                 <input
                     ref={fileInputRef}
@@ -66,15 +69,31 @@ export default function UploadZone() {
                         handleFiles(e.target.files);
                         e.target.value = '';
                     }}
-                    className="hidden"
+                    style={{ display: 'none' }}
                 />
 
-                <div className="space-y-2">
-                    <div className="text-4xl text-[var(--text-tertiary)]">📷</div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                    <div
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '12px',
+                            backgroundColor: 'rgba(255,255,255,0.06)',
+                        }}
+                    >
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                    </div>
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
                         Tap to select photos or drag & drop
                     </p>
-                    <p className="text-xs text-[var(--text-tertiary)]">
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
                         JPEG, PNG, GIF, WebP, HEIC — multiple selection supported
                     </p>
                 </div>
@@ -82,29 +101,25 @@ export default function UploadZone() {
 
             {/* Queue */}
             {hasItems && (
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm text-[var(--text-secondary)]">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <p style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>
                             {items.length} file{items.length !== 1 ? 's' : ''}
                             {isUploading && ' — uploading...'}
                         </p>
                         {hasCompleted && (
                             <button
                                 onClick={clearCompleted}
-                                className="text-xs text-[var(--text-accent)] hover:underline"
+                                style={{ fontSize: '12px', fontWeight: 500, color: '#5498FF', background: 'none', border: 'none', cursor: 'pointer' }}
                             >
                                 Clear completed
                             </button>
                         )}
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {items.map(item => (
-                            <UploadItem
-                                key={item.id}
-                                item={item}
-                                onRemove={removeFile}
-                            />
+                            <UploadItem key={item.id} item={item} onRemove={removeFile} />
                         ))}
                     </div>
                 </div>

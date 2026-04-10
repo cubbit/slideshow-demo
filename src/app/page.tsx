@@ -2,6 +2,7 @@ import { getPhotos } from '@/lib/s3/list';
 import { getPublicSettings } from '@/lib/settings/service';
 import Carousel from '@/components/slideshow/Carousel';
 import S3HealthBadgeClient from '@/components/layout/S3HealthBadge';
+import CubbitLogo from '@/components/layout/CubbitLogo';
 import Link from 'next/link';
 import type { PhotoMeta } from '@/types/photo';
 
@@ -25,31 +26,54 @@ export default async function SlideshowPage() {
     });
 
     return (
-        <div className="dark min-h-screen bg-[var(--bg-primary)] flex flex-col">
+        <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <header className="px-6 py-3 flex items-center justify-between shrink-0 border-b border-[var(--border-secondary)]">
-                <div className="flex items-center gap-4">
-                    <span className="text-lg font-semibold text-[var(--text-accent)]">
+            <header
+                style={{
+                    backgroundColor: '#161621',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    padding: '20px 40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexShrink: 0,
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <CubbitLogo size={28} className="text-blue-400" />
+                    <span style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em' }}>
                         Cubbit Slideshow
                     </span>
-                    <span className="text-sm text-[var(--text-tertiary)]">{today}</span>
+                    <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>{today}</span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                     {settings.endpoint && (
-                        <span className="text-xs text-[var(--text-tertiary)]">
+                        <span
+                            style={{
+                                fontSize: '12px',
+                                color: 'rgba(255,255,255,0.25)',
+                                fontFamily: 'monospace',
+                                backgroundColor: 'rgba(255,255,255,0.04)',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(255,255,255,0.06)',
+                            }}
+                        >
                             {settings.endpoint}
                         </span>
                     )}
                     <S3HealthBadgeClient />
+                    <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
                     <Link
                         href="/upload"
-                        className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                        style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}
                     >
                         Upload
                     </Link>
                     <Link
                         href="/admin"
-                        className="text-sm text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+                        style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
                     >
                         Admin
                     </Link>
@@ -57,7 +81,7 @@ export default async function SlideshowPage() {
             </header>
 
             {/* Carousel */}
-            <main className="flex-1 overflow-hidden py-2">
+            <main style={{ flex: 1, overflow: 'hidden', padding: '16px 0' }}>
                 <Carousel initialPhotos={initialPhotos} initialSettings={settings} />
             </main>
         </div>
