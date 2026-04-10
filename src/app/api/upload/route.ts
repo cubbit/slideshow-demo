@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuid } from 'uuid';
 import { uploadPhoto } from '@/lib/s3/upload';
 import { getSettings } from '@/lib/settings/service';
+import { emitWebhookEvent } from '@/lib/webhooks/service';
 import logger from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
+    const uploadId = uuid();
+    let fileName = 'unknown';
+
     try {
         const settings = getSettings();
 
@@ -28,6 +33,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 });
         }
 
+        fileName = file.name;
+
         if (file.size > settings.maxFileSize) {
             return NextResponse.json(
                 {
@@ -37,9 +44,41 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        emitWebhookEvent(
+            'upload.started',
+            { fileName: file.name, fileSize: file.size, mimeType: file.type },
+            { uploadId }
+        );
+
         const buffer = Buffer.from(await file.arrayBuffer());
         const date = (formData.get('date') as string) || undefined;
-        const result = await uploadPhoto(buffer, file.name, file.type, date);
+
+        const onProgress = (bytesUploaded: number, totalBytes: number) => {
+            emitWebhookEvent(
+                'upload.progress',
+                {
+                    fileName: file.name,
+                    percentage: Math.round((bytesUploaded / totalBytes) * 100),
+                    bytesUploaded,
+                    totalBytes,
+                },
+                { uploadId }
+            );
+        };
+
+        const result = await uploadPhoto(buffer, file.name, file.type, date, onProgress);
+
+        emitWebhookEvent(
+            'upload.completed',
+            {
+                fileName: file.name,
+                fileSize: file.size,
+                key: result.key,
+                url: result.url,
+                thumbnailUrl: result.thumbnailUrl,
+            },
+            { uploadId }
+        );
 
         return NextResponse.json({
             message: 'Upload successful',
@@ -51,6 +90,8 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         const err = error as Error;
         logger.error('Upload failed', { error: err.message });
+
+        emitWebhookEvent('upload.failed', { fileName, error: err.message }, { uploadId });
 
         if (err.message.startsWith('Unsupported file type')) {
             return NextResponse.json({ error: err.message }, { status: 400 });

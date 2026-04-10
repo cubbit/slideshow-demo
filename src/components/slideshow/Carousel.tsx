@@ -33,7 +33,10 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         window.addEventListener('resize', check);
         return () => window.removeEventListener('resize', check);
     }, []);
-    const { rowCount: autoRowCount, cardSize: autoCardSize } = useOptimalRows(photos.length, settings.rows);
+    const { rowCount: autoRowCount, cardSize: autoCardSize } = useOptimalRows(
+        photos.length,
+        settings.rows
+    );
     const baseCardSize = settings.autoRows ? autoCardSize : 240;
     const [sizeOverride, setSizeOverride] = useState<number | null>(null);
     const cardSize = sizeOverride ?? baseCardSize;
@@ -89,8 +92,11 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         const result = distributed.map((newRow, i) => {
             const prevRow = prevRowsRef.current[i];
             // Reuse previous reference if keys are identical
-            if (prevRow && prevRow.length === newRow.length &&
-                prevRow.every((p, j) => p.key === newRow[j].key)) {
+            if (
+                prevRow &&
+                prevRow.length === newRow.length &&
+                prevRow.every((p, j) => p.key === newRow[j].key)
+            ) {
                 return prevRow;
             }
             return newRow;
@@ -136,45 +142,61 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     useEffect(() => {
         if (splashMountRef.current) return;
         // Wait minimum 500ms, then dismiss as soon as data is available or 2s max
-        const minTimer = setTimeout(() => {
-            splashMountRef.current = true;
-            setSplashDone(true);
-        }, photos.length > 0 || s3Status === 'error' ? 500 : 2000);
+        const minTimer = setTimeout(
+            () => {
+                splashMountRef.current = true;
+                setSplashDone(true);
+            },
+            photos.length > 0 || s3Status === 'error' ? 500 : 2000
+        );
         return () => clearTimeout(minTimer);
     }, [photos.length, s3Status]);
 
     if (!splashDone) {
-        const splashName = typeof document !== 'undefined' ? document.body.dataset.appName || 'Slideshow' : 'Slideshow';
+        const splashName =
+            typeof document !== 'undefined'
+                ? document.body.dataset.appName || 'Slideshow'
+                : 'Slideshow';
         return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: 'calc(100vh - 80px)',
-                gap: '28px',
-                animation: 'carouselFadeIn 0.5s ease-out both',
-            }}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 'calc(100vh - 80px)',
+                    gap: '28px',
+                    animation: 'carouselFadeIn 0.5s ease-out both',
+                }}
+            >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '64px', width: 'auto' }} />
-                <span style={{
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    letterSpacing: '0.2em',
-                    color: '#0065FF',
-                    textTransform: 'uppercase',
-                }}>
+                <img
+                    src="/cubbit-logo.svg"
+                    alt="Cubbit"
+                    style={{ height: '64px', width: 'auto' }}
+                />
+                <span
+                    style={{
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        letterSpacing: '0.2em',
+                        color: '#0065FF',
+                        textTransform: 'uppercase',
+                    }}
+                >
                     {splashName}
                 </span>
-                <div style={{
-                    width: 36,
-                    height: 36,
-                    border: '2.5px solid rgba(255,255,255,0.08)',
-                    borderTopColor: '#0065FF',
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite',
-                    marginTop: '8px',
-                }} />
+                <div
+                    style={{
+                        width: 36,
+                        height: 36,
+                        border: '2.5px solid rgba(255,255,255,0.08)',
+                        borderTopColor: '#0065FF',
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite',
+                        marginTop: '8px',
+                    }}
+                />
             </div>
         );
     }
@@ -187,14 +209,16 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     if (isMobile) {
         return (
             <>
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '3px',
-                    overflowY: 'auto',
-                    height: 'calc(100vh - 90px)',
-                    backgroundColor: 'rgba(255,255,255,0.05)',
-                }}>
+                <div
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '3px',
+                        overflowY: 'auto',
+                        height: 'calc(100vh - 90px)',
+                        backgroundColor: 'rgba(255,255,255,0.05)',
+                    }}
+                >
                     {displayPhotos.map(photo => (
                         <div
                             key={photo.key}
@@ -225,15 +249,21 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                         </div>
                     ))}
                 </div>
-                {selectedPhoto && (
-                    <PhotoModal photo={selectedPhoto} onClose={handleCloseModal} />
-                )}
+                {selectedPhoto && <PhotoModal photo={selectedPhoto} onClose={handleCloseModal} />}
             </>
         );
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', justifyContent: 'center', minHeight: 'calc(100vh - 80px)' }}>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
+                justifyContent: 'center',
+                minHeight: 'calc(100vh - 80px)',
+            }}
+        >
             {rows.map((rowPhotos, i) => (
                 <CarouselRow
                     key={i}
@@ -252,21 +282,23 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
             ))}
 
             {/* Bottom controls */}
-            <div style={{
-                position: 'fixed',
-                bottom: 24,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                backgroundColor: 'rgba(22,22,33,0.8)',
-                backdropFilter: 'blur(12px)',
-                borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                padding: '8px 16px',
-                zIndex: 10,
-            }}>
+            <div
+                style={{
+                    position: 'fixed',
+                    bottom: 24,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    backgroundColor: 'rgba(22,22,33,0.8)',
+                    backdropFilter: 'blur(12px)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    padding: '8px 16px',
+                    zIndex: 10,
+                }}
+            >
                 {/* Pause/Resume */}
                 <button
                     onClick={togglePause}
@@ -289,10 +321,23 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                     {globalPaused ? '▶' : '⏸'}
                 </button>
 
-                <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+                <div
+                    style={{
+                        width: '1px',
+                        height: '20px',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                    }}
+                />
 
                 {/* Size slider */}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5">
+                <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.35)"
+                    strokeWidth="1.5"
+                >
                     <rect x="3" y="3" width="7" height="7" rx="1" />
                     <rect x="14" y="3" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -311,7 +356,14 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                     }}
                     aria-label="Photo size"
                 />
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5">
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.35)"
+                    strokeWidth="1.5"
+                >
                     <rect x="3" y="3" width="7" height="7" rx="1" />
                     <rect x="14" y="3" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -320,9 +372,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
             </div>
 
             {/* Photo modal */}
-            {selectedPhoto && (
-                <PhotoModal photo={selectedPhoto} onClose={handleCloseModal} />
-            )}
+            {selectedPhoto && <PhotoModal photo={selectedPhoto} onClose={handleCloseModal} />}
         </div>
     );
 }

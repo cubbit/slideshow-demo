@@ -2,28 +2,28 @@
 
 @theme {
     /* Cubbit Blue Scale */
-    --color-blue-50: #E6F0FF;
-    --color-blue-100: #B0CFFF;
-    --color-blue-200: #8AB8FF;
-    --color-blue-300: #5498FF;
-    --color-blue-400: #3384FF;
-    --color-blue-500: #0065FF;
-    --color-blue-600: #005CE8;
-    --color-blue-700: #0048B5;
-    --color-blue-800: #00388C;
-    --color-blue-900: #002A6B;
+    --color-blue-50: #e6f0ff;
+    --color-blue-100: #b0cfff;
+    --color-blue-200: #8ab8ff;
+    --color-blue-300: #5498ff;
+    --color-blue-400: #3384ff;
+    --color-blue-500: #0065ff;
+    --color-blue-600: #005ce8;
+    --color-blue-700: #0048b5;
+    --color-blue-800: #00388c;
+    --color-blue-900: #002a6b;
 
     /* Brand Colors */
-    --color-brand-black: #0E0E15;
-    --color-brand-white: #F7F8FA;
+    --color-brand-black: #0e0e15;
+    --color-brand-white: #f7f8fa;
 
     /* Semantic Colors */
-    --color-success: #26AB75;
-    --color-error: #D32C20;
-    --color-warning: #C49224;
+    --color-success: #26ab75;
+    --color-error: #d32c20;
+    --color-warning: #c49224;
 
     /* Dark theme (slideshow) */
-    --color-dark-bg: #0E0E15;
+    --color-dark-bg: #0e0e15;
     --color-dark-surface: #161621;
     --color-dark-surface2: #1e1e2d;
     --color-dark-border: rgba(255, 255, 255, 0.08);
@@ -32,13 +32,13 @@
     --color-dark-text3: rgba(255, 255, 255, 0.4);
 
     /* Light theme (admin, upload) */
-    --color-light-bg: #F7F8FA;
-    --color-light-surface: #FFFFFF;
-    --color-light-surface2: #F0F1F3;
-    --color-light-border: #E0E2E7;
-    --color-light-text: #0E0E15;
-    --color-light-text2: #5A5D65;
-    --color-light-text3: #8E929A;
+    --color-light-bg: #f7f8fa;
+    --color-light-surface: #ffffff;
+    --color-light-surface2: #f0f1f3;
+    --color-light-border: #e0e2e7;
+    --color-light-text: #0e0e15;
+    --color-light-text2: #5a5d65;
+    --color-light-text3: #8e929a;
 
     /* Font */
     --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
@@ -59,24 +59,24 @@ body {
 }
 
 /* Range slider dark theme */
-input[type="range"] {
+input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     height: 4px;
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 2px;
     outline: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #FFFFFF;
+    background: #ffffff;
     cursor: pointer;
-    border: 2px solid #0065FF;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    border: 2px solid #0065ff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes spin {
@@ -149,7 +149,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* Gentle float for empty state icon */
 @keyframes gentleFloat {
-    0%, 100% {
+    0%,
+    100% {
         transform: translateY(0);
     }
     50% {
@@ -196,7 +197,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* Upload drop zone hover glow */
 .dropzone-hover {
-    border-color: #0065FF !important;
+    border-color: #0065ff !important;
     background-color: rgba(0, 101, 255, 0.06) !important;
     box-shadow: 0 0 20px rgba(0, 101, 255, 0.08);
 }
@@ -254,7 +255,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .modal-btn-danger {
-    background-color: #D32C20;
+    background-color: #d32c20;
 }
 
 .modal-btn-danger:hover:not(:disabled) {
@@ -305,7 +306,7 @@ input[type="range"]::-webkit-slider-thumb {
         padding: 0;
         overflow-y: auto;
         height: calc(100vh - 90px);
-        background-color: rgba(255,255,255,0.05);
+        background-color: rgba(255, 255, 255, 0.05);
     }
 
     .mobile-grid-item {
@@ -313,7 +314,7 @@ input[type="range"]::-webkit-slider-thumb {
         width: 100%;
         padding-bottom: 100%; /* force square */
         overflow: hidden;
-        background-color: #0E0E15;
+        background-color: #0e0e15;
     }
 
     .mobile-grid-item img {

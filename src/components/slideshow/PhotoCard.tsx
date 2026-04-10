@@ -32,42 +32,52 @@ export default memo(function PhotoCard({ photo, isNew, priority, size = 240, onC
         <div
             className={`${styles.photo} ${isNew ? styles.highlight : ''}`}
             onClick={() => onClick?.(photo)}
-            style={{ width: `${size}px`, height: `${size}px`, backgroundColor: loaded ? 'transparent' : 'rgba(255,255,255,0.06)' }}
+            style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                backgroundColor: loaded ? 'transparent' : 'rgba(255,255,255,0.06)',
+            }}
         >
             {!loaded && (
-                <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                    <div style={{
-                        width: 24,
-                        height: 24,
-                        border: '2px solid rgba(255,255,255,0.15)',
-                        borderTopColor: 'rgba(255,255,255,0.5)',
-                        borderRadius: '50%',
-                        animation: 'spin 0.8s linear infinite',
-                    }} />
+                <div
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 24,
+                            height: 24,
+                            border: '2px solid rgba(255,255,255,0.15)',
+                            borderTopColor: 'rgba(255,255,255,0.5)',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                        }}
+                    />
                 </div>
             )}
             {isNew && loaded && (
-                <div style={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    backgroundColor: '#0065FF',
-                    color: '#FFFFFF',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    letterSpacing: '0.05em',
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    zIndex: 2,
-                    textTransform: 'uppercase',
-                    boxShadow: '0 2px 8px rgba(0,101,255,0.5)',
-                }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        backgroundColor: '#0065FF',
+                        color: '#FFFFFF',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.05em',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        zIndex: 2,
+                        textTransform: 'uppercase',
+                        boxShadow: '0 2px 8px rgba(0,101,255,0.5)',
+                    }}
+                >
                     NEW
                 </div>
             )}
@@ -89,4 +99,4 @@ export default memo(function PhotoCard({ photo, isNew, priority, size = 240, onC
             />
         </div>
     );
-})
+});

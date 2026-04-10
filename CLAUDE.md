@@ -34,6 +34,7 @@ helm install slideshow ./helm -f my-values.yaml
 **Stack**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4, SQLite (better-sqlite3), AWS SDK v3, jose (JWT), sharp (thumbnails), Winston (logging), Zod (validation).
 
 **Key patterns**:
+
 - Server Components by default; `'use client'` only for interactive components
 - Server Actions for admin mutations (settings, password)
 - API routes for uploads (XHR progress) and GET endpoints

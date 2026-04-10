@@ -44,10 +44,11 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // Protect admin API routes (settings mutations only)
-    const isSettingsMutation =
-        pathname.startsWith('/api/settings') && request.method !== 'GET';
-    if (isSettingsMutation) {
+    // Protect admin API routes
+    const isProtectedApi =
+        (pathname.startsWith('/api/settings') && request.method !== 'GET') ||
+        pathname.startsWith('/api/webhooks');
+    if (isProtectedApi) {
         if (!(await isAuthenticated(request))) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -57,5 +58,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/api/settings/:path*'],
+    matcher: ['/admin/:path*', '/api/settings/:path*', '/api/webhooks/:path*'],
 };

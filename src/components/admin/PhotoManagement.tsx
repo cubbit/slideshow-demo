@@ -31,7 +31,16 @@ const btnDanger: React.CSSProperties = {
 
 function DownloadIcon() {
     return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
@@ -41,7 +50,16 @@ function DownloadIcon() {
 
 function TrashIcon() {
     return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
         </svg>
@@ -51,7 +69,9 @@ function TrashIcon() {
 export default function PhotoManagement() {
     const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
     const [loading, setLoading] = useState<string | null>(null);
-    const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+    const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(
+        null
+    );
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -83,7 +103,9 @@ export default function PhotoManagement() {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = res.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'photos.zip';
+            a.download =
+                res.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') ||
+                'photos.zip';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -126,7 +148,15 @@ export default function PhotoManagement() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Day picker */}
             <div>
-                <label style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '6px' }}>
+                <label
+                    style={{
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        color: 'rgba(255,255,255,0.5)',
+                        display: 'block',
+                        marginBottom: '6px',
+                    }}
+                >
                     Select a day
                 </label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -170,15 +200,17 @@ export default function PhotoManagement() {
             </div>
 
             {/* All photos */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-            }}>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '14px 16px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                }}
+            >
                 <span style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>
                     All photos (all days)
                 </span>
@@ -206,14 +238,19 @@ export default function PhotoManagement() {
 
             {/* Status message */}
             {message && (
-                <div style={{
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    backgroundColor: message.type === 'success' ? 'rgba(38,171,117,0.1)' : 'rgba(211,44,32,0.1)',
-                    color: message.type === 'success' ? '#26AB75' : '#D32C20',
-                    border: `1px solid ${message.type === 'success' ? 'rgba(38,171,117,0.2)' : 'rgba(211,44,32,0.2)'}`,
-                }}>
+                <div
+                    style={{
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        backgroundColor:
+                            message.type === 'success'
+                                ? 'rgba(38,171,117,0.1)'
+                                : 'rgba(211,44,32,0.1)',
+                        color: message.type === 'success' ? '#26AB75' : '#D32C20',
+                        border: `1px solid ${message.type === 'success' ? 'rgba(38,171,117,0.2)' : 'rgba(211,44,32,0.2)'}`,
+                    }}
+                >
                     {message.text}
                 </div>
             )}

@@ -32,9 +32,7 @@ export function DateProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <DateContext.Provider value={{ date, setDate, apiDate }}>
-            {children}
-        </DateContext.Provider>
+        <DateContext.Provider value={{ date, setDate, apiDate }}>{children}</DateContext.Provider>
     );
 }
 

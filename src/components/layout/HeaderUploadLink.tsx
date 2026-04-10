@@ -26,7 +26,12 @@ export default function HeaderUploadLink() {
     return (
         <Link
             href="/upload"
-            style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}
+            style={{
+                fontSize: '14px',
+                fontWeight: 500,
+                color: 'rgba(255,255,255,0.55)',
+                textDecoration: 'none',
+            }}
         >
             Upload
         </Link>

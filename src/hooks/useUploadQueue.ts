@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useCallback, useRef } from 'react';
+import { useReducer, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
 export interface UploadItem {
@@ -65,9 +65,70 @@ function reducer(state: UploadItem[], action: Action): UploadItem[] {
     }
 }
 
+async function startBatch(fileCount: number): Promise<string | null> {
+    try {
+        const res = await fetch('/api/upload/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileCount }),
+        });
+        if (res.ok) {
+            const data = await res.json();
+            return data.batchId;
+        }
+    } catch {
+        // Batch tracking is best-effort
+    }
+    return null;
+}
+
+async function completeBatch(
+    batchId: string,
+    fileCount: number,
+    successCount: number,
+    failedCount: number
+): Promise<void> {
+    try {
+        await fetch('/api/upload/batch', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ batchId, fileCount, successCount, failedCount }),
+        });
+    } catch {
+        // Best-effort
+    }
+}
+
+function tryCompleteBatch(
+    items: UploadItem[],
+    batchRef: React.RefObject<{ id: string; fileCount: number } | null>
+) {
+    if (!batchRef.current || items.length === 0) return;
+
+    let successCount = 0;
+    let failedCount = 0;
+    for (const item of items) {
+        if (item.status === 'pending' || item.status === 'uploading') return;
+        if (item.status === 'success') successCount++;
+        else failedCount++;
+    }
+
+    const batch = batchRef.current;
+    batchRef.current = null;
+    completeBatch(batch.id, batch.fileCount, successCount, failedCount);
+}
+
 export function useUploadQueue() {
     const [items, dispatch] = useReducer(reducer, []);
     const uploadingRef = useRef(false);
+    const batchRef = useRef<{ id: string; fileCount: number } | null>(null);
+    const itemsRef = useRef(items);
+    itemsRef.current = items;
+
+    // Check if batch is complete after each state change
+    useEffect(() => {
+        tryCompleteBatch(items, batchRef);
+    }, [items]);
 
     const processNext = useCallback(() => {
         const pending = items.find(i => i.status === 'pending');
@@ -82,9 +143,8 @@ export function useUploadQueue() {
         formData.append('file', item.file);
 
         // Send the selected date so photos go to the correct day folder
-        const selectedDate = typeof sessionStorage !== 'undefined'
-            ? sessionStorage.getItem('slideshow-date')
-            : null;
+        const selectedDate =
+            typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('slideshow-date') : null;
         if (selectedDate) {
             const today = new Date().toISOString().split('T')[0];
             if (selectedDate !== today) {
@@ -136,12 +196,16 @@ export function useUploadQueue() {
         xhr.send(formData);
     }, [items]);
 
-    const addFiles = useCallback(
-        (files: File[]) => {
-            dispatch({ type: 'ADD_FILES', files });
-        },
-        []
-    );
+    const addFiles = useCallback((files: File[]) => {
+        dispatch({ type: 'ADD_FILES', files });
+        startBatch(files.length).then(batchId => {
+            if (batchId) {
+                batchRef.current = { id: batchId, fileCount: files.length };
+                // If uploads already finished while awaiting batch creation, complete now
+                tryCompleteBatch(itemsRef.current, batchRef);
+            }
+        });
+    }, []);
 
     const removeFile = useCallback((id: string) => {
         dispatch({ type: 'REMOVE', id });

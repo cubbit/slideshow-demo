@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         logger.error('Failed to list photos', { error });
         return NextResponse.json(
-            { photos: [], nextCursor: null, totalCount: 0, hasMore: false, error: 'Failed to fetch photos' },
+            {
+                photos: [],
+                nextCursor: null,
+                totalCount: 0,
+                hasMore: false,
+                error: 'Failed to fetch photos',
+            },
             { status: 502 }
         );
     }

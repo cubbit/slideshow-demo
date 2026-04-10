@@ -15,13 +15,35 @@ export const s3SettingsSchema = z.object({
     maxFileSize: z.coerce.number().int().positive().default(10485760),
 });
 
+const boolPreprocess = z.preprocess(v => v === 'true' || v === true, z.boolean());
+
 export const slideshowSettingsSchema = z.object({
     speedS: z.coerce.number().int().min(10).max(600).default(200),
     rows: z.coerce.number().int().min(1).max(10).default(3),
     minCountForMarquee: z.coerce.number().int().min(1).max(50).default(6),
     cacheTtlS: z.coerce.number().int().min(5).max(300).default(30),
-    autoRows: z.preprocess(v => v === 'true' || v === true, z.boolean()).default(true),
-    uploadsEnabled: z.preprocess(v => v === 'true' || v === true, z.boolean()).default(true),
+    autoRows: boolPreprocess.default(true),
+    uploadsEnabled: boolPreprocess.default(true),
+});
+
+export const webhookSchema = z.object({
+    name: z.string().max(100).default(''),
+    url: z
+        .string()
+        .url('Must be a valid URL')
+        .refine(
+            u => u.startsWith('http://') || u.startsWith('https://'),
+            'Only HTTP/HTTPS URLs are allowed'
+        ),
+    secret: z.string().default(''),
+    enabled: boolPreprocess.default(true),
+    onUploadStarted: boolPreprocess.default(true),
+    onUploadProgress: boolPreprocess.default(false),
+    onUploadCompleted: boolPreprocess.default(true),
+    onUploadFailed: boolPreprocess.default(true),
+    onBatchStarted: boolPreprocess.default(true),
+    onBatchCompleted: boolPreprocess.default(true),
+    onS3HealthChanged: boolPreprocess.default(false),
 });
 
 export const passwordChangeSchema = z
