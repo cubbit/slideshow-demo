@@ -7,6 +7,7 @@ import EmptyState from './EmptyState';
 import { usePhotos } from '@/hooks/usePhotos';
 import { usePublicSettings } from '@/hooks/usePublicSettings';
 import { useS3Health } from '@/contexts/S3HealthContext';
+import { useDate } from '@/contexts/DateContext';
 import { shuffleArray, diffPhotos } from '@/lib/photos/diff';
 import { distributeIntoRows } from '@/lib/photos/rows';
 import { useOptimalRows } from '@/hooks/useOptimalRows';
@@ -19,7 +20,8 @@ interface Props {
 }
 
 export default function Carousel({ initialPhotos, initialSettings }: Props) {
-    const { photos, newKeys } = usePhotos(initialPhotos);
+    const { apiDate } = useDate();
+    const { photos, newKeys } = usePhotos(initialPhotos, apiDate);
     const settings = usePublicSettings(initialSettings);
     const s3Status = useS3Health();
     const optimalRows = useOptimalRows(photos.length, settings.rows);

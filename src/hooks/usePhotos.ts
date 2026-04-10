@@ -4,14 +4,30 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { PhotoMeta } from '@/types/photo';
 import { DEFAULT_POLL_INTERVAL_MS } from '@/lib/constants';
 
-export function usePhotos(initialPhotos: PhotoMeta[]) {
+/**
+ * @param date - optional date string in YYYY/MM/DD format to filter photos by date
+ */
+export function usePhotos(initialPhotos: PhotoMeta[], date?: string) {
     const [photos, setPhotos] = useState<PhotoMeta[]>(initialPhotos);
     const [newKeys, setNewKeys] = useState<Set<string>>(new Set());
     const knownKeysRef = useRef<Set<string>>(new Set(initialPhotos.map(p => p.key)));
 
+    // Reset and fetch immediately when date changes
+    const isFirstMount = useRef(true);
+    useEffect(() => {
+        if (isFirstMount.current) {
+            isFirstMount.current = false;
+            return;
+        }
+        knownKeysRef.current = new Set();
+        setNewKeys(new Set());
+        setPhotos([]);
+    }, [date]);
+
     const fetchPhotos = useCallback(async () => {
         try {
-            const res = await fetch(`/api/photos?t=${Date.now()}`);
+            const dateParam = date ? `&date=${date}` : '';
+            const res = await fetch(`/api/photos?t=${Date.now()}${dateParam}`);
             if (!res.ok) return;
 
             const data = await res.json();
@@ -35,7 +51,7 @@ export function usePhotos(initialPhotos: PhotoMeta[]) {
         } catch {
             // Silently fail, will retry
         }
-    }, []);
+    }, [date]);
 
     // SSE for real-time updates + slow background poll as safety net
     useEffect(() => {
@@ -62,6 +78,9 @@ export function usePhotos(initialPhotos: PhotoMeta[]) {
         }
 
         connectSSE();
+
+        // Fetch immediately (handles date changes and initial load)
+        fetchPhotos();
 
         // Safety poll every 30s in case an SSE event is missed
         const safetyPoll = setInterval(fetchPhotos, 30000);

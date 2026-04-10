@@ -37,23 +37,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                        <CubbitLogo size={26} className="text-blue-400" />
-                        <span style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-                            Cubbit Slideshow
-                        </span>
+                    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '22px', width: 'auto' }} />
                     </Link>
-                    <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+                    <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
                     <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         Admin
                     </span>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                    Sign out
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Link
+                        href="/"
+                        style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                        Slideshow
+                    </Link>
+                    <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
+                    <button
+                        onClick={handleLogout}
+                        style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                        Sign out
+                    </button>
+                </div>
             </header>
 
             <div style={{ display: 'flex' }}>

@@ -4,7 +4,9 @@ import Carousel from '@/components/slideshow/Carousel';
 import S3HealthBadgeClient from '@/components/layout/S3HealthBadge';
 import CubbitLogo from '@/components/layout/CubbitLogo';
 import HeaderUploadLink from '@/components/layout/HeaderUploadLink';
+import DatePicker from '@/components/layout/DatePicker';
 import { S3HealthProvider } from '@/contexts/S3HealthContext';
+import { DateProvider } from '@/contexts/DateContext';
 import Link from 'next/link';
 import type { PhotoMeta } from '@/types/photo';
 
@@ -20,15 +22,10 @@ export default async function SlideshowPage() {
     }
 
     const settings = getPublicSettings();
-    const today = new Date().toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
 
     return (
         <S3HealthProvider>
+        <DateProvider>
         <div style={{
             minHeight: '100vh',
             backgroundColor: '#0E0E15',
@@ -56,12 +53,25 @@ export default async function SlideshowPage() {
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <CubbitLogo size={28} className="text-blue-400" />
-                    <span style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em' }}>
-                        Cubbit Slideshow
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '24px', width: 'auto' }} />
+                        <span style={{
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            letterSpacing: '0.1em',
+                            color: '#0065FF',
+                            backgroundColor: 'rgba(0,101,255,0.1)',
+                            border: '1px solid rgba(0,101,255,0.2)',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            textTransform: 'uppercase',
+                        }}>
+                            Slideshow
+                        </span>
+                    </div>
                     <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
-                    <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>{today}</span>
+                    <DatePicker />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                     {settings.endpoint && (
@@ -84,9 +94,13 @@ export default async function SlideshowPage() {
                     <HeaderUploadLink />
                     <Link
                         href="/admin"
-                        style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+                        title="Settings"
+                        style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
                     >
-                        Admin
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
                     </Link>
                 </div>
             </header>
@@ -96,6 +110,7 @@ export default async function SlideshowPage() {
                 <Carousel initialPhotos={initialPhotos} initialSettings={settings} />
             </main>
         </div>
+        </DateProvider>
         </S3HealthProvider>
     );
 }
