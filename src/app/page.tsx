@@ -44,6 +44,7 @@ export default async function SlideshowPage() {
         }}>
             {/* Header */}
             <header
+                className="animate-header-enter"
                 style={{
                     backgroundColor: '#161621',
                     borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -91,7 +92,7 @@ export default async function SlideshowPage() {
             </header>
 
             {/* Carousel */}
-            <main style={{ flex: 1, overflow: 'hidden', padding: '16px 0' }}>
+            <main className="animate-carousel-fadein" style={{ flex: 1, overflow: 'hidden', padding: '16px 0' }}>
                 <Carousel initialPhotos={initialPhotos} initialSettings={settings} />
             </main>
         </div>

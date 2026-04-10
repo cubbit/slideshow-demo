@@ -1,11 +1,14 @@
 'use client';
 
-import { useMemo, useRef, useEffect, useCallback } from 'react';
+import { useMemo, useRef, useEffect, useCallback, useState, memo } from 'react';
 import styles from './CarouselRow.module.css';
 import PhotoCard from './PhotoCard';
 import type { PhotoMeta } from '@/types/photo';
 
+const CARD_WIDTH = 248; // 240px card + 8px gap
+
 interface Props {
+    rowIndex: number;
     photos: PhotoMeta[];
     direction: 'left' | 'right';
     speedS: number;
@@ -13,11 +16,26 @@ interface Props {
     paused: boolean;
     newKeys: Set<string>;
     onPhotoClick: (photo: PhotoMeta) => void;
-    onMouseEnter: () => void;
+    onMouseEnter: (row: number) => void;
     onMouseLeave: () => void;
 }
 
-export default function CarouselRow({
+function arePropsEqual(prev: Props, next: Props): boolean {
+    // Only re-render if photos, paused, or relevant newKeys changed
+    if (prev.photos !== next.photos) return false;
+    if (prev.paused !== next.paused) return false;
+    if (prev.direction !== next.direction) return false;
+    if (prev.speedS !== next.speedS) return false;
+    if (prev.minCount !== next.minCount) return false;
+    // Check if newKeys relevant to THIS row changed
+    const prevHasNew = prev.photos.some(p => prev.newKeys.has(p.key));
+    const nextHasNew = next.photos.some(p => next.newKeys.has(p.key));
+    if (prevHasNew !== nextHasNew) return false;
+    return true;
+}
+
+export default memo(function CarouselRow({
+    rowIndex,
     photos,
     direction,
     speedS,
@@ -36,15 +54,29 @@ export default function CarouselRow({
     const pausedRef = useRef(paused);
     const userScrollRef = useRef(0);
 
+    const prevKeysRef = useRef<Set<string>>(new Set(photos.map(p => p.key)));
     pausedRef.current = paused;
 
-    // Pixels per second based on speedS and photo count
+    // Constant velocity across all rows (pixels per second).
+    // Base: ~6 cards worth of movement per speedS seconds, independent of row photo count.
     const pxPerSecond = useMemo(() => {
-        const cardWidth = 248; // 240px + 8px gap
-        const totalWidth = photos.length * cardWidth;
-        const duration = (speedS / 10) * photos.length;
-        return totalWidth / duration;
-    }, [photos.length, speedS]);
+        return (6 * CARD_WIDTH) / speedS;
+    }, [speedS]);
+
+    // When new photos appear, scroll so the first new one is centered on screen
+    useEffect(() => {
+        if (!isAnimated) return;
+        const prevKeys = prevKeysRef.current;
+        const newIndex = photos.findIndex(p => !prevKeys.has(p.key));
+        prevKeysRef.current = new Set(photos.map(p => p.key));
+
+        if (newIndex >= 0 && typeof window !== 'undefined') {
+            const viewportCenter = window.innerWidth / 2;
+            const targetOffset = newIndex * CARD_WIDTH - viewportCenter + CARD_WIDTH / 2;
+            const halfWidth = photos.length * CARD_WIDTH;
+            offsetRef.current = ((targetOffset % halfWidth) + halfWidth) % halfWidth;
+        }
+    }, [photos, isAnimated]);
 
     // Double photos for seamless loop
     const displayPhotos = useMemo(
@@ -56,8 +88,7 @@ export default function CarouselRow({
     useEffect(() => {
         if (!isAnimated || !trackRef.current) return;
 
-        const cardWidth = 248;
-        const halfWidth = photos.length * cardWidth;
+        const halfWidth = photos.length * CARD_WIDTH;
 
         function animate(time: number) {
             if (!lastTimeRef.current) lastTimeRef.current = time;
@@ -122,7 +153,7 @@ export default function CarouselRow({
     return (
         <div
             className={styles.row}
-            onMouseEnter={onMouseEnter}
+            onMouseEnter={() => onMouseEnter(rowIndex)}
             onMouseLeave={onMouseLeave}
             onWheel={handleWheel}
         >
@@ -139,4 +170,4 @@ export default function CarouselRow({
             </div>
         </div>
     );
-}
+}, arePropsEqual)

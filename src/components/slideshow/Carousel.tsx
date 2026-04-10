@@ -8,6 +8,8 @@ import { usePhotos } from '@/hooks/usePhotos';
 import { usePublicSettings } from '@/hooks/usePublicSettings';
 import { useS3Health } from '@/contexts/S3HealthContext';
 import { shuffleArray, diffPhotos } from '@/lib/photos/diff';
+import { distributeIntoRows } from '@/lib/photos/rows';
+import { useOptimalRows } from '@/hooks/useOptimalRows';
 import type { PhotoMeta } from '@/types/photo';
 import type { PublicSettings } from '@/types/settings';
 
@@ -20,6 +22,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const { photos, newKeys } = usePhotos(initialPhotos);
     const settings = usePublicSettings(initialSettings);
     const s3Status = useS3Health();
+    const optimalRows = useOptimalRows(photos.length, settings.rows);
     const [globalPaused, setGlobalPaused] = useState(false);
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [selectedPhoto, setSelectedPhoto] = useState<PhotoMeta | null>(null);
@@ -42,22 +45,30 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         }
     }, [photos]);
 
-    // Distribute photos across rows, reducing row count if needed so each row
-    // has enough photos for the marquee animation.
+    // Distribute photos across rows with stable references.
+    // Rows whose photos haven't changed keep the same array reference,
+    // so memoized CarouselRow components skip re-rendering.
+    const prevRowsRef = useRef<PhotoMeta[][]>([]);
     const rows = useMemo(() => {
-        if (displayPhotos.length === 0) return [];
+        const distributed = distributeIntoRows(displayPhotos, optimalRows);
 
-        // Each row needs at least 2 photos (marquee duplicates them for seamless looping)
-        const maxRows = Math.max(1, Math.floor(displayPhotos.length / 2));
-        const rowCount = Math.min(settings.rows, maxRows);
-        const result: PhotoMeta[][] = Array.from({ length: rowCount }, () => []);
-
-        displayPhotos.forEach((photo, i) => {
-            result[i % rowCount].push(photo);
+        const result = distributed.map((newRow, i) => {
+            const prevRow = prevRowsRef.current[i];
+            // Reuse previous reference if keys are identical
+            if (prevRow && prevRow.length === newRow.length &&
+                prevRow.every((p, j) => p.key === newRow[j].key)) {
+                return prevRow;
+            }
+            return newRow;
         });
 
+        prevRowsRef.current = result;
         return result;
-    }, [displayPhotos, settings.rows, settings.minCountForMarquee]);
+    }, [displayPhotos, optimalRows]);
+
+    // Stable callbacks for row interaction
+    const handleMouseEnter = useCallback((row: number) => setHoveredRow(row), []);
+    const handleMouseLeave = useCallback(() => setHoveredRow(null), []);
 
     const handlePhotoClick = useCallback((photo: PhotoMeta) => {
         setSelectedPhoto(photo);
@@ -94,6 +105,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
             {rows.map((rowPhotos, i) => (
                 <CarouselRow
                     key={i}
+                    rowIndex={i}
                     photos={rowPhotos}
                     direction={i % 2 === 0 ? 'left' : 'right'}
                     speedS={settings.speedS}
@@ -101,15 +113,15 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                     paused={globalPaused || hoveredRow === i}
                     newKeys={newKeys}
                     onPhotoClick={handlePhotoClick}
-                    onMouseEnter={() => setHoveredRow(i)}
-                    onMouseLeave={() => setHoveredRow(null)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                 />
             ))}
 
             {/* Pause button */}
             <button
                 onClick={togglePause}
-                className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all z-10"
+                className={`fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all z-10${!globalPaused ? ' animate-pause-ring' : ''}`}
                 aria-label={globalPaused ? 'Resume slideshow' : 'Pause slideshow'}
             >
                 {globalPaused ? '▶' : '⏸'}

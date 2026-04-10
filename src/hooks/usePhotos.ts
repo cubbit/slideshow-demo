@@ -9,15 +9,6 @@ export function usePhotos(initialPhotos: PhotoMeta[]) {
     const [newKeys, setNewKeys] = useState<Set<string>>(new Set());
     const knownKeysRef = useRef<Set<string>>(new Set(initialPhotos.map(p => p.key)));
 
-    // Clear "new" highlight after 3 seconds
-    useEffect(() => {
-        if (newKeys.size === 0) return;
-        const timer = setTimeout(() => {
-            setNewKeys(new Set());
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [newKeys]);
-
     const fetchPhotos = useCallback(async () => {
         try {
             const res = await fetch(`/api/photos?t=${Date.now()}`);
@@ -36,19 +27,50 @@ export function usePhotos(initialPhotos: PhotoMeta[]) {
             }
 
             if (newFound.size > 0) {
-                setNewKeys(prev => new Set([...prev, ...newFound]));
+                // Clear previous "new" badges — only the latest additions get the badge
+                setNewKeys(newFound);
             }
 
             setPhotos(fetchedPhotos);
         } catch {
-            // Silently fail, will retry on next poll
+            // Silently fail, will retry
         }
     }, []);
 
-    // Polling
+    // SSE for real-time updates + slow background poll as safety net
     useEffect(() => {
-        const interval = setInterval(fetchPhotos, DEFAULT_POLL_INTERVAL_MS);
-        return () => clearInterval(interval);
+        let eventSource: EventSource | null = null;
+        let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+        function connectSSE() {
+            try {
+                eventSource = new EventSource('/api/photos/stream');
+
+                eventSource.addEventListener('new-photos', () => {
+                    fetchPhotos();
+                });
+
+                eventSource.onerror = () => {
+                    // Reconnect after a delay
+                    eventSource?.close();
+                    eventSource = null;
+                    reconnectTimer = setTimeout(connectSSE, 3000);
+                };
+            } catch {
+                reconnectTimer = setTimeout(connectSSE, 3000);
+            }
+        }
+
+        connectSSE();
+
+        // Safety poll every 30s in case an SSE event is missed
+        const safetyPoll = setInterval(fetchPhotos, 30000);
+
+        return () => {
+            if (reconnectTimer) clearTimeout(reconnectTimer);
+            eventSource?.close();
+            clearInterval(safetyPoll);
+        };
     }, [fetchPhotos]);
 
     return { photos, newKeys };

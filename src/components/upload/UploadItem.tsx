@@ -1,16 +1,11 @@
 'use client';
 
 import type { UploadItem as UploadItemType } from '@/hooks/useUploadQueue';
+import { formatFileSize } from '@/lib/format';
 
 interface Props {
     item: UploadItemType;
     onRemove: (id: string) => void;
-}
-
-function formatSize(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function UploadItem({ item, onRemove }: Props) {
@@ -50,7 +45,7 @@ export default function UploadItem({ item, onRemove }: Props) {
                     {item.file.name}
                 </p>
                 <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
-                    {formatSize(item.file.size)}
+                    {formatFileSize(item.file.size)}
                     {item.status === 'uploading' && ` — ${item.progress}%`}
                     {item.status === 'error' && (
                         <span style={{ color: '#D32C20', marginLeft: '4px' }}>{item.error}</span>

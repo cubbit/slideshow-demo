@@ -74,6 +74,7 @@ export async function uploadPhoto(
     // Generate and upload thumbnail
     try {
         const thumbnail = await sharp(buffer)
+            .rotate() // auto-apply EXIF orientation
             .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { fit: 'cover', position: 'centre' })
             .jpeg({ quality: THUMBNAIL_QUALITY, progressive: true })
             .toBuffer();

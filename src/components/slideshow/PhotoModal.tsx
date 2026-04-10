@@ -50,101 +50,30 @@ export default function PhotoModal({ photo, onClose }: Props) {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-modal-backdrop"
             onClick={onClose}
         >
             <div
-                style={{
-                    position: 'relative',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    maxWidth: '85vw',
-                    maxHeight: '85vh',
-                    padding: '32px',
-                    backgroundColor: 'rgba(22, 22, 33, 0.9)',
-                    borderRadius: '16px',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                }}
+                className="modal-panel animate-modal-content"
                 onClick={e => e.stopPropagation()}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={photo.url}
-                    alt=""
-                    style={{
-                        maxWidth: '100%',
-                        maxHeight: 'calc(85vh - 120px)',
-                        borderRadius: '12px',
-                        objectFit: 'contain',
-                    }}
-                />
+                <img src={photo.url} alt="" />
 
-                {/* Controls */}
-                <div style={{ display: 'flex', gap: '12px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, width: '100%', justifyContent: 'center' }}>
-                    <button
-                        onClick={handleDownload}
-                        style={{
-                            padding: '10px 24px',
-                            borderRadius: '10px',
-                            fontSize: '14px',
-                            fontWeight: 500,
-                            color: '#FFFFFF',
-                            backgroundColor: 'rgba(255,255,255,0.1)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.2s',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
-                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)')}
-                    >
+                <div className="modal-controls">
+                    <button onClick={handleDownload} className="modal-btn modal-btn-secondary">
                         Download
                     </button>
                     <button
                         onClick={handleDelete}
                         disabled={deleting}
-                        style={{
-                            padding: '10px 24px',
-                            borderRadius: '10px',
-                            fontSize: '14px',
-                            fontWeight: 500,
-                            color: '#FFFFFF',
-                            backgroundColor: '#D32C20',
-                            border: 'none',
-                            cursor: deleting ? 'not-allowed' : 'pointer',
-                            opacity: deleting ? 0.5 : 1,
-                            transition: 'background-color 0.2s',
-                        }}
-                        onMouseEnter={e => { if (!deleting) e.currentTarget.style.backgroundColor = '#b82519'; }}
-                        onMouseLeave={e => { if (!deleting) e.currentTarget.style.backgroundColor = '#D32C20'; }}
+                        className="modal-btn modal-btn-danger"
                     >
                         {deleting ? 'Deleting...' : 'Delete'}
                     </button>
                 </div>
 
-                {/* Close button */}
-                <button
-                    onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: '4px',
-                        right: '4px',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        color: '#FFFFFF',
-                        fontSize: '18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)')}
-                >
+                <button onClick={onClose} className="modal-close" aria-label="Close">
                     ×
                 </button>
             </div>

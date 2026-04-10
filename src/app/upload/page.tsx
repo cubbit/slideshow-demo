@@ -7,6 +7,7 @@ export default function UploadPage() {
         <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF' }}>
             {/* Header */}
             <header
+                className="animate-header-enter"
                 style={{
                     backgroundColor: '#161621',
                     borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -31,7 +32,7 @@ export default function UploadPage() {
             </header>
 
             {/* Content */}
-            <main style={{ padding: '64px 24px', maxWidth: '480px', margin: '0 auto' }}>
+            <main className="animate-fade-up" style={{ padding: '64px 24px', maxWidth: '480px', margin: '0 auto' }}>
                 <div style={{ textAlign: 'center', marginBottom: '48px' }}>
                     <div
                         style={{

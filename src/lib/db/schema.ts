@@ -71,8 +71,7 @@ export function initSchema(db: Database.Database): void {
                 'JWT_SECRET env var not set — generated a random secret. ' +
                 'Set JWT_SECRET in your environment to ensure middleware and app use the same secret.'
             );
-            logger.info(`Generated JWT_SECRET: ${jwtSecret}`);
-            logger.info('Add this to your .env.local or deployment config.');
+            logger.info('Add JWT_SECRET to your .env.local or deployment config.');
         }
 
         db.prepare(

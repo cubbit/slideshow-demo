@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
         const { searchParams } = request.nextUrl;
         const date = searchParams.get('date') || undefined;
         const cursor = searchParams.get('cursor') || undefined;
-        const limit = parseInt(searchParams.get('limit') || '200', 10);
+        const rawLimit = parseInt(searchParams.get('limit') || '200', 10);
+        const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 500) : 200;
 
         const page = await getPhotos(date, cursor, limit);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import styles from './CarouselRow.module.css';
 import type { PhotoMeta } from '@/types/photo';
 
@@ -11,7 +11,7 @@ interface Props {
     onClick?: (photo: PhotoMeta) => void;
 }
 
-export default function PhotoCard({ photo, isNew, priority, onClick }: Props) {
+export default memo(function PhotoCard({ photo, isNew, priority, onClick }: Props) {
     const [loaded, setLoaded] = useState(false);
     const [src, setSrc] = useState(photo.thumbnailUrl);
     const [hidden, setHidden] = useState(false);
@@ -51,6 +51,25 @@ export default function PhotoCard({ photo, isNew, priority, onClick }: Props) {
                     }} />
                 </div>
             )}
+            {isNew && loaded && (
+                <div style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    backgroundColor: '#0065FF',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    padding: '3px 8px',
+                    borderRadius: '6px',
+                    zIndex: 2,
+                    textTransform: 'uppercase',
+                    boxShadow: '0 2px 8px rgba(0,101,255,0.5)',
+                }}>
+                    NEW
+                </div>
+            )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
                 ref={imgRef}
@@ -69,4 +88,4 @@ export default function PhotoCard({ photo, isNew, priority, onClick }: Props) {
             />
         </div>
     );
-}
+})

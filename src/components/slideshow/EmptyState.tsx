@@ -8,8 +8,8 @@ export default function EmptyState() {
     const s3Down = s3Status === 'error';
 
     return (
-        <div className="flex flex-col items-center justify-center gap-8 h-full min-h-[60vh]">
-            <div className="relative w-36 h-36">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '32px', minHeight: 'calc(100vh - 80px)' }}>
+            <div className="relative w-36 h-36 animate-float">
                 <div className="absolute inset-0 rounded-full animate-pulse" style={{ backgroundColor: 'rgba(0, 101, 255, 0.15)' }} />
                 <div className="absolute inset-3 rounded-full" style={{ backgroundColor: 'rgba(0, 101, 255, 0.08)' }} />
                 <div className="absolute inset-0 flex items-center justify-center">

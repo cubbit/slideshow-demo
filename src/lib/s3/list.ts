@@ -10,6 +10,7 @@ interface CacheEntry {
     fetchedAt: number;
 }
 
+const MAX_CACHE_ENTRIES = 10;
 const cache = new Map<string, CacheEntry>();
 
 function isImageKey(key: string): boolean {
@@ -92,6 +93,11 @@ export async function getPhotos(
 
     // Fetch from S3
     const photos = await fetchAllPhotos(datePrefix);
+    // Evict oldest entry if cache is at capacity
+    if (cache.size >= MAX_CACHE_ENTRIES && !cache.has(datePrefix)) {
+        const oldestKey = cache.keys().next().value;
+        if (oldestKey !== undefined) cache.delete(oldestKey);
+    }
     cache.set(datePrefix, { photos, fetchedAt: Date.now() });
 
     return paginatePhotos(photos, cursor, limit);

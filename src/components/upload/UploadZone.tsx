@@ -52,12 +52,14 @@ export default function UploadZone() {
                 onClick={() => fileInputRef.current?.click()}
                 style={{
                     border: dragActive ? '2px dashed #0065FF' : '2px dashed rgba(255,255,255,0.12)',
-                    backgroundColor: dragActive ? 'rgba(0,101,255,0.05)' : 'rgba(255,255,255,0.03)',
+                    backgroundColor: dragActive ? 'rgba(0,101,255,0.06)' : 'rgba(255,255,255,0.03)',
                     borderRadius: '16px',
                     padding: '48px',
                     textAlign: 'center',
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
+                    transition: 'border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+                    boxShadow: dragActive ? '0 0 24px rgba(0,101,255,0.1)' : 'none',
+                    transform: dragActive ? 'scale(1.01)' : 'scale(1)',
                 }}
             >
                 <input

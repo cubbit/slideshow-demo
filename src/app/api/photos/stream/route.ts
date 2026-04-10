@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     const encoder = new TextEncoder();
     let closed = false;
 
+    let intervalRef: ReturnType<typeof setInterval> | null = null;
+
     const stream = new ReadableStream({
         async start(controller) {
             let knownKeys = new Set<string>();
@@ -26,7 +28,7 @@ export async function GET(request: NextRequest) {
             }
 
             // Poll for new photos
-            const interval = setInterval(async () => {
+            intervalRef = setInterval(async () => {
                 if (closed) {
                     clearInterval(interval);
                     return;
@@ -68,13 +70,17 @@ export async function GET(request: NextRequest) {
             // Cleanup on close
             request.signal.addEventListener('abort', () => {
                 closed = true;
-                clearInterval(interval);
+                if (intervalRef) clearInterval(intervalRef);
                 try {
                     controller.close();
                 } catch {
                     // Already closed
                 }
             });
+        },
+        cancel() {
+            closed = true;
+            if (intervalRef) clearInterval(intervalRef);
         },
     });
 
