@@ -58,8 +58,8 @@ async function fetchAllPhotos(datePrefix: string): Promise<PhotoMeta[]> {
 
             photos.push({
                 key: obj.Key,
-                url: buildS3Url(settings.endpoint, settings.bucketName, obj.Key),
-                thumbnailUrl: buildS3Url(settings.endpoint, settings.bucketName, thumbnailKey),
+                url: `/api/photos/${obj.Key}`,
+                thumbnailUrl: `/api/photos/${thumbnailKey}`,
                 lastModified: obj.LastModified?.toISOString() || '',
                 size: obj.Size || 0,
             });
