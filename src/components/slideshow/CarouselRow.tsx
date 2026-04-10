@@ -79,17 +79,22 @@ export default memo(function CarouselRow({
         }
     }, [photos, isAnimated]);
 
-    // Repeat photos enough times to fill at least 2x the viewport width for seamless looping
+    // Repeat photos enough times to fill at least 2x the viewport width for seamless looping.
+    // Use state so the initial render matches the server (2 repeats), then adjust after mount.
+    const [repeats, setRepeats] = useState(2);
+    useEffect(() => {
+        if (!isAnimated) return;
+        const singleSetWidth = photos.length * cardWidth;
+        const needed = Math.max(2, Math.ceil((window.innerWidth * 2) / singleSetWidth));
+        if (needed !== repeats) setRepeats(needed);
+    }, [photos.length, cardWidth, isAnimated]);
+
     const displayPhotos = useMemo(() => {
         if (!isAnimated) return photos;
-        const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
-        const singleSetWidth = photos.length * cardWidth;
-        // Need at least 2x viewport width for seamless scroll
-        const repeats = Math.max(2, Math.ceil((viewportWidth * 2) / singleSetWidth));
         const result: PhotoMeta[] = [];
         for (let i = 0; i < repeats; i++) result.push(...photos);
         return result;
-    }, [photos, isAnimated, cardWidth]);
+    }, [photos, isAnimated, repeats]);
 
     // Animation loop
     useEffect(() => {
