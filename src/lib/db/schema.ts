@@ -20,6 +20,7 @@ export function initSchema(db: Database.Database): void {
             slideshow_rows INTEGER NOT NULL DEFAULT 3,
             min_count_for_marquee INTEGER NOT NULL DEFAULT 6,
             cache_ttl_s INTEGER NOT NULL DEFAULT 30,
+            auto_rows INTEGER NOT NULL DEFAULT 1,
             uploads_enabled INTEGER NOT NULL DEFAULT 1,
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
@@ -59,11 +60,13 @@ export function initSchema(db: Database.Database): void {
         logger.info('Settings initialized from environment variables');
     }
 
-    // Migration: add uploads_enabled column if missing
-    try {
-        db.exec('ALTER TABLE settings ADD COLUMN uploads_enabled INTEGER NOT NULL DEFAULT 1');
-    } catch {
-        // Column already exists
+    // Migrations: add columns if missing
+    const migrations = [
+        'ALTER TABLE settings ADD COLUMN uploads_enabled INTEGER NOT NULL DEFAULT 1',
+        'ALTER TABLE settings ADD COLUMN auto_rows INTEGER NOT NULL DEFAULT 1',
+    ];
+    for (const sql of migrations) {
+        try { db.exec(sql); } catch { /* column already exists */ }
     }
 
     // Seed auth on first run

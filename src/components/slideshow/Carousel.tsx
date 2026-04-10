@@ -24,7 +24,8 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const { photos, newKeys } = usePhotos(initialPhotos, apiDate);
     const settings = usePublicSettings(initialSettings);
     const s3Status = useS3Health();
-    const optimalRows = useOptimalRows(photos.length, settings.rows);
+    const autoRowCount = useOptimalRows(photos.length, settings.rows);
+    const effectiveRows = settings.autoRows ? autoRowCount : settings.rows;
     const [globalPaused, setGlobalPaused] = useState(false);
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [selectedPhoto, setSelectedPhoto] = useState<PhotoMeta | null>(null);
@@ -52,7 +53,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     // so memoized CarouselRow components skip re-rendering.
     const prevRowsRef = useRef<PhotoMeta[][]>([]);
     const rows = useMemo(() => {
-        const distributed = distributeIntoRows(displayPhotos, optimalRows);
+        const distributed = distributeIntoRows(displayPhotos, effectiveRows);
 
         const result = distributed.map((newRow, i) => {
             const prevRow = prevRowsRef.current[i];
@@ -66,7 +67,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
 
         prevRowsRef.current = result;
         return result;
-    }, [displayPhotos, optimalRows]);
+    }, [displayPhotos, effectiveRows]);
 
     // Stable callbacks for row interaction
     const handleMouseEnter = useCallback((row: number) => setHoveredRow(row), []);

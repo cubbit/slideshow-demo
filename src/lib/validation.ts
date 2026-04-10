@@ -20,6 +20,7 @@ export const slideshowSettingsSchema = z.object({
     rows: z.coerce.number().int().min(1).max(10).default(3),
     minCountForMarquee: z.coerce.number().int().min(1).max(50).default(6),
     cacheTtlS: z.coerce.number().int().min(5).max(300).default(30),
+    autoRows: z.preprocess(v => v === 'true' || v === true, z.boolean()).default(true),
     uploadsEnabled: z.preprocess(v => v === 'true' || v === true, z.boolean()).default(true),
 });
 

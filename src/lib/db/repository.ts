@@ -19,6 +19,7 @@ interface SettingsRow {
     slideshow_rows: number;
     min_count_for_marquee: number;
     cache_ttl_s: number;
+    auto_rows: number;
     uploads_enabled: number;
     updated_at: string;
 }
@@ -51,6 +52,7 @@ export function getSettings(): AllSettings {
         rows: row.slideshow_rows,
         minCountForMarquee: row.min_count_for_marquee,
         cacheTtlS: row.cache_ttl_s,
+        autoRows: row.auto_rows === 1,
         uploadsEnabled: row.uploads_enabled === 1,
     };
 }
@@ -67,7 +69,7 @@ export function updateSettings(settings: Partial<AllSettings>): AllSettings {
             multipart_threshold = ?, max_file_size = ?,
             slideshow_speed_s = ?, slideshow_rows = ?,
             min_count_for_marquee = ?, cache_ttl_s = ?,
-            uploads_enabled = ?,
+            auto_rows = ?, uploads_enabled = ?,
             updated_at = datetime('now')
         WHERE id = 1`
     ).run(
@@ -83,6 +85,7 @@ export function updateSettings(settings: Partial<AllSettings>): AllSettings {
         merged.rows,
         merged.minCountForMarquee,
         merged.cacheTtlS,
+        merged.autoRows ? 1 : 0,
         merged.uploadsEnabled ? 1 : 0
     );
 

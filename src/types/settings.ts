@@ -12,6 +12,7 @@ export interface S3Settings {
 export interface SlideshowSettings {
     speedS: number;
     rows: number;
+    autoRows: boolean;
     minCountForMarquee: number;
     cacheTtlS: number;
     uploadsEnabled: boolean;
@@ -25,6 +26,7 @@ export interface PublicSettings {
     endpoint: string;
     speedS: number;
     rows: number;
+    autoRows: boolean;
     minCountForMarquee: number;
     maxFileSize: number;
     uploadsEnabled: boolean;

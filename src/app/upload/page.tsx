@@ -1,5 +1,4 @@
-import UploadZone from '@/components/upload/UploadZone';
-import CubbitLogo from '@/components/layout/CubbitLogo';
+import UploadContent from '@/components/upload/UploadContent';
 import { getPublicSettings } from '@/lib/settings/service';
 import Link from 'next/link';
 
@@ -7,7 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export default function UploadPage() {
     const settings = getPublicSettings();
-    const uploadsDisabled = !settings.uploadsEnabled;
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF' }}>
             {/* Header */}
@@ -76,28 +74,7 @@ export default function UploadPage() {
                     </p>
                 </div>
 
-                {uploadsDisabled ? (
-                    <div style={{
-                        padding: '20px 24px',
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(211,44,32,0.08)',
-                        border: '1px solid rgba(211,44,32,0.2)',
-                        textAlign: 'center',
-                    }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF5350" strokeWidth="1.5" style={{ margin: '0 auto 12px' }}>
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-                        </svg>
-                        <p style={{ fontSize: '15px', fontWeight: 600, color: '#EF5350' }}>
-                            Uploads are currently disabled
-                        </p>
-                        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
-                            The administrator has temporarily disabled photo uploads.
-                        </p>
-                    </div>
-                ) : (
-                    <UploadZone />
-                )}
+                <UploadContent initialEnabled={settings.uploadsEnabled} />
             </main>
         </div>
     );

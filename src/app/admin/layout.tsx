@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import CubbitLogo from '@/components/layout/CubbitLogo';
+import { useState, useEffect } from 'react';
 
 const navItems = [
     { href: '/admin/settings', label: 'Settings', icon: '⚙' },
@@ -12,6 +12,21 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const [uploadsDisabled, setUploadsDisabled] = useState(false);
+
+    useEffect(() => {
+        fetch('/api/settings/public')
+            .then(r => r.json())
+            .then(d => setUploadsDisabled(!d.uploadsEnabled))
+            .catch(() => {});
+        const interval = setInterval(() => {
+            fetch('/api/settings/public')
+                .then(r => r.json())
+                .then(d => setUploadsDisabled(!d.uploadsEnabled))
+                .catch(() => {});
+        }, 10000);
+        return () => clearInterval(interval);
+    }, []);
 
     if (pathname === '/admin/login') {
         return <>{children}</>;
@@ -25,6 +40,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <div style={{ height: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {/* Uploads disabled banner */}
+            {uploadsDisabled && (
+                <div style={{
+                    backgroundColor: 'rgba(211,44,32,0.12)',
+                    borderBottom: '1px solid rgba(211,44,32,0.2)',
+                    padding: '8px 40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    flexShrink: 0,
+                }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF5350" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                    <span style={{ fontSize: '12px', color: '#EF5350', fontWeight: 500 }}>
+                        Photo uploads are disabled
+                    </span>
+                </div>
+            )}
             {/* Top bar — fixed */}
             <header
                 style={{
