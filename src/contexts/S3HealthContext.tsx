@@ -4,6 +4,9 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 
 type S3Status = 'ok' | 'error' | 'loading';
 
+const POLL_OK_MS = 30_000;
+const POLL_ERROR_MS = 5_000;
+
 const S3HealthContext = createContext<S3Status>('loading');
 
 export function S3HealthProvider({ children }: { children: ReactNode }) {
@@ -21,9 +24,10 @@ export function S3HealthProvider({ children }: { children: ReactNode }) {
         }
 
         check();
-        const interval = setInterval(check, 30000);
+        const delay = status === 'ok' ? POLL_OK_MS : POLL_ERROR_MS;
+        const interval = setInterval(check, delay);
         return () => clearInterval(interval);
-    }, []);
+    }, [status]);
 
     return <S3HealthContext.Provider value={status}>{children}</S3HealthContext.Provider>;
 }
