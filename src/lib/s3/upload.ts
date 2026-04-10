@@ -20,7 +20,8 @@ export async function uploadPhoto(
     buffer: Buffer,
     originalName: string,
     mimeType: string,
-    date?: string
+    date?: string,
+    onProgress?: (bytesUploaded: number, totalBytes: number) => void
 ): Promise<UploadResult> {
     // Validate MIME type via magic bytes
     const detectedType = await fileTypeFromBuffer(buffer);
@@ -57,6 +58,13 @@ export async function uploadPhoto(
             },
             partSize: 10 * 1024 * 1024, // 10MB parts
         });
+        if (onProgress) {
+            upload.on('httpUploadProgress', (progress) => {
+                if (progress.loaded != null && progress.total != null) {
+                    onProgress(progress.loaded, progress.total);
+                }
+            });
+        }
         await upload.done();
     } else {
         await client.send(

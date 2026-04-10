@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useCallback, useRef } from 'react';
+import { useReducer, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
 export interface UploadItem {
@@ -65,9 +65,61 @@ function reducer(state: UploadItem[], action: Action): UploadItem[] {
     }
 }
 
+async function startBatch(fileCount: number): Promise<string | null> {
+    try {
+        const res = await fetch('/api/upload/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileCount }),
+        });
+        if (res.ok) {
+            const data = await res.json();
+            return data.batchId;
+        }
+    } catch {
+        // Batch tracking is best-effort
+    }
+    return null;
+}
+
+async function completeBatch(
+    batchId: string,
+    fileCount: number,
+    successCount: number,
+    failedCount: number
+): Promise<void> {
+    try {
+        await fetch('/api/upload/batch', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ batchId, fileCount, successCount, failedCount }),
+        });
+    } catch {
+        // Best-effort
+    }
+}
+
 export function useUploadQueue() {
     const [items, dispatch] = useReducer(reducer, []);
     const uploadingRef = useRef(false);
+    const batchRef = useRef<{ id: string; fileCount: number } | null>(null);
+
+    // Check if batch is complete after each state change
+    useEffect(() => {
+        if (!batchRef.current || items.length === 0) return;
+
+        let successCount = 0;
+        let failedCount = 0;
+        for (const item of items) {
+            if (item.status === 'pending' || item.status === 'uploading') return;
+            if (item.status === 'success') successCount++;
+            else failedCount++;
+        }
+
+        const batch = batchRef.current;
+        batchRef.current = null;
+        completeBatch(batch.id, batch.fileCount, successCount, failedCount);
+    }, [items]);
 
     const processNext = useCallback(() => {
         const pending = items.find(i => i.status === 'pending');
@@ -139,6 +191,11 @@ export function useUploadQueue() {
     const addFiles = useCallback(
         (files: File[]) => {
             dispatch({ type: 'ADD_FILES', files });
+            startBatch(files.length).then(batchId => {
+                if (batchId) {
+                    batchRef.current = { id: batchId, fileCount: files.length };
+                }
+            });
         },
         []
     );
