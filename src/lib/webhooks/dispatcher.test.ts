@@ -55,7 +55,8 @@ describe('deliverOnce', () => {
         expect(result.error).toBe('Connection refused');
     });
 
-    it('sends correct headers with HMAC signature', async () => {
+    it('sends correct headers with valid HMAC signature', async () => {
+        const crypto = await import('crypto');
         global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
 
         await deliverOnce(webhook, payload);
@@ -66,7 +67,12 @@ describe('deliverOnce', () => {
         expect(options.headers['Content-Type']).toBe('application/json');
         expect(options.headers['X-Webhook-Event']).toBe('upload.started');
         expect(options.headers['X-Webhook-Delivery']).toBeDefined();
-        expect(options.headers['X-Webhook-Signature']).toMatch(/^sha256=[a-f0-9]{64}$/);
+
+        // Verify HMAC is correct, not just well-formatted
+        const expectedSig =
+            'sha256=' +
+            crypto.createHmac('sha256', 'test-secret').update(options.body).digest('hex');
+        expect(options.headers['X-Webhook-Signature']).toBe(expectedSig);
     });
 
     it('omits signature header when secret is empty', async () => {
