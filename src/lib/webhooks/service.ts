@@ -16,44 +16,49 @@ function sweepStaleThrottleEntries() {
     }
 }
 
+/** Best-effort webhook emission — never throws, so it can't break upload flows */
 export function emitWebhookEvent(
     event: WebhookEventType,
     data: WebhookEventData,
     options?: { uploadId?: string; batchId?: string }
 ): void {
-    const webhooks = getWebhooksForEvent(event);
-    if (webhooks.length === 0) return;
+    try {
+        const webhooks = getWebhooksForEvent(event);
+        if (webhooks.length === 0) return;
 
-    const payload: WebhookPayload = {
-        event,
-        timestamp: new Date().toISOString(),
-        data,
-        ...(options?.uploadId && { uploadId: options.uploadId }),
-        ...(options?.batchId && { batchId: options.batchId }),
-    };
+        const payload: WebhookPayload = {
+            event,
+            timestamp: new Date().toISOString(),
+            data,
+            ...(options?.uploadId && { uploadId: options.uploadId }),
+            ...(options?.batchId && { batchId: options.batchId }),
+        };
 
-    for (const webhook of webhooks) {
-        // Throttle progress events per webhook+upload pair
-        if (event === 'upload.progress' && options?.uploadId) {
-            const key = `${webhook.id}:${options.uploadId}`;
-            const lastEmit = progressThrottle.get(key) ?? 0;
-            const now = Date.now();
-            if (now - lastEmit < PROGRESS_THROTTLE_MS) continue;
-            progressThrottle.set(key, now);
+        for (const webhook of webhooks) {
+            // Throttle progress events per webhook+upload pair
+            if (event === 'upload.progress' && options?.uploadId) {
+                const key = `${webhook.id}:${options.uploadId}`;
+                const lastEmit = progressThrottle.get(key) ?? 0;
+                const now = Date.now();
+                if (now - lastEmit < PROGRESS_THROTTLE_MS) continue;
+                progressThrottle.set(key, now);
+            }
+
+            dispatchWebhook(webhook, payload);
         }
 
-        dispatchWebhook(webhook, payload);
-    }
-
-    // Clean up throttle entries when upload finishes
-    if ((event === 'upload.completed' || event === 'upload.failed') && options?.uploadId) {
-        for (const key of progressThrottle.keys()) {
-            if (key.endsWith(`:${options.uploadId}`)) {
-                progressThrottle.delete(key);
+        // Clean up throttle entries when upload finishes
+        if ((event === 'upload.completed' || event === 'upload.failed') && options?.uploadId) {
+            for (const key of progressThrottle.keys()) {
+                if (key.endsWith(`:${options.uploadId}`)) {
+                    progressThrottle.delete(key);
+                }
             }
         }
-    }
 
-    // Periodic sweep of stale entries from abandoned uploads
-    sweepStaleThrottleEntries();
+        // Periodic sweep of stale entries from abandoned uploads
+        sweepStaleThrottleEntries();
+    } catch {
+        // Webhook emission is best-effort — never fail the caller
+    }
 }

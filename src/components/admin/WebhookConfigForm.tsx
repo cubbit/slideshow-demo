@@ -111,7 +111,6 @@ export default function WebhookConfigForm() {
         setForm(DEFAULT_FORM);
         setEditingId(null);
         setShowForm(false);
-        setStatus(null);
     }
 
     function startEdit(webhook: WebhookConfig) {
@@ -152,6 +151,7 @@ export default function WebhookConfigForm() {
     }
 
     async function handleDelete(id: string) {
+        if (!window.confirm('Delete this webhook? This cannot be undone.')) return;
         const result = await deleteWebhookAction(id);
         if (result.success) {
             await loadWebhooks();

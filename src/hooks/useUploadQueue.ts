@@ -99,26 +99,35 @@ async function completeBatch(
     }
 }
 
+function tryCompleteBatch(
+    items: UploadItem[],
+    batchRef: React.RefObject<{ id: string; fileCount: number } | null>
+) {
+    if (!batchRef.current || items.length === 0) return;
+
+    let successCount = 0;
+    let failedCount = 0;
+    for (const item of items) {
+        if (item.status === 'pending' || item.status === 'uploading') return;
+        if (item.status === 'success') successCount++;
+        else failedCount++;
+    }
+
+    const batch = batchRef.current;
+    batchRef.current = null;
+    completeBatch(batch.id, batch.fileCount, successCount, failedCount);
+}
+
 export function useUploadQueue() {
     const [items, dispatch] = useReducer(reducer, []);
     const uploadingRef = useRef(false);
     const batchRef = useRef<{ id: string; fileCount: number } | null>(null);
+    const itemsRef = useRef(items);
+    itemsRef.current = items;
 
     // Check if batch is complete after each state change
     useEffect(() => {
-        if (!batchRef.current || items.length === 0) return;
-
-        let successCount = 0;
-        let failedCount = 0;
-        for (const item of items) {
-            if (item.status === 'pending' || item.status === 'uploading') return;
-            if (item.status === 'success') successCount++;
-            else failedCount++;
-        }
-
-        const batch = batchRef.current;
-        batchRef.current = null;
-        completeBatch(batch.id, batch.fileCount, successCount, failedCount);
+        tryCompleteBatch(items, batchRef);
     }, [items]);
 
     const processNext = useCallback(() => {
@@ -194,6 +203,8 @@ export function useUploadQueue() {
             startBatch(files.length).then(batchId => {
                 if (batchId) {
                     batchRef.current = { id: batchId, fileCount: files.length };
+                    // If uploads already finished while awaiting batch creation, complete now
+                    tryCompleteBatch(itemsRef.current, batchRef);
                 }
             });
         },
