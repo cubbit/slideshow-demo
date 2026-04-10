@@ -15,6 +15,7 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
         rows: initialSettings.rows,
         minCountForMarquee: initialSettings.minCountForMarquee,
         cacheTtlS: initialSettings.cacheTtlS,
+        uploadsEnabled: initialSettings.uploadsEnabled,
     });
     const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [saving, setSaving] = useState(false);
@@ -34,6 +35,7 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
         formData.set('rows', String(settings.rows));
         formData.set('minCountForMarquee', String(settings.minCountForMarquee));
         formData.set('cacheTtlS', String(settings.cacheTtlS));
+        formData.set('uploadsEnabled', String(settings.uploadsEnabled));
 
         const result = await updateSlideshowSettings(formData);
         setSaving(false);
@@ -47,6 +49,56 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Uploads toggle */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '20px 24px',
+                borderRadius: '12px',
+                backgroundColor: settings.uploadsEnabled ? 'rgba(38,171,117,0.06)' : 'rgba(211,44,32,0.06)',
+                border: `1px solid ${settings.uploadsEnabled ? 'rgba(38,171,117,0.15)' : 'rgba(211,44,32,0.15)'}`,
+                transition: 'all 0.2s',
+                marginBottom: '8px',
+            }}>
+                <div>
+                    <span style={{ fontSize: '15px', fontWeight: 600, color: '#FFFFFF' }}>
+                        Photo uploads
+                    </span>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
+                        {settings.uploadsEnabled ? 'Users can upload new photos' : 'Uploads are currently disabled'}
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setSettings(prev => ({ ...prev, uploadsEnabled: !prev.uploadsEnabled }));
+                        setStatus(null);
+                    }}
+                    style={{
+                        width: '44px',
+                        height: '24px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        backgroundColor: settings.uploadsEnabled ? '#26AB75' : 'rgba(255,255,255,0.15)',
+                        transition: 'background-color 0.2s',
+                    }}
+                >
+                    <div style={{
+                        width: '18px',
+                        height: '18px',
+                        borderRadius: '50%',
+                        backgroundColor: '#FFFFFF',
+                        position: 'absolute',
+                        top: '3px',
+                        left: settings.uploadsEnabled ? '23px' : '3px',
+                        transition: 'left 0.2s',
+                    }} />
+                </button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
                 <div>
                     <label className={labelClass} style={labelStyle}>Animation Speed (seconds)</label>

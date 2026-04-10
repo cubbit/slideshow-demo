@@ -20,9 +20,13 @@ export function usePhotos(initialPhotos: PhotoMeta[], date?: string) {
             return;
         }
         knownKeysRef.current = new Set();
+        initializedRef.current = false;
         setNewKeys(new Set());
         setPhotos([]);
     }, [date]);
+
+    // Track whether the first fetch has populated the known keys
+    const initializedRef = useRef(knownKeysRef.current.size > 0);
 
     const fetchPhotos = useCallback(async () => {
         try {
@@ -33,18 +37,23 @@ export function usePhotos(initialPhotos: PhotoMeta[], date?: string) {
             const data = await res.json();
             const fetchedPhotos: PhotoMeta[] = data.photos || [];
 
-            // Find new photos
-            const newFound = new Set<string>();
-            for (const p of fetchedPhotos) {
-                if (!knownKeysRef.current.has(p.key)) {
-                    newFound.add(p.key);
-                    knownKeysRef.current.add(p.key);
+            if (!initializedRef.current) {
+                // First fetch — just populate known keys without marking as new
+                initializedRef.current = true;
+                knownKeysRef.current = new Set(fetchedPhotos.map(p => p.key));
+            } else {
+                // Subsequent fetches — detect genuinely new photos
+                const newFound = new Set<string>();
+                for (const p of fetchedPhotos) {
+                    if (!knownKeysRef.current.has(p.key)) {
+                        newFound.add(p.key);
+                        knownKeysRef.current.add(p.key);
+                    }
                 }
-            }
 
-            if (newFound.size > 0) {
-                // Clear previous "new" badges — only the latest additions get the badge
-                setNewKeys(newFound);
+                if (newFound.size > 0) {
+                    setNewKeys(newFound);
+                }
             }
 
             setPhotos(fetchedPhotos);

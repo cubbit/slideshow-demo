@@ -7,6 +7,13 @@ export async function POST(request: NextRequest) {
     try {
         const settings = getSettings();
 
+        if (!settings.uploadsEnabled) {
+            return NextResponse.json(
+                { error: 'Uploads are currently disabled by the administrator.' },
+                { status: 403 }
+            );
+        }
+
         if (!settings.endpoint || !settings.accessKeyId) {
             return NextResponse.json(
                 { error: 'S3 is not configured. Please configure it in the admin panel.' },

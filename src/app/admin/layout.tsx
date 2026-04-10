@@ -24,8 +24,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF' }}>
-            {/* Top bar */}
+        <div style={{ height: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {/* Top bar — fixed */}
             <header
                 style={{
                     backgroundColor: '#161621',
@@ -34,12 +34,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
+                    flexShrink: 0,
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '22px', width: 'auto' }} />
+                        <span style={{
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            letterSpacing: '0.1em',
+                            color: '#0065FF',
+                            backgroundColor: 'rgba(0,101,255,0.1)',
+                            border: '1px solid rgba(0,101,255,0.2)',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            textTransform: 'uppercase',
+                        }}>
+                            Slideshow
+                        </span>
                     </Link>
                     <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
                     <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -66,15 +80,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
             </header>
 
-            <div style={{ display: 'flex' }}>
-                {/* Sidebar */}
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                {/* Sidebar — fixed */}
                 <nav
                     style={{
                         width: '240px',
-                        minHeight: 'calc(100vh - 73px)',
+                        flexShrink: 0,
                         backgroundColor: '#161621',
                         borderRight: '1px solid rgba(255,255,255,0.06)',
                         padding: '24px 16px',
+                        overflowY: 'auto',
                     }}
                 >
                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -107,8 +122,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </ul>
                 </nav>
 
-                {/* Content */}
-                <main style={{ flex: 1, padding: '40px' }}>{children}</main>
+                {/* Content — scrollable */}
+                <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>{children}</main>
             </div>
         </div>
     );

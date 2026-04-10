@@ -14,5 +14,6 @@ export function getDefaults(): AllSettings {
         rows: parseInt(process.env.SLIDESHOW_ROWS || '3', 10),
         minCountForMarquee: parseInt(process.env.MIN_COUNT_FOR_MARQUEE || '6', 10),
         cacheTtlS: parseInt(process.env.CACHE_TTL_S || '30', 10),
+        uploadsEnabled: process.env.UPLOADS_ENABLED !== 'false',
     };
 }

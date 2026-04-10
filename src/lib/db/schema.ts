@@ -20,6 +20,7 @@ export function initSchema(db: Database.Database): void {
             slideshow_rows INTEGER NOT NULL DEFAULT 3,
             min_count_for_marquee INTEGER NOT NULL DEFAULT 6,
             cache_ttl_s INTEGER NOT NULL DEFAULT 30,
+            uploads_enabled INTEGER NOT NULL DEFAULT 1,
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
@@ -56,6 +57,13 @@ export function initSchema(db: Database.Database): void {
             defaults.cacheTtlS
         );
         logger.info('Settings initialized from environment variables');
+    }
+
+    // Migration: add uploads_enabled column if missing
+    try {
+        db.exec('ALTER TABLE settings ADD COLUMN uploads_enabled INTEGER NOT NULL DEFAULT 1');
+    } catch {
+        // Column already exists
     }
 
     // Seed auth on first run

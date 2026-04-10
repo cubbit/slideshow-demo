@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const btnBase: React.CSSProperties = {
     padding: '9px 16px',
@@ -54,6 +54,13 @@ export default function PhotoManagement() {
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
     const today = new Date().toISOString().split('T')[0];
+
+    // Auto-dismiss message after 5 seconds
+    useEffect(() => {
+        if (!message) return;
+        const timer = setTimeout(() => setMessage(null), 5000);
+        return () => clearTimeout(timer);
+    }, [message]);
 
     function dateToApi(d: string): string {
         return d.replace(/-/g, '/');

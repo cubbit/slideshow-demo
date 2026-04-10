@@ -1,8 +1,13 @@
 import UploadZone from '@/components/upload/UploadZone';
 import CubbitLogo from '@/components/layout/CubbitLogo';
+import { getPublicSettings } from '@/lib/settings/service';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function UploadPage() {
+    const settings = getPublicSettings();
+    const uploadsDisabled = !settings.uploadsEnabled;
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF' }}>
             {/* Header */}
@@ -17,10 +22,21 @@ export default function UploadPage() {
                     justifyContent: 'space-between',
                 }}
             >
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-                    <CubbitLogo size={26} className="text-blue-400" />
-                    <span style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-                        Cubbit Slideshow
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '24px', width: 'auto' }} />
+                    <span style={{
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.1em',
+                        color: '#0065FF',
+                        backgroundColor: 'rgba(0,101,255,0.1)',
+                        border: '1px solid rgba(0,101,255,0.2)',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        textTransform: 'uppercase' as const,
+                    }}>
+                        Slideshow
                     </span>
                 </Link>
                 <Link
@@ -60,7 +76,28 @@ export default function UploadPage() {
                     </p>
                 </div>
 
-                <UploadZone />
+                {uploadsDisabled ? (
+                    <div style={{
+                        padding: '20px 24px',
+                        borderRadius: '12px',
+                        backgroundColor: 'rgba(211,44,32,0.08)',
+                        border: '1px solid rgba(211,44,32,0.2)',
+                        textAlign: 'center',
+                    }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF5350" strokeWidth="1.5" style={{ margin: '0 auto 12px' }}>
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                        <p style={{ fontSize: '15px', fontWeight: 600, color: '#EF5350' }}>
+                            Uploads are currently disabled
+                        </p>
+                        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+                            The administrator has temporarily disabled photo uploads.
+                        </p>
+                    </div>
+                ) : (
+                    <UploadZone />
+                )}
             </main>
         </div>
     );

@@ -14,6 +14,7 @@ export interface SlideshowSettings {
     rows: number;
     minCountForMarquee: number;
     cacheTtlS: number;
+    uploadsEnabled: boolean;
 }
 
 export interface AllSettings extends S3Settings, SlideshowSettings {}
@@ -26,4 +27,5 @@ export interface PublicSettings {
     rows: number;
     minCountForMarquee: number;
     maxFileSize: number;
+    uploadsEnabled: boolean;
 }

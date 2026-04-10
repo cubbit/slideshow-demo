@@ -30,5 +30,6 @@ export function getPublicSettings(): PublicSettings {
         rows: s.rows,
         minCountForMarquee: s.minCountForMarquee,
         maxFileSize: s.maxFileSize,
+        uploadsEnabled: s.uploadsEnabled,
     };
 }
