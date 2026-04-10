@@ -25,10 +25,27 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const settings = usePublicSettings(initialSettings);
     const s3Status = useS3Health();
     const { rowCount: autoRowCount, cardSize: autoCardSize } = useOptimalRows(photos.length, settings.rows);
-    const effectiveRows = settings.autoRows ? autoRowCount : settings.rows;
     const baseCardSize = settings.autoRows ? autoCardSize : 240;
-    const [sizeOverride, setSizeOverride] = useState<number | null>(null);
+    const [sizeOverride, setSizeOverride] = useState<number | null>(() => {
+        if (typeof window === 'undefined') return null;
+        const stored = localStorage.getItem('slideshow-card-size');
+        return stored ? parseInt(stored, 10) : null;
+    });
     const cardSize = sizeOverride ?? baseCardSize;
+
+    const handleSizeChange = useCallback((value: number) => {
+        setSizeOverride(value);
+        localStorage.setItem('slideshow-card-size', String(value));
+    }, []);
+
+    // Recalculate rows based on actual card size — if slider makes photos smaller, add more rows
+    const effectiveRows = useMemo(() => {
+        if (!settings.autoRows && sizeOverride === null) return settings.rows;
+        const availableHeight = typeof window !== 'undefined' ? window.innerHeight - 80 - 32 : 800;
+        const fitsByHeight = Math.max(1, Math.floor((availableHeight + 24) / (cardSize + 24)));
+        const fitsByPhotos = Math.max(1, Math.floor(photos.length / 2));
+        return Math.min(fitsByHeight, fitsByPhotos);
+    }, [cardSize, photos.length, settings.rows, settings.autoRows, sizeOverride]);
     const [globalPaused, setGlobalPaused] = useState(false);
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [selectedPhoto, setSelectedPhoto] = useState<PhotoMeta | null>(null);
@@ -177,7 +194,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                     min={120}
                     max={320}
                     value={cardSize}
-                    onChange={e => setSizeOverride(parseInt(e.target.value))}
+                    onChange={e => handleSizeChange(parseInt(e.target.value))}
                     style={{
                         width: '120px',
                         accentColor: '#0065FF',

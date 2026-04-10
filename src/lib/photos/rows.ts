@@ -10,12 +10,26 @@ export function distributeIntoRows(photos: PhotoMeta[], rowCount: number): Photo
     if (photos.length === 0) return [];
 
     const maxRows = Math.max(1, Math.floor(photos.length / 2));
-    const effectiveRowCount = Math.min(rowCount, maxRows);
-    const perRow = Math.ceil(photos.length / effectiveRowCount);
+    let effectiveRowCount = Math.min(rowCount, maxRows);
+
+    // Reduce rows if the last row would be too short (less than half of others)
+    while (effectiveRowCount > 1) {
+        const perRow = Math.ceil(photos.length / effectiveRowCount);
+        const lastRowCount = photos.length - perRow * (effectiveRowCount - 1);
+        if (lastRowCount >= perRow / 2) break;
+        effectiveRowCount--;
+    }
+
+    // Distribute evenly: some rows get one extra photo
+    const base = Math.floor(photos.length / effectiveRowCount);
+    const extra = photos.length % effectiveRowCount;
 
     const rows: PhotoMeta[][] = [];
+    let offset = 0;
     for (let i = 0; i < effectiveRowCount; i++) {
-        rows.push(photos.slice(i * perRow, (i + 1) * perRow));
+        const count = base + (i < extra ? 1 : 0);
+        rows.push(photos.slice(offset, offset + count));
+        offset += count;
     }
 
     return rows;

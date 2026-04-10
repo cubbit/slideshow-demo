@@ -41,14 +41,33 @@ describe('distributeIntoRows', () => {
         expect(rows[0]).toHaveLength(3);
     });
 
-    it('handles uneven distribution with last row shorter', () => {
-        const photos = Array.from({ length: 7 }, (_, i) => photo(`p${i}`));
+    it('distributes evenly with remainder spread across first rows', () => {
+        const photos = Array.from({ length: 8 }, (_, i) => photo(`p${i}`));
         const rows = distributeIntoRows(photos, 3);
         expect(rows).toHaveLength(3);
-        // perRow = ceil(7/3) = 3
+        // 8 / 3 = 2 base + 2 extra → 3, 3, 2
         expect(rows[0]).toHaveLength(3);
         expect(rows[1]).toHaveLength(3);
-        expect(rows[2]).toHaveLength(1);
+        expect(rows[2]).toHaveLength(2);
+    });
+
+    it('reduces rows when remainder would leave last row too short', () => {
+        // 7 photos in 3 rows: ceil(7/3)=3, last=1 which is < 1.5 → reduce to 2 rows (4, 3)
+        const photos = Array.from({ length: 7 }, (_, i) => photo(`p${i}`));
+        const rows = distributeIntoRows(photos, 3);
+        expect(rows).toHaveLength(2);
+        expect(rows[0]).toHaveLength(4);
+        expect(rows[1]).toHaveLength(3);
+    });
+
+    it('reduces rows when last row would be too short', () => {
+        // 5 photos in 4 rows: base=1, extra=1 → 2,1,1,1 — last row is 1 which is < 2/2
+        // Should reduce to 2 rows: 3,2
+        const photos = Array.from({ length: 5 }, (_, i) => photo(`p${i}`));
+        const rows = distributeIntoRows(photos, 4);
+        expect(rows).toHaveLength(2);
+        expect(rows[0]).toHaveLength(3);
+        expect(rows[1]).toHaveLength(2);
     });
 
     it('preserves photo order within rows', () => {
