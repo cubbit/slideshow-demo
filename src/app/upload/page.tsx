@@ -1,4 +1,5 @@
 import UploadContent from '@/components/upload/UploadContent';
+import UploadDateBadge from '@/components/upload/UploadDateBadge';
 import { getPublicSettings } from '@/lib/settings/service';
 import { getAppName } from '@/lib/appName';
 import Link from 'next/link';
@@ -76,6 +77,7 @@ export default function UploadPage() {
                     </p>
                 </div>
 
+                <UploadDateBadge />
                 <UploadContent initialEnabled={settings.uploadsEnabled} />
             </main>
         </div>
