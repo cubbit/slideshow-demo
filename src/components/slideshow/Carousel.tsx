@@ -190,7 +190,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '1px',
+                    gap: '3px',
                     overflowY: 'auto',
                     height: 'calc(100vh - 90px)',
                     backgroundColor: 'rgba(255,255,255,0.05)',
