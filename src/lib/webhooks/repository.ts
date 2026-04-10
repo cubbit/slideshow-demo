@@ -14,6 +14,12 @@ interface WebhookRow {
     on_upload_failed: number;
     on_batch_started: number;
     on_batch_completed: number;
+    on_photo_download_started: number;
+    on_photo_download_completed: number;
+    on_photos_download_started: number;
+    on_photos_download_completed: number;
+    on_photo_deleted: number;
+    on_photos_deleted: number;
     on_s3_health_changed: number;
     created_at: string;
     updated_at: string;
@@ -26,6 +32,12 @@ const EVENT_TO_COLUMN: Record<WebhookEventType, keyof WebhookRow> = {
     'upload.failed': 'on_upload_failed',
     'batch.started': 'on_batch_started',
     'batch.completed': 'on_batch_completed',
+    'photo.download.started': 'on_photo_download_started',
+    'photo.download.completed': 'on_photo_download_completed',
+    'photos.download.started': 'on_photos_download_started',
+    'photos.download.completed': 'on_photos_download_completed',
+    'photo.deleted': 'on_photo_deleted',
+    'photos.deleted': 'on_photos_deleted',
     's3.health.changed': 'on_s3_health_changed',
 };
 
@@ -42,6 +54,12 @@ function rowToConfig(row: WebhookRow): WebhookConfig {
         onUploadFailed: row.on_upload_failed === 1,
         onBatchStarted: row.on_batch_started === 1,
         onBatchCompleted: row.on_batch_completed === 1,
+        onPhotoDownloadStarted: row.on_photo_download_started === 1,
+        onPhotoDownloadCompleted: row.on_photo_download_completed === 1,
+        onPhotosDownloadStarted: row.on_photos_download_started === 1,
+        onPhotosDownloadCompleted: row.on_photos_download_completed === 1,
+        onPhotoDeleted: row.on_photo_deleted === 1,
+        onPhotosDeleted: row.on_photos_deleted === 1,
         onS3HealthChanged: row.on_s3_health_changed === 1,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
@@ -78,8 +96,12 @@ export function createWebhook(
     db.prepare(
         `INSERT INTO webhooks (id, name, url, secret, enabled,
             on_upload_started, on_upload_progress, on_upload_completed, on_upload_failed,
-            on_batch_started, on_batch_completed, on_s3_health_changed)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            on_batch_started, on_batch_completed,
+            on_photo_download_started, on_photo_download_completed,
+            on_photos_download_started, on_photos_download_completed,
+            on_photo_deleted, on_photos_deleted,
+            on_s3_health_changed)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
         id,
         config.name,
@@ -92,6 +114,12 @@ export function createWebhook(
         config.onUploadFailed ? 1 : 0,
         config.onBatchStarted ? 1 : 0,
         config.onBatchCompleted ? 1 : 0,
+        config.onPhotoDownloadStarted ? 1 : 0,
+        config.onPhotoDownloadCompleted ? 1 : 0,
+        config.onPhotosDownloadStarted ? 1 : 0,
+        config.onPhotosDownloadCompleted ? 1 : 0,
+        config.onPhotoDeleted ? 1 : 0,
+        config.onPhotosDeleted ? 1 : 0,
         config.onS3HealthChanged ? 1 : 0
     );
     return getWebhookById(id)!;
@@ -110,7 +138,11 @@ export function updateWebhook(
         `UPDATE webhooks SET
             name = ?, url = ?, secret = ?, enabled = ?,
             on_upload_started = ?, on_upload_progress = ?, on_upload_completed = ?, on_upload_failed = ?,
-            on_batch_started = ?, on_batch_completed = ?, on_s3_health_changed = ?,
+            on_batch_started = ?, on_batch_completed = ?,
+            on_photo_download_started = ?, on_photo_download_completed = ?,
+            on_photos_download_started = ?, on_photos_download_completed = ?,
+            on_photo_deleted = ?, on_photos_deleted = ?,
+            on_s3_health_changed = ?,
             updated_at = datetime('now')
         WHERE id = ?`
     ).run(
@@ -124,6 +156,12 @@ export function updateWebhook(
         merged.onUploadFailed ? 1 : 0,
         merged.onBatchStarted ? 1 : 0,
         merged.onBatchCompleted ? 1 : 0,
+        merged.onPhotoDownloadStarted ? 1 : 0,
+        merged.onPhotoDownloadCompleted ? 1 : 0,
+        merged.onPhotosDownloadStarted ? 1 : 0,
+        merged.onPhotosDownloadCompleted ? 1 : 0,
+        merged.onPhotoDeleted ? 1 : 0,
+        merged.onPhotosDeleted ? 1 : 0,
         merged.onS3HealthChanged ? 1 : 0,
         id
     );

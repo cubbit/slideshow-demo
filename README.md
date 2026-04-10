@@ -187,15 +187,21 @@ The app can notify external services about upload lifecycle events via HTTP webh
 
 Each webhook endpoint can subscribe to any combination of events:
 
-| Event               | Trigger                                            | Key Payload Fields                                                  |
-| ------------------- | -------------------------------------------------- | ------------------------------------------------------------------- |
-| `upload.started`    | After validation, before S3 upload                 | `uploadId`, `fileName`, `fileSize`, `mimeType`                      |
-| `upload.progress`   | During multipart S3 upload (throttled to 1 per 2s) | `uploadId`, `fileName`, `percentage`, `bytesUploaded`, `totalBytes` |
-| `upload.completed`  | After original + thumbnail uploaded                | `uploadId`, `fileName`, `fileSize`, `key`, `url`, `thumbnailUrl`    |
-| `upload.failed`     | On upload error                                    | `uploadId`, `fileName`, `error`                                     |
-| `batch.started`     | Client begins uploading multiple files             | `batchId`, `fileCount`                                              |
-| `batch.completed`   | All files in a batch finished                      | `batchId`, `fileCount`, `successCount`, `failedCount`               |
-| `s3.health.changed` | S3 connectivity transitions (ok/error)             | `status`, `previousStatus`, `endpoint`, `bucket`, `error`           |
+| Event | Trigger | Key Payload Fields |
+|---|---|---|
+| `upload.started` | After validation, before S3 upload | `uploadId`, `fileName`, `fileSize`, `mimeType` |
+| `upload.progress` | During multipart S3 upload (throttled to 1 per 2s) | `uploadId`, `fileName`, `percentage`, `bytesUploaded`, `totalBytes` |
+| `upload.completed` | After original + thumbnail uploaded | `uploadId`, `fileName`, `fileSize`, `key`, `url`, `thumbnailUrl` |
+| `upload.failed` | On upload error | `uploadId`, `fileName`, `error` |
+| `batch.started` | Client begins uploading multiple files | `batchId`, `fileCount` |
+| `batch.completed` | All files in a batch finished | `batchId`, `fileCount`, `successCount`, `failedCount` |
+| `photo.download.started` | Single photo download begins | `key` |
+| `photo.download.completed` | Single photo download finished | `key` |
+| `photos.download.started` | Bulk zip download begins | `photoCount`, `date` |
+| `photos.download.completed` | Bulk zip download finished | `photoCount`, `date` |
+| `photo.deleted` | Single photo deleted | `key` |
+| `photos.deleted` | Bulk delete completed | `deletedCount`, `date` |
+| `s3.health.changed` | S3 connectivity transitions (ok/error) | `status`, `previousStatus`, `endpoint`, `bucket`, `error` |
 
 **Delivery format:**
 

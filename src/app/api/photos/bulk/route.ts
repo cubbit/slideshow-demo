@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import archiver from 'archiver';
 import { Readable, PassThrough } from 'stream';
 import { listAllKeys, getObjectStream, deleteAllPhotos } from '@/lib/s3/bulk';
+import { emitWebhookEvent } from '@/lib/webhooks/service';
 import logger from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
@@ -14,6 +15,8 @@ export async function GET(request: NextRequest) {
         if (keys.length === 0) {
             return NextResponse.json({ error: 'No photos found' }, { status: 404 });
         }
+
+        emitWebhookEvent('photos.download.started', { photoCount: keys.length, date });
 
         const passthrough = new PassThrough();
         const archive = archiver('zip', { zlib: { level: 1 } }); // fast compression for images
@@ -39,6 +42,8 @@ export async function GET(request: NextRequest) {
         const webStream = Readable.toWeb(passthrough) as ReadableStream;
         const dateSuffix = date ? `-${date.replace(/\//g, '-')}` : '';
 
+        emitWebhookEvent('photos.download.completed', { photoCount: keys.length, date });
+
         return new Response(webStream, {
             headers: {
                 'Content-Type': 'application/zip',
@@ -57,6 +62,9 @@ export async function DELETE(request: NextRequest) {
 
     try {
         const deleted = await deleteAllPhotos(date);
+
+        emitWebhookEvent('photos.deleted', { deletedCount: deleted, date });
+
         return NextResponse.json({ deleted });
     } catch (error) {
         logger.error('Bulk delete failed', { error });

@@ -46,6 +46,22 @@ const EVENT_GROUPS = [
         ],
     },
     {
+        label: 'Download Events',
+        events: [
+            { key: 'onPhotoDownloadStarted', label: 'Single Started' },
+            { key: 'onPhotoDownloadCompleted', label: 'Single Completed' },
+            { key: 'onPhotosDownloadStarted', label: 'Bulk Started' },
+            { key: 'onPhotosDownloadCompleted', label: 'Bulk Completed' },
+        ],
+    },
+    {
+        label: 'Delete Events',
+        events: [
+            { key: 'onPhotoDeleted', label: 'Single Deleted' },
+            { key: 'onPhotosDeleted', label: 'Bulk Deleted' },
+        ],
+    },
+    {
         label: 'System Events',
         events: [{ key: 'onS3HealthChanged', label: 'S3 Health Changed' }],
     },
@@ -64,6 +80,12 @@ const DEFAULT_FORM: WebhookFormState = {
     onUploadFailed: true,
     onBatchStarted: true,
     onBatchCompleted: true,
+    onPhotoDownloadStarted: false,
+    onPhotoDownloadCompleted: false,
+    onPhotosDownloadStarted: false,
+    onPhotosDownloadCompleted: false,
+    onPhotoDeleted: true,
+    onPhotosDeleted: true,
     onS3HealthChanged: false,
 };
 
@@ -78,6 +100,12 @@ interface WebhookFormState {
     onUploadFailed: boolean;
     onBatchStarted: boolean;
     onBatchCompleted: boolean;
+    onPhotoDownloadStarted: boolean;
+    onPhotoDownloadCompleted: boolean;
+    onPhotosDownloadStarted: boolean;
+    onPhotosDownloadCompleted: boolean;
+    onPhotoDeleted: boolean;
+    onPhotosDeleted: boolean;
     onS3HealthChanged: boolean;
 }
 

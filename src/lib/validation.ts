@@ -43,6 +43,12 @@ export const webhookSchema = z.object({
     onUploadFailed: boolPreprocess.default(true),
     onBatchStarted: boolPreprocess.default(true),
     onBatchCompleted: boolPreprocess.default(true),
+    onPhotoDownloadStarted: boolPreprocess.default(false),
+    onPhotoDownloadCompleted: boolPreprocess.default(false),
+    onPhotosDownloadStarted: boolPreprocess.default(false),
+    onPhotosDownloadCompleted: boolPreprocess.default(false),
+    onPhotoDeleted: boolPreprocess.default(true),
+    onPhotosDeleted: boolPreprocess.default(true),
     onS3HealthChanged: boolPreprocess.default(false),
 });
 

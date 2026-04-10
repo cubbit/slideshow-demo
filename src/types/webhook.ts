@@ -5,6 +5,12 @@ export type WebhookEventType =
     | 'upload.failed'
     | 'batch.started'
     | 'batch.completed'
+    | 'photo.download.started'
+    | 'photo.download.completed'
+    | 'photos.download.started'
+    | 'photos.download.completed'
+    | 'photo.deleted'
+    | 'photos.deleted'
     | 's3.health.changed';
 
 export interface WebhookConfig {
@@ -19,6 +25,12 @@ export interface WebhookConfig {
     onUploadFailed: boolean;
     onBatchStarted: boolean;
     onBatchCompleted: boolean;
+    onPhotoDownloadStarted: boolean;
+    onPhotoDownloadCompleted: boolean;
+    onPhotosDownloadStarted: boolean;
+    onPhotosDownloadCompleted: boolean;
+    onPhotoDeleted: boolean;
+    onPhotosDeleted: boolean;
     onS3HealthChanged: boolean;
     createdAt: string;
     updatedAt: string;
@@ -39,6 +51,12 @@ export type WebhookEventData =
     | UploadFailedData
     | BatchStartedData
     | BatchCompletedData
+    | PhotoDownloadStartedData
+    | PhotoDownloadCompletedData
+    | PhotosDownloadStartedData
+    | PhotosDownloadCompletedData
+    | PhotoDeletedData
+    | PhotosDeletedData
     | S3HealthChangedData;
 
 export interface UploadStartedData {
@@ -77,6 +95,33 @@ export interface BatchCompletedData {
     fileCount: number;
     successCount: number;
     failedCount: number;
+}
+
+export interface PhotoDownloadStartedData {
+    key: string;
+}
+
+export interface PhotoDownloadCompletedData {
+    key: string;
+}
+
+export interface PhotosDownloadStartedData {
+    photoCount: number;
+    date?: string;
+}
+
+export interface PhotosDownloadCompletedData {
+    photoCount: number;
+    date?: string;
+}
+
+export interface PhotoDeletedData {
+    key: string;
+}
+
+export interface PhotosDeletedData {
+    deletedCount: number;
+    date?: string;
 }
 
 export interface S3HealthChangedData {

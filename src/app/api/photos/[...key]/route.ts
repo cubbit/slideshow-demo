@@ -3,6 +3,7 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getS3Client } from '@/lib/s3/client';
 import { getSettings } from '@/lib/settings/service';
 import { deletePhoto } from '@/lib/s3/delete';
+import { emitWebhookEvent } from '@/lib/webhooks/service';
 import logger from '@/lib/logger';
 
 export async function GET(
@@ -17,6 +18,8 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid key' }, { status: 400 });
         }
 
+        emitWebhookEvent('photo.download.started', { key: photoKey });
+
         const settings = getSettings();
         const client = getS3Client();
         const response = await client.send(
@@ -30,6 +33,8 @@ export async function GET(
         if (response.ContentType) headers.set('Content-Type', response.ContentType);
         if (response.ContentLength) headers.set('Content-Length', String(response.ContentLength));
         headers.set('Cache-Control', 'public, max-age=86400');
+
+        emitWebhookEvent('photo.download.completed', { key: photoKey });
 
         return new Response(response.Body as ReadableStream, { headers });
     } catch (error) {
@@ -46,12 +51,14 @@ export async function DELETE(
         const { key } = await params;
         const photoKey = decodeURIComponent(key.join('/'));
 
-        // Prevent path traversal
         if (photoKey.includes('..')) {
             return NextResponse.json({ error: 'Invalid key' }, { status: 400 });
         }
 
         await deletePhoto(photoKey);
+
+        emitWebhookEvent('photo.deleted', { key: photoKey });
+
         return NextResponse.json({ success: true });
     } catch (error) {
         logger.error('Failed to delete photo', { error });

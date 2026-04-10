@@ -46,6 +46,12 @@ export function initSchema(db: Database.Database): void {
             on_upload_failed INTEGER NOT NULL DEFAULT 1,
             on_batch_started INTEGER NOT NULL DEFAULT 1,
             on_batch_completed INTEGER NOT NULL DEFAULT 1,
+            on_photo_download_started INTEGER NOT NULL DEFAULT 0,
+            on_photo_download_completed INTEGER NOT NULL DEFAULT 0,
+            on_photos_download_started INTEGER NOT NULL DEFAULT 0,
+            on_photos_download_completed INTEGER NOT NULL DEFAULT 0,
+            on_photo_deleted INTEGER NOT NULL DEFAULT 1,
+            on_photos_deleted INTEGER NOT NULL DEFAULT 1,
             on_s3_health_changed INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -174,8 +180,12 @@ function seedWebhooksFromEnv(db: Database.Database): void {
     const insert = db.prepare(
         `INSERT INTO webhooks (id, name, url, secret, enabled,
             on_upload_started, on_upload_progress, on_upload_completed, on_upload_failed,
-            on_batch_started, on_batch_completed, on_s3_health_changed)
-        VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`
+            on_batch_started, on_batch_completed,
+            on_photo_download_started, on_photo_download_completed,
+            on_photos_download_started, on_photos_download_completed,
+            on_photo_deleted, on_photos_deleted,
+            on_s3_health_changed)
+        VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     );
 
     for (const wh of webhooks) {
@@ -195,6 +205,12 @@ function seedWebhooksFromEnv(db: Database.Database): void {
             events.onUploadFailed !== false ? 1 : 0,
             events.onBatchStarted !== false ? 1 : 0,
             events.onBatchCompleted !== false ? 1 : 0,
+            events.onPhotoDownloadStarted === true ? 1 : 0,
+            events.onPhotoDownloadCompleted === true ? 1 : 0,
+            events.onPhotosDownloadStarted === true ? 1 : 0,
+            events.onPhotosDownloadCompleted === true ? 1 : 0,
+            events.onPhotoDeleted !== false ? 1 : 0,
+            events.onPhotosDeleted !== false ? 1 : 0,
             events.onS3HealthChanged === true ? 1 : 0
         );
         logger.info('Webhook seeded from environment', { name: wh.name, url: wh.url });
