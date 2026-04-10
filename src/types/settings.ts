@@ -1,0 +1,33 @@
+export interface S3Settings {
+    bucketName: string;
+    prefix: string;
+    endpoint: string;
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    multipartThreshold: number;
+    maxFileSize: number;
+}
+
+export interface SlideshowSettings {
+    speedS: number;
+    rows: number;
+    autoRows: boolean;
+    minCountForMarquee: number;
+    cacheTtlS: number;
+    uploadsEnabled: boolean;
+}
+
+export interface AllSettings extends S3Settings, SlideshowSettings {}
+
+export interface PublicSettings {
+    bucketName: string;
+    prefix: string;
+    endpoint: string;
+    speedS: number;
+    rows: number;
+    autoRows: boolean;
+    minCountForMarquee: number;
+    maxFileSize: number;
+    uploadsEnabled: boolean;
+}

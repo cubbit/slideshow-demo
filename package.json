@@ -1,68 +1,47 @@
 {
-    "name": "slideshow-demo",
-    "version": "1.0.0",
+    "name": "cubbit-slideshow",
+    "version": "2.0.0",
     "private": true,
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "stylelint": "stylelint ./app/**/*.css",
-        "stylelint:fix": "stylelint --fix ./app/**/*.css",
-        "test": "lint-staged && npm run stylelint",
         "format": "prettier --write .",
-        "prepare": "husky",
-        "docker:login": "docker login",
-        "docker:build": "chmod +x ./build-multiarch.sh && ./build-multiarch.sh -v 1.0.0",
-        "docker:build-and-push": "npm run docker:login && chmod +x ./build-multiarch.sh && ./build-multiarch.sh -p -v 1.0.0",
+        "type-check": "tsc --noEmit",
+        "docker:build": "./build-multiarch.sh",
+        "docker:build-push": "./build-multiarch.sh -p",
         "helm:package": "helm package ./helm",
-        "helm:push": "helm push slideshow-demo*.tgz oci://registry.hub.docker.com/cubbit"
+        "helm:push": "helm push cubbit-slideshow*.tgz oci://registry.hub.docker.com/cubbit"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.808.0",
         "@aws-sdk/lib-storage": "^3.808.0",
-        "@types/async-retry": "^1.4.9",
-        "@types/jsonwebtoken": "^9.0.5",
-        "async-retry": "^1.3.3",
+        "@types/archiver": "^7.0.0",
+        "archiver": "^7.0.1",
+        "better-sqlite3": "^11.7.0",
         "file-type": "^20.5.0",
-        "formidable": "^3.5.4",
-        "jsonwebtoken": "^9.0.2",
+        "jose": "^6.0.11",
         "next": "^15.3.2",
-        "rate-limiter-flexible": "^7.1.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "sharp": "^0.34.1",
         "uuid": "^11.1.0",
-        "winston": "^3.17.0"
+        "winston": "^3.17.0",
+        "zod": "^3.24.0"
     },
     "devDependencies": {
-        "@types/formidable": "^3.4.5",
+        "@tailwindcss/postcss": "^4.1.0",
+        "@types/better-sqlite3": "^7.6.12",
         "@types/node": "^22",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "@types/uuid": "^10.0.0",
-        "@typescript-eslint/eslint-plugin": "^6.19.0",
-        "@typescript-eslint/parser": "^6.19.0",
-        "eslint": "^8",
-        "eslint-config-next": "^15.2.2",
-        "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-prettier": "^5.1.3",
-        "eslint-plugin-react": "^7.33.2",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "husky": "^9.1.7",
-        "lint-staged": "^16.0.0",
+        "eslint": "^9",
+        "eslint-config-next": "^15.3.2",
         "prettier": "^3.5.3",
-        "stylelint": "^16.19.1",
-        "stylelint-config-standard": "^38.0.0",
-        "typescript": "^5"
-    },
-    "lint-staged": {
-        "*.{js,jsx,ts,tsx}": [
-            "eslint --fix",
-            "prettier --write"
-        ],
-        "*.{json,css,md}": [
-            "prettier --write"
-        ]
+        "tailwindcss": "^4.1.0",
+        "typescript": "^5",
+        "vitest": "^4.1.4"
     }
 }

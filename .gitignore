@@ -223,3 +223,7 @@ cert/
 
 # Helm
 helm/my-values.yaml
+
+# SQLite data
+data/
+*.db

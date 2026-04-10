@@ -1,17 +1,8 @@
 apiVersion: v2
-name: slideshow-demo
-description: A Helm chart for deploying the Cubbit Slideshow Demo application
+name: cubbit-slideshow
+description: Photo slideshow app with Cubbit DS3 storage
 type: application
-version: 1.0.0-chart
-appVersion: '1.0.0'
+version: 2.0.0
+appVersion: "2.0.0"
 maintainers:
-    - name: Marco Moschettini
-      email: info@cubbit.io
-keywords:
-    - nextjs
-    - slideshow
-    - cubbit
-home: https://github.com/cubbit/slideshow-demo
-sources:
-    - https://github.com/cubbit/slideshow-demo
-icon: https://raw.githubusercontent.com/cubbit/slideshow-demo/main/public/cubbit.png
+  - name: Marco Moschettini

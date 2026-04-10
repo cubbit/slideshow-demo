@@ -1,0 +1,127 @@
+.row {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.track {
+    display: flex;
+    gap: 0.5rem;
+    will-change: transform;
+    animation: scroll var(--speed, 200s) linear infinite;
+    animation-play-state: var(--play-state, running);
+}
+
+.track.reverse {
+    animation-name: scroll-reverse;
+}
+
+.track.paused {
+    --play-state: paused;
+}
+
+.trackManual {
+    display: flex;
+    gap: 0.5rem;
+    will-change: transform;
+}
+
+@keyframes scroll {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+@keyframes scroll-reverse {
+    from {
+        transform: translate3d(-50%, 0, 0);
+    }
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.photo {
+    flex-shrink: 0;
+    width: 240px;
+    height: 240px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background-color: rgba(255, 255, 255, 0.04);
+    perspective: 800px;
+}
+
+.photo:hover {
+    transform: scale(1.05);
+    z-index: 1;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo.highlight {
+    animation: dropIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+               glowPulse 2s ease-out 0.6s forwards;
+    z-index: 2;
+}
+
+@keyframes dropIn {
+    0% {
+        opacity: 0;
+        transform: perspective(800px) translateY(-120px) rotateX(35deg) scale(0.7);
+        box-shadow: 0 -10px 40px rgba(0, 101, 255, 0.4);
+    }
+    40% {
+        opacity: 1;
+        transform: perspective(800px) translateY(8px) rotateX(-5deg) scale(1.02);
+    }
+    60% {
+        transform: perspective(800px) translateY(-4px) rotateX(2deg) scale(1.01);
+    }
+    80% {
+        transform: perspective(800px) translateY(2px) rotateX(-1deg) scale(1.005);
+    }
+    100% {
+        opacity: 1;
+        transform: perspective(800px) translateY(0) rotateX(0deg) scale(1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+
+@keyframes glowPulse {
+    0% {
+        box-shadow: 0 0 24px 6px rgba(0, 101, 255, 0.7),
+                    0 0 60px 10px rgba(0, 101, 255, 0.2);
+        border-color: rgba(0, 101, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 16px 4px rgba(0, 101, 255, 0.4),
+                    0 0 40px 6px rgba(0, 101, 255, 0.1);
+        border-color: rgba(0, 101, 255, 0.3);
+    }
+    100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+}
+
+.static {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
