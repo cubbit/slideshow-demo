@@ -83,7 +83,7 @@ export interface PhotoUploadStartData {
 export interface PhotoUploadProgressData {
     fileName: string;
     percentage: number;
-    bytesUploaded: number;
+    bytesTransferred: number;
     totalBytes: number;
 }
 
@@ -129,7 +129,7 @@ export interface PhotosUploadErrorData {
 export interface PhotoDownloadProgressData {
     key: string;
     percentage: number;
-    bytesDownloaded: number;
+    bytesTransferred: number;
     totalBytes: number;
 }
 

@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
                 {
                     fileName: file.name,
                     percentage: Math.round((bytesUploaded / totalBytes) * 100),
-                    bytesUploaded,
+                    bytesTransferred: bytesUploaded,
                     totalBytes,
                 },
                 { uploadId }

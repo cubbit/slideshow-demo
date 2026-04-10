@@ -86,7 +86,7 @@ export async function deleteWebhookAction(id: string): Promise<ActionResult> {
 
 const TEST_PAYLOADS: Record<WebhookEventType, WebhookEventData> = {
     'photo.upload.start': { fileName: 'test-photo.jpg', fileSize: 2048000, mimeType: 'image/jpeg' },
-    'photo.upload.progress': { fileName: 'test-photo.jpg', percentage: 50, bytesUploaded: 1024000, totalBytes: 2048000 },
+    'photo.upload.progress': { fileName: 'test-photo.jpg', percentage: 50, bytesTransferred: 1024000, totalBytes: 2048000 },
     'photo.upload.end': { fileName: 'test-photo.jpg', fileSize: 2048000, key: 'photos/2026/01/01/test.jpg', url: 'https://example.com/test.jpg', thumbnailUrl: 'https://example.com/test_thumb.jpg' },
     'photo.upload.error': { fileName: 'test-photo.jpg', error: 'Test error' },
     'photos.upload.start': { batchId: 'test-batch-id', fileCount: 5 },
@@ -94,7 +94,7 @@ const TEST_PAYLOADS: Record<WebhookEventType, WebhookEventData> = {
     'photos.upload.end': { batchId: 'test-batch-id', fileCount: 5, successCount: 4, failedCount: 1 },
     'photos.upload.error': { batchId: 'test-batch-id', fileCount: 5, error: 'Test batch error' },
     'photo.download.start': { key: 'photos/2026/01/01/test.jpg' },
-    'photo.download.progress': { key: 'photos/2026/01/01/test.jpg', percentage: 50, bytesDownloaded: 1024000, totalBytes: 2048000 },
+    'photo.download.progress': { key: 'photos/2026/01/01/test.jpg', percentage: 50, bytesTransferred: 1024000, totalBytes: 2048000 },
     'photo.download.end': { key: 'photos/2026/01/01/test.jpg' },
     'photos.download.start': { photoCount: 10, date: '2026/01/01' },
     'photos.download.progress': { photoCount: 10, completedCount: 5, date: '2026/01/01' },

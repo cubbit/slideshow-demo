@@ -190,7 +190,7 @@ Each webhook endpoint can subscribe to any combination of events:
 | Event | Trigger | Key Payload Fields |
 |---|---|---|
 | `photo.upload.start` | After validation, before S3 upload | `uploadId`, `fileName`, `fileSize`, `mimeType` |
-| `photo.upload.progress` | During multipart S3 upload (throttled to 1 per 2s) | `uploadId`, `fileName`, `percentage`, `bytesUploaded`, `totalBytes` |
+| `photo.upload.progress` | During S3 upload (throttled to 1 per 2s) | `uploadId`, `fileName`, `percentage`, `bytesTransferred`, `totalBytes` |
 | `photo.upload.end` | After original + thumbnail uploaded | `uploadId`, `fileName`, `fileSize`, `key`, `url`, `thumbnailUrl` |
 | `photo.upload.error` | On upload error | `uploadId`, `fileName`, `error` |
 | `photos.upload.start` | Client begins uploading multiple files | `batchId`, `fileCount` |
@@ -198,7 +198,7 @@ Each webhook endpoint can subscribe to any combination of events:
 | `photos.upload.end` | All files in a batch finished | `batchId`, `fileCount`, `successCount`, `failedCount` |
 | `photos.upload.error` | Batch upload error | `batchId`, `fileCount`, `error` |
 | `photo.download.start` | Single photo download begins | `key` |
-| `photo.download.progress` | During single photo download | `key`, `percentage`, `bytesDownloaded`, `totalBytes` |
+| `photo.download.progress` | During single photo download | `key`, `percentage`, `bytesTransferred`, `totalBytes` |
 | `photo.download.end` | Single photo download finished | `key` |
 | `photos.download.start` | Bulk zip download begins | `photoCount`, `date` |
 | `photos.download.progress` | Per-file progress during bulk download | `photoCount`, `completedCount`, `date` |

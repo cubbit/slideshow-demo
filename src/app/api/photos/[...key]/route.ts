@@ -55,7 +55,7 @@ export async function GET(
                         emitWebhookEvent('photo.download.progress', {
                             key: photoKey,
                             percentage: Math.round((bytesDownloaded / totalBytes) * 100),
-                            bytesDownloaded,
+                            bytesTransferred: bytesDownloaded,
                             totalBytes,
                         });
                     }
