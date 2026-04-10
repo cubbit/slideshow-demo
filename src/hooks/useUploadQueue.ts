@@ -81,6 +81,17 @@ export function useUploadQueue() {
         const formData = new FormData();
         formData.append('file', item.file);
 
+        // Send the selected date so photos go to the correct day folder
+        const selectedDate = typeof sessionStorage !== 'undefined'
+            ? sessionStorage.getItem('slideshow-date')
+            : null;
+        if (selectedDate) {
+            const today = new Date().toISOString().split('T')[0];
+            if (selectedDate !== today) {
+                formData.append('date', selectedDate.replace(/-/g, '/'));
+            }
+        }
+
         const xhr = new XMLHttpRequest();
 
         xhr.upload.addEventListener('progress', e => {

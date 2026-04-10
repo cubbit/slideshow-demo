@@ -121,34 +121,50 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         return () => window.removeEventListener('keydown', handleKey);
     }, [togglePause, selectedPhoto]);
 
-    // Show splash for at least 2s, then until shuffled photos are ready
+    // Show splash briefly on initial mount, dismiss once first fetch resolves
     const [splashDone, setSplashDone] = useState(false);
-    const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+    const splashMountRef = useRef(false);
     useEffect(() => {
-        const timer = setTimeout(() => setMinTimeElapsed(true), 2000);
-        return () => clearTimeout(timer);
-    }, []);
-    useEffect(() => {
-        if (minTimeElapsed && (displayPhotos.length > 0 || s3Status === 'error')) {
+        if (splashMountRef.current) return;
+        // Wait minimum 500ms, then dismiss as soon as data is available or 2s max
+        const minTimer = setTimeout(() => {
+            splashMountRef.current = true;
             setSplashDone(true);
-        }
-        // Fallback: show content after 5s regardless
-        const fallback = setTimeout(() => setSplashDone(true), 5000);
-        return () => clearTimeout(fallback);
-    }, [minTimeElapsed, displayPhotos.length, s3Status]);
+        }, photos.length > 0 || s3Status === 'error' ? 500 : 2000);
+        return () => clearTimeout(minTimer);
+    }, [photos.length, s3Status]);
 
     if (!splashDone) {
+        const splashName = typeof document !== 'undefined' ? document.body.dataset.appName || 'Slideshow' : 'Slideshow';
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', gap: '20px' }}>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 'calc(100vh - 80px)',
+                gap: '28px',
+                animation: 'carouselFadeIn 0.5s ease-out both',
+            }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '32px', width: 'auto', opacity: 0.6 }} />
+                <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '64px', width: 'auto' }} />
+                <span style={{
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    letterSpacing: '0.2em',
+                    color: '#0065FF',
+                    textTransform: 'uppercase',
+                }}>
+                    {splashName}
+                </span>
                 <div style={{
-                    width: 28,
-                    height: 28,
-                    border: '2px solid rgba(255,255,255,0.1)',
+                    width: 36,
+                    height: 36,
+                    border: '2.5px solid rgba(255,255,255,0.08)',
                     borderTopColor: '#0065FF',
                     borderRadius: '50%',
                     animation: 'spin 0.8s linear infinite',
+                    marginTop: '8px',
                 }} />
             </div>
         );

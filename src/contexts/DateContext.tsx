@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
 interface DateContextValue {
     date: string; // YYYY-MM-DD
@@ -17,8 +17,19 @@ const DateContext = createContext<DateContextValue>({
 });
 
 export function DateProvider({ children }: { children: ReactNode }) {
-    const [date, setDate] = useState(today());
+    const [date, setDateState] = useState(today());
     const apiDate = date === today() ? undefined : date.replace(/-/g, '/');
+
+    // Restore from sessionStorage after mount
+    useEffect(() => {
+        const stored = sessionStorage.getItem('slideshow-date');
+        if (stored) setDateState(stored);
+    }, []);
+
+    const setDate = useCallback((d: string) => {
+        setDateState(d);
+        sessionStorage.setItem('slideshow-date', d);
+    }, []);
 
     return (
         <DateContext.Provider value={{ date, setDate, apiDate }}>

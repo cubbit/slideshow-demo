@@ -19,7 +19,8 @@ interface UploadResult {
 export async function uploadPhoto(
     buffer: Buffer,
     originalName: string,
-    mimeType: string
+    mimeType: string,
+    date?: string
 ): Promise<UploadResult> {
     // Validate MIME type via magic bytes
     const detectedType = await fileTypeFromBuffer(buffer);
@@ -33,7 +34,7 @@ export async function uploadPhoto(
     const client = getS3Client();
     const ext = detectedType?.ext || path.extname(originalName).slice(1) || 'jpg';
     const id = uuid();
-    const datePrefix = getTodayPrefix();
+    const datePrefix = date || getTodayPrefix();
     const prefix = settings.prefix ? `${settings.prefix}/` : '';
     const key = `${prefix}${datePrefix}/${id}.${ext}`;
     const thumbnailKey = `${prefix}${datePrefix}/${THUMBNAIL_PREFIX}/${id}_thumb.jpg`;

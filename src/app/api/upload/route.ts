@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const result = await uploadPhoto(buffer, file.name, file.type);
+        const date = (formData.get('date') as string) || undefined;
+        const result = await uploadPhoto(buffer, file.name, file.type, date);
 
         return NextResponse.json({
             message: 'Upload successful',
