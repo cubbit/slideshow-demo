@@ -301,15 +301,29 @@ input[type="range"]::-webkit-slider-thumb {
     .mobile-grid {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr);
-        gap: 2px;
-        padding: 2px;
+        gap: 1px;
+        padding: 0;
         overflow-y: auto;
-        height: calc(100vh - 60px);
+        height: calc(100vh - 90px);
+        background-color: rgba(255,255,255,0.05);
     }
 
     .mobile-grid-item {
-        aspect-ratio: 1;
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%; /* force square */
         overflow: hidden;
+        background-color: #0E0E15;
+    }
+
+    .mobile-grid-item img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
 
     .mobile-grid-item img {
