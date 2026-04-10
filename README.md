@@ -1,18 +1,33 @@
 # Cubbit Slideshow
 
-A modern photo slideshow app powered by S3-compatible storage. Upload photos from mobile, display them in a beautiful infinite-scrolling carousel.
+A modern photo slideshow app powered by S3-compatible storage. Upload photos from any device, display them in a beautiful infinite-scrolling carousel on big screens, TVs, or digital signage. Built for events, lobbies, and shared experiences.
+
+## Screenshots
+
+| Slideshow | Slideshow (full) |
+|---|---|
+| ![Slideshow](docs/screenshots/slideshow.png) | ![Slideshow Full](docs/screenshots/slideshow-full.png) |
+
+| Upload | Admin Panel |
+|---|---|
+| ![Upload](docs/screenshots/upload.png) | ![Admin](docs/screenshots/admin.png) |
 
 ## Features
 
-- **Mobile-first upload**: Multi-photo selection with per-file progress tracking
-- **Infinite carousel**: Configurable rows with alternating scroll directions and GPU-accelerated CSS animations
-- **Real-time updates**: New photos appear in the slideshow within seconds, highlighted with a glow animation
-- **Interactive slideshow**: Hover to pause rows, click to zoom, Space key to toggle pause
-- **Photo management**: Download or delete photos from the zoom modal
-- **Admin panel**: Configure S3 backend, slideshow settings, and change password — all persisted in SQLite
-- **S3 health monitoring**: Live connectivity indicator in the slideshow header
-- **Auto-generated thumbnails**: 480x480 JPEG thumbnails for fast carousel loading
-- **Declarative configuration**: All settings configurable via environment variables
+- **Infinite carousel**: Dynamic row count based on screen size, alternating scroll directions, GPU-accelerated animations
+- **Photo size slider**: Finder-style slider to control photo density — smaller cards show more photos, larger cards show more detail
+- **Real-time updates**: SSE-driven photo sync with safety polling — new photos appear within seconds with 3D drop-in animation and "NEW" badge
+- **Trackpad scrolling**: Swipe horizontally on any row to scroll it, mouse wheel support
+- **Date browsing**: Date picker in the header to browse photos from previous days
+- **Mobile-first upload**: Multi-photo selection with drag-and-drop, per-file progress tracking, scrollable queue
+- **Upload control**: Admin toggle to enable/disable uploads — reflected in real-time on the upload page
+- **Photo management**: Download or delete photos by day or all at once (zip download), individual photo download/delete from zoom modal
+- **Admin panel**: Configure S3 backend, slideshow settings (speed, rows, auto-rows), upload toggle, and password — all persisted in SQLite
+- **S3 health monitoring**: Live connectivity indicator — upload and slideshow disabled when S3 is unreachable
+- **Auto-generated thumbnails**: 480x480 JPEG thumbnails with EXIF rotation fix for fast carousel loading
+- **Dynamic rows**: Auto-calculate optimal row count from screen height, or set a fixed value
+- **Micro-animations**: Header slide-in, carousel fade-in, modal scale, empty state float, pause button pulse
+- **Cubbit branding**: Official logo with dark theme, Cubbit blue (#0065FF) color system
 - **Kubernetes-ready**: Helm chart with PVC for persistent settings
 
 ## Quick Start
@@ -34,13 +49,29 @@ cp .env.local.example .env.local
 # Install dependencies
 npm install
 
-# Start dev server
+# Start dev server with hot reloading
 npm run dev
 ```
 
-Open http://localhost:3000 — the admin password is logged to the console on first run.
+Open http://localhost:3000 for the slideshow, http://localhost:3000/upload to add photos.
 
-### Configuration
+The admin password is logged to the console on first run. Access the admin panel at http://localhost:3000/admin.
+
+MinIO console is available at http://localhost:9003 (user: `minioadmin`, password: `minioadmin`).
+
+### Development Commands
+
+```bash
+npm run dev          # Start dev server (Turbopack) with HMR
+npm run build        # Production build
+npm run start        # Start production server
+npm run lint         # ESLint
+npm run type-check   # TypeScript type checking
+npm run format       # Prettier format all files
+npx vitest run       # Run unit tests
+```
+
+## Configuration
 
 All settings can be configured via environment variables (see `.env.local.example`) or through the admin panel at `/admin`.
 
@@ -49,20 +80,25 @@ All settings can be configured via environment variables (see `.env.local.exampl
 | `S3_BUCKET_NAME` | `slideshow` | S3 bucket name |
 | `S3_PREFIX` | `` | Key prefix for photos |
 | `S3_ENDPOINT` | `` | S3 endpoint URL |
-| `S3_REGION` | `eu-central-1` | S3 region |
+| `S3_REGION` | `us-east-1` | S3 region |
 | `S3_ACCESS_KEY_ID` | `` | S3 access key |
 | `S3_SECRET_ACCESS_KEY` | `` | S3 secret key |
 | `ADMIN_PASSWORD` | (generated) | Admin password (logged on first run if not set) |
-| `JWT_SECRET` | (generated) | JWT signing secret |
+| `JWT_SECRET` | (generated) | JWT signing secret (required in production) |
 | `SLIDESHOW_SPEED_S` | `200` | Animation speed in seconds |
-| `SLIDESHOW_ROWS` | `3` | Number of carousel rows |
-| `MAX_FILE_SIZE` | `10485760` | Max upload size in bytes |
+| `SLIDESHOW_ROWS` | `3` | Max number of carousel rows |
+| `AUTO_ROWS` | `true` | Auto-calculate rows from screen size |
+| `MIN_COUNT_FOR_MARQUEE` | `6` | Min photos per row for animation |
+| `MAX_FILE_SIZE` | `10485760` | Max upload size in bytes (10MB) |
+| `MULTIPART_THRESHOLD` | `5242880` | Multipart upload threshold (5MB) |
+| `UPLOADS_ENABLED` | `true` | Allow photo uploads |
+| `CACHE_TTL_S` | `30` | Photo list cache TTL in seconds |
 | `DATA_DIR` | `./data` | SQLite database directory |
 | `LOG_LEVEL` | `info` | Logging level |
 
-## Docker
+## Deployment
 
-### Build
+### Docker
 
 ```bash
 # Standard build
@@ -75,19 +111,19 @@ docker build -t cubbit/slideshow:latest .
 ./build-multiarch.sh -v 2.0.0 -p
 ```
 
-### Run
-
 ```bash
+# Run
 docker run -p 3000:3000 \
   -e S3_ENDPOINT=https://s3.cubbit.eu \
   -e S3_BUCKET_NAME=my-bucket \
   -e S3_ACCESS_KEY_ID=key \
   -e S3_SECRET_ACCESS_KEY=secret \
+  -e JWT_SECRET=your-secret-here \
   -v slideshow-data:/data \
   cubbit/slideshow:latest
 ```
 
-## Kubernetes (Helm)
+### Kubernetes (Helm)
 
 ```bash
 # Create values file
@@ -103,23 +139,48 @@ helm upgrade slideshow ./helm -f my-values.yaml
 
 ## Architecture
 
-- **Next.js 15** with App Router, Server Components, and Server Actions
-- **SQLite** (better-sqlite3) for persistent settings and auth
-- **AWS SDK v3** for S3 operations with multipart upload support
-- **sharp** for thumbnail generation on upload
-- **jose** for Edge-compatible JWT authentication
+### Tech Stack
+
+- **Next.js 15** with App Router, React 19, Server Components, and Server Actions
+- **TypeScript** with strict mode
 - **Tailwind CSS v4** with Cubbit design system tokens
+- **SQLite** (better-sqlite3) for persistent settings and auth
+- **AWS SDK v3** for S3 operations
+- **sharp** for thumbnail generation with EXIF rotation
+- **jose** for Edge-compatible JWT authentication
+- **Winston** for structured logging
+- **Zod** for runtime validation
+- **Vitest** for unit testing
+- **archiver** for zip downloads
 
 ### Routes
 
-| Route | Description |
-|---|---|
-| `/` | Slideshow (default) |
-| `/upload` | Mobile-first photo upload |
-| `/admin` | Admin panel (protected) |
-| `/admin/login` | Admin login |
-| `/admin/settings` | S3 and slideshow configuration |
-| `/admin/password` | Change admin password |
+| Route | Auth | Description |
+|---|---|---|
+| `/` | Public | Slideshow carousel with date picker and size slider |
+| `/upload` | Public | Mobile-first photo upload (respects upload toggle) |
+| `/admin/login` | Public | Admin login |
+| `/admin/settings` | Admin | Slideshow config, photo management, S3 settings |
+| `/admin/password` | Admin | Change admin password |
+| `/api/photos` | Public | List photos (supports `?date=` and pagination) |
+| `/api/photos/bulk` | Public | Bulk download (GET, zip) or delete (DELETE) |
+| `/api/photos/stream` | Public | SSE stream for real-time photo notifications |
+| `/api/upload` | Public | Photo upload (blocked when uploads disabled) |
+| `/api/health` | Public | S3 health check |
+| `/api/settings/public` | Public | Public settings (read-only) |
+| `/api/settings` | Admin | Settings mutations |
+
+### Persistence
+
+SQLite database at `$DATA_DIR/slideshow.db` with two single-row tables: `settings` and `auth`. First run seeds from environment variables and generates an admin password (logged to stdout). Settings are cached in-memory and invalidated on writes.
+
+### Real-time Updates
+
+Photos use a dual update strategy:
+1. **SSE** (Server-Sent Events) — the server polls S3 every 3 seconds and pushes `new-photos` events to connected clients
+2. **Safety polling** — clients poll every 30 seconds as a fallback in case an SSE event is missed
+
+New photos are inserted into the visible area of the carousel with a 3D drop-in animation and a "NEW" badge that persists until the next photo arrives.
 
 ## License
 
