@@ -36,7 +36,7 @@ export function emitWebhookEvent(
 
         for (const webhook of webhooks) {
             // Throttle progress events per webhook+upload pair
-            if (event === 'upload.progress' && options?.uploadId) {
+            if (event === 'photo.upload.progress' && options?.uploadId) {
                 const key = `${webhook.id}:${options.uploadId}`;
                 const lastEmit = progressThrottle.get(key) ?? 0;
                 const now = Date.now();
@@ -48,7 +48,7 @@ export function emitWebhookEvent(
         }
 
         // Clean up throttle entries when upload finishes
-        if ((event === 'upload.completed' || event === 'upload.failed') && options?.uploadId) {
+        if ((event === 'photo.upload.end' || event === 'photo.upload.error') && options?.uploadId) {
             for (const key of progressThrottle.keys()) {
                 if (key.endsWith(`:${options.uploadId}`)) {
                     progressThrottle.delete(key);

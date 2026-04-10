@@ -7,20 +7,22 @@ const mockWebhook: WebhookConfig = {
     url: 'https://example.com/hook',
     secret: '',
     enabled: true,
-    onUploadStarted: true,
-    onUploadProgress: true,
-    onUploadCompleted: true,
-    onUploadFailed: true,
-    onBatchStarted: true,
-    onBatchProgress: true,
-    onBatchCompleted: true,
-    onPhotoDownloadStarted: true,
-    onPhotoDownloadCompleted: true,
-    onPhotosDownloadStarted: true,
+    onPhotoUploadStart: true,
+    onPhotoUploadProgress: true,
+    onPhotoUploadEnd: true,
+    onPhotoUploadError: true,
+    onPhotosUploadStart: true,
+    onPhotosUploadProgress: true,
+    onPhotosUploadEnd: true,
+    onPhotosUploadError: true,
+    onPhotoDownloadStart: true,
+    onPhotoDownloadProgress: true,
+    onPhotoDownloadEnd: true,
+    onPhotosDownloadStart: true,
     onPhotosDownloadProgress: true,
-    onPhotosDownloadCompleted: true,
-    onPhotoDeleted: true,
-    onPhotosDeleted: true,
+    onPhotosDownloadEnd: true,
+    onPhotoDeleteEnd: true,
+    onPhotosDeleteEnd: true,
     onS3HealthChanged: true,
     createdAt: '',
     updatedAt: '',
@@ -48,7 +50,7 @@ describe('emitWebhookEvent', () => {
         const wh2 = { ...mockWebhook, id: 'wh-2' };
         mockGetWebhooks.mockReturnValue([mockWebhook, wh2]);
 
-        emitWebhookEvent('upload.started', {
+        emitWebhookEvent('photo.upload.start', {
             fileName: 'test.jpg',
             fileSize: 1000,
             mimeType: 'image/jpeg',
@@ -60,7 +62,7 @@ describe('emitWebhookEvent', () => {
     it('does nothing when no webhooks match', () => {
         mockGetWebhooks.mockReturnValue([]);
 
-        emitWebhookEvent('upload.started', {
+        emitWebhookEvent('photo.upload.start', {
             fileName: 'test.jpg',
             fileSize: 1000,
             mimeType: 'image/jpeg',
@@ -73,20 +75,20 @@ describe('emitWebhookEvent', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
         emitWebhookEvent(
-            'upload.started',
+            'photo.upload.start',
             { fileName: 'test.jpg', fileSize: 1000, mimeType: 'image/jpeg' },
             { uploadId: 'up-123' }
         );
 
         const payload = mockDispatch.mock.calls[0][1];
         expect(payload.uploadId).toBe('up-123');
-        expect(payload.event).toBe('upload.started');
+        expect(payload.event).toBe('photo.upload.start');
     });
 
     it('includes batchId in payload when provided', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('batch.started', { batchId: 'b-1', fileCount: 5 }, { batchId: 'b-1' });
+        emitWebhookEvent('photos.upload.start', { batchId: 'b-1', fileCount: 5 }, { batchId: 'b-1' });
 
         const payload = mockDispatch.mock.calls[0][1];
         expect(payload.batchId).toBe('b-1');
@@ -103,11 +105,11 @@ describe('emitWebhookEvent', () => {
         };
 
         // First call should dispatch
-        emitWebhookEvent('upload.progress', progressData, { uploadId: 'up-1' });
+        emitWebhookEvent('photo.upload.progress', progressData, { uploadId: 'up-1' });
         expect(mockDispatch).toHaveBeenCalledTimes(1);
 
         // Second call within 2s window should be throttled
-        emitWebhookEvent('upload.progress', progressData, { uploadId: 'up-1' });
+        emitWebhookEvent('photo.upload.progress', progressData, { uploadId: 'up-1' });
         expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
@@ -121,39 +123,39 @@ describe('emitWebhookEvent', () => {
             totalBytes: 1000,
         };
 
-        emitWebhookEvent('upload.progress', progressData, { uploadId: 'unique-a' });
-        emitWebhookEvent('upload.progress', progressData, { uploadId: 'unique-b' });
+        emitWebhookEvent('photo.upload.progress', progressData, { uploadId: 'unique-a' });
+        emitWebhookEvent('photo.upload.progress', progressData, { uploadId: 'unique-b' });
 
         expect(mockDispatch).toHaveBeenCalledTimes(2);
     });
 
-    it('dispatches photo.download.started event', () => {
+    it('dispatches photo.download.start event', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('photo.download.started', { key: 'photos/2026/04/10/test.jpg' });
+        emitWebhookEvent('photo.download.start', { key: 'photos/2026/04/10/test.jpg' });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('photo.download.started');
+        expect(payload.event).toBe('photo.download.start');
         expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
     });
 
-    it('dispatches photo.download.completed event', () => {
+    it('dispatches photo.download.end event', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('photo.download.completed', { key: 'photos/2026/04/10/test.jpg' });
+        emitWebhookEvent('photo.download.end', { key: 'photos/2026/04/10/test.jpg' });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('photo.download.completed');
+        expect(payload.event).toBe('photo.download.end');
         expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
     });
 
-    it('dispatches photos.download.started event', () => {
+    it('dispatches photos.download.start event', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('photos.download.started', { photoCount: 10, date: '2026/04/10' });
+        emitWebhookEvent('photos.download.start', { photoCount: 10, date: '2026/04/10' });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('photos.download.started');
+        expect(payload.event).toBe('photos.download.start');
         expect(payload.data.photoCount).toBe(10);
     });
 
@@ -172,10 +174,10 @@ describe('emitWebhookEvent', () => {
         expect(payload.data.completedCount).toBe(5);
     });
 
-    it('dispatches batch.progress event', () => {
+    it('dispatches photos.upload.progress event', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('batch.progress', {
+        emitWebhookEvent('photos.upload.progress', {
             batchId: 'b-1',
             fileCount: 5,
             completedCount: 3,
@@ -184,38 +186,38 @@ describe('emitWebhookEvent', () => {
         });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('batch.progress');
+        expect(payload.event).toBe('photos.upload.progress');
         expect(payload.data.completedCount).toBe(3);
     });
 
-    it('dispatches photos.download.completed event with date', () => {
+    it('dispatches photos.download.end event with date', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('photos.download.completed', { photoCount: 15, date: '2026/04/10' });
+        emitWebhookEvent('photos.download.end', { photoCount: 15, date: '2026/04/10' });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('photos.download.completed');
+        expect(payload.event).toBe('photos.download.end');
         expect(payload.data.photoCount).toBe(15);
         expect(payload.data.date).toBe('2026/04/10');
     });
 
-    it('dispatches photo.deleted event', () => {
+    it('dispatches photo.delete.end event', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('photo.deleted', { key: 'photos/2026/04/10/test.jpg' });
+        emitWebhookEvent('photo.delete.end', { key: 'photos/2026/04/10/test.jpg' });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('photo.deleted');
+        expect(payload.event).toBe('photo.delete.end');
         expect(payload.data.key).toBe('photos/2026/04/10/test.jpg');
     });
 
-    it('dispatches photos.deleted event with count', () => {
+    it('dispatches photos.delete.end event with count', () => {
         mockGetWebhooks.mockReturnValue([mockWebhook]);
 
-        emitWebhookEvent('photos.deleted', { deletedCount: 42, date: '2026/04/10' });
+        emitWebhookEvent('photos.delete.end', { deletedCount: 42, date: '2026/04/10' });
 
         const payload = mockDispatch.mock.calls[0][1];
-        expect(payload.event).toBe('photos.deleted');
+        expect(payload.event).toBe('photos.delete.end');
         expect(payload.data.deletedCount).toBe(42);
     });
 
@@ -225,7 +227,7 @@ describe('emitWebhookEvent', () => {
         });
 
         expect(() =>
-            emitWebhookEvent('upload.started', {
+            emitWebhookEvent('photo.upload.start', {
                 fileName: 'test.jpg',
                 fileSize: 1000,
                 mimeType: 'image/jpeg',

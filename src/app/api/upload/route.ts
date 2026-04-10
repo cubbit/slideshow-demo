@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         }
 
         emitWebhookEvent(
-            'upload.started',
+            'photo.upload.start',
             { fileName: file.name, fileSize: file.size, mimeType: file.type },
             { uploadId }
         );
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
         const onProgress = (bytesUploaded: number, totalBytes: number) => {
             emitWebhookEvent(
-                'upload.progress',
+                'photo.upload.progress',
                 {
                     fileName: file.name,
                     percentage: Math.round((bytesUploaded / totalBytes) * 100),
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         const result = await uploadPhoto(buffer, file.name, file.type, date, onProgress);
 
         emitWebhookEvent(
-            'upload.completed',
+            'photo.upload.end',
             {
                 fileName: file.name,
                 fileSize: file.size,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
         const err = error as Error;
         logger.error('Upload failed', { error: err.message });
 
-        emitWebhookEvent('upload.failed', { fileName, error: err.message }, { uploadId });
+        emitWebhookEvent('photo.upload.error', { fileName, error: err.message }, { uploadId });
 
         if (err.message.startsWith('Unsupported file type')) {
             return NextResponse.json({ error: err.message }, { status: 400 });

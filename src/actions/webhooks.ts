@@ -85,26 +85,28 @@ export async function deleteWebhookAction(id: string): Promise<ActionResult> {
 }
 
 const TEST_PAYLOADS: Record<WebhookEventType, WebhookEventData> = {
-    'upload.started': { fileName: 'test-photo.jpg', fileSize: 2048000, mimeType: 'image/jpeg' },
-    'upload.progress': { fileName: 'test-photo.jpg', percentage: 50, bytesUploaded: 1024000, totalBytes: 2048000 },
-    'upload.completed': { fileName: 'test-photo.jpg', fileSize: 2048000, key: 'photos/2026/01/01/test.jpg', url: 'https://example.com/test.jpg', thumbnailUrl: 'https://example.com/test_thumb.jpg' },
-    'upload.failed': { fileName: 'test-photo.jpg', error: 'Test error' },
-    'batch.started': { batchId: 'test-batch-id', fileCount: 5 },
-    'batch.progress': { batchId: 'test-batch-id', fileCount: 5, completedCount: 3, successCount: 2, failedCount: 1 },
-    'batch.completed': { batchId: 'test-batch-id', fileCount: 5, successCount: 4, failedCount: 1 },
-    'photo.download.started': { key: 'photos/2026/01/01/test.jpg' },
-    'photo.download.completed': { key: 'photos/2026/01/01/test.jpg' },
-    'photos.download.started': { photoCount: 10, date: '2026/01/01' },
+    'photo.upload.start': { fileName: 'test-photo.jpg', fileSize: 2048000, mimeType: 'image/jpeg' },
+    'photo.upload.progress': { fileName: 'test-photo.jpg', percentage: 50, bytesUploaded: 1024000, totalBytes: 2048000 },
+    'photo.upload.end': { fileName: 'test-photo.jpg', fileSize: 2048000, key: 'photos/2026/01/01/test.jpg', url: 'https://example.com/test.jpg', thumbnailUrl: 'https://example.com/test_thumb.jpg' },
+    'photo.upload.error': { fileName: 'test-photo.jpg', error: 'Test error' },
+    'photos.upload.start': { batchId: 'test-batch-id', fileCount: 5 },
+    'photos.upload.progress': { batchId: 'test-batch-id', fileCount: 5, completedCount: 3, successCount: 2, failedCount: 1 },
+    'photos.upload.end': { batchId: 'test-batch-id', fileCount: 5, successCount: 4, failedCount: 1 },
+    'photos.upload.error': { batchId: 'test-batch-id', fileCount: 5, error: 'Test batch error' },
+    'photo.download.start': { key: 'photos/2026/01/01/test.jpg' },
+    'photo.download.progress': { key: 'photos/2026/01/01/test.jpg', percentage: 50, bytesDownloaded: 1024000, totalBytes: 2048000 },
+    'photo.download.end': { key: 'photos/2026/01/01/test.jpg' },
+    'photos.download.start': { photoCount: 10, date: '2026/01/01' },
     'photos.download.progress': { photoCount: 10, completedCount: 5, date: '2026/01/01' },
-    'photos.download.completed': { photoCount: 10, date: '2026/01/01' },
-    'photo.deleted': { key: 'photos/2026/01/01/test.jpg' },
-    'photos.deleted': { deletedCount: 10, date: '2026/01/01' },
+    'photos.download.end': { photoCount: 10, date: '2026/01/01' },
+    'photo.delete.end': { key: 'photos/2026/01/01/test.jpg' },
+    'photos.delete.end': { deletedCount: 10, date: '2026/01/01' },
     's3.health.changed': { status: 'ok', previousStatus: 'error', endpoint: 'https://s3.example.com', bucket: 'slideshow' },
 };
 
 export async function testWebhookAction(
     id: string,
-    event: WebhookEventType = 'upload.started'
+    event: WebhookEventType = 'photo.upload.start'
 ): Promise<ActionResult> {
     try {
         const webhook = getWebhookById(id);

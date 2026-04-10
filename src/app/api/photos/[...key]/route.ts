@@ -22,7 +22,7 @@ export async function GET(
         const isDownload = request.nextUrl.searchParams.get('download') === 'true';
 
         if (isDownload) {
-            emitWebhookEvent('photo.download.started', { key: photoKey });
+            emitWebhookEvent('photo.download.start', { key: photoKey });
         }
 
         const settings = getSettings();
@@ -39,13 +39,37 @@ export async function GET(
         if (response.ContentLength) headers.set('Content-Length', String(response.ContentLength));
         headers.set('Cache-Control', 'public, max-age=86400');
 
+        let bodyStream = response.Body as ReadableStream;
+
         if (isDownload) {
             const filename = photoKey.split('/').pop() || 'photo';
             headers.set('Content-Disposition', `attachment; filename="${filename}"`);
-            emitWebhookEvent('photo.download.completed', { key: photoKey });
+
+            const totalBytes = response.ContentLength ?? 0;
+            let bytesDownloaded = 0;
+
+            const progressStream = new TransformStream({
+                transform(chunk, controller) {
+                    bytesDownloaded += chunk.length;
+                    if (totalBytes > 0) {
+                        emitWebhookEvent('photo.download.progress', {
+                            key: photoKey,
+                            percentage: Math.round((bytesDownloaded / totalBytes) * 100),
+                            bytesDownloaded,
+                            totalBytes,
+                        });
+                    }
+                    controller.enqueue(chunk);
+                },
+                flush() {
+                    emitWebhookEvent('photo.download.end', { key: photoKey });
+                },
+            });
+
+            bodyStream = bodyStream.pipeThrough(progressStream);
         }
 
-        return new Response(response.Body as ReadableStream, { headers });
+        return new Response(bodyStream, { headers });
     } catch (error) {
         logger.error('Failed to proxy photo', { error });
         return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -66,7 +90,7 @@ export async function DELETE(
 
         await deletePhoto(photoKey);
 
-        emitWebhookEvent('photo.deleted', { key: photoKey });
+        emitWebhookEvent('photo.delete.end', { key: photoKey });
 
         return NextResponse.json({ success: true });
     } catch (error) {

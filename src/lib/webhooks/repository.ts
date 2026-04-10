@@ -8,20 +8,22 @@ interface WebhookRow {
     url: string;
     secret: string;
     enabled: number;
-    on_upload_started: number;
-    on_upload_progress: number;
-    on_upload_completed: number;
-    on_upload_failed: number;
-    on_batch_started: number;
-    on_batch_progress: number;
-    on_batch_completed: number;
-    on_photo_download_started: number;
-    on_photo_download_completed: number;
-    on_photos_download_started: number;
+    on_photo_upload_start: number;
+    on_photo_upload_progress: number;
+    on_photo_upload_end: number;
+    on_photo_upload_error: number;
+    on_photos_upload_start: number;
+    on_photos_upload_progress: number;
+    on_photos_upload_end: number;
+    on_photos_upload_error: number;
+    on_photo_download_start: number;
+    on_photo_download_progress: number;
+    on_photo_download_end: number;
+    on_photos_download_start: number;
     on_photos_download_progress: number;
-    on_photos_download_completed: number;
-    on_photo_deleted: number;
-    on_photos_deleted: number;
+    on_photos_download_end: number;
+    on_photo_delete_end: number;
+    on_photos_delete_end: number;
     on_s3_health_changed: number;
     created_at: string;
     updated_at: string;
@@ -36,40 +38,22 @@ const EVENT_FIELDS: {
     column: keyof WebhookRow;
     configKey: keyof WebhookConfig;
 }[] = [
-    { event: 'upload.started', column: 'on_upload_started', configKey: 'onUploadStarted' },
-    { event: 'upload.progress', column: 'on_upload_progress', configKey: 'onUploadProgress' },
-    { event: 'upload.completed', column: 'on_upload_completed', configKey: 'onUploadCompleted' },
-    { event: 'upload.failed', column: 'on_upload_failed', configKey: 'onUploadFailed' },
-    { event: 'batch.started', column: 'on_batch_started', configKey: 'onBatchStarted' },
-    { event: 'batch.progress', column: 'on_batch_progress', configKey: 'onBatchProgress' },
-    { event: 'batch.completed', column: 'on_batch_completed', configKey: 'onBatchCompleted' },
-    {
-        event: 'photo.download.started',
-        column: 'on_photo_download_started',
-        configKey: 'onPhotoDownloadStarted',
-    },
-    {
-        event: 'photo.download.completed',
-        column: 'on_photo_download_completed',
-        configKey: 'onPhotoDownloadCompleted',
-    },
-    {
-        event: 'photos.download.started',
-        column: 'on_photos_download_started',
-        configKey: 'onPhotosDownloadStarted',
-    },
-    {
-        event: 'photos.download.progress',
-        column: 'on_photos_download_progress',
-        configKey: 'onPhotosDownloadProgress',
-    },
-    {
-        event: 'photos.download.completed',
-        column: 'on_photos_download_completed',
-        configKey: 'onPhotosDownloadCompleted',
-    },
-    { event: 'photo.deleted', column: 'on_photo_deleted', configKey: 'onPhotoDeleted' },
-    { event: 'photos.deleted', column: 'on_photos_deleted', configKey: 'onPhotosDeleted' },
+    { event: 'photo.upload.start', column: 'on_photo_upload_start', configKey: 'onPhotoUploadStart' },
+    { event: 'photo.upload.progress', column: 'on_photo_upload_progress', configKey: 'onPhotoUploadProgress' },
+    { event: 'photo.upload.end', column: 'on_photo_upload_end', configKey: 'onPhotoUploadEnd' },
+    { event: 'photo.upload.error', column: 'on_photo_upload_error', configKey: 'onPhotoUploadError' },
+    { event: 'photos.upload.start', column: 'on_photos_upload_start', configKey: 'onPhotosUploadStart' },
+    { event: 'photos.upload.progress', column: 'on_photos_upload_progress', configKey: 'onPhotosUploadProgress' },
+    { event: 'photos.upload.end', column: 'on_photos_upload_end', configKey: 'onPhotosUploadEnd' },
+    { event: 'photos.upload.error', column: 'on_photos_upload_error', configKey: 'onPhotosUploadError' },
+    { event: 'photo.download.start', column: 'on_photo_download_start', configKey: 'onPhotoDownloadStart' },
+    { event: 'photo.download.progress', column: 'on_photo_download_progress', configKey: 'onPhotoDownloadProgress' },
+    { event: 'photo.download.end', column: 'on_photo_download_end', configKey: 'onPhotoDownloadEnd' },
+    { event: 'photos.download.start', column: 'on_photos_download_start', configKey: 'onPhotosDownloadStart' },
+    { event: 'photos.download.progress', column: 'on_photos_download_progress', configKey: 'onPhotosDownloadProgress' },
+    { event: 'photos.download.end', column: 'on_photos_download_end', configKey: 'onPhotosDownloadEnd' },
+    { event: 'photo.delete.end', column: 'on_photo_delete_end', configKey: 'onPhotoDeleteEnd' },
+    { event: 'photos.delete.end', column: 'on_photos_delete_end', configKey: 'onPhotosDeleteEnd' },
     { event: 's3.health.changed', column: 'on_s3_health_changed', configKey: 'onS3HealthChanged' },
 ];
 

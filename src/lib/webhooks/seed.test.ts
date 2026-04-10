@@ -38,7 +38,7 @@ describe('parseWebhooksFromEnv', () => {
                 name: 'Hook 2',
                 url: 'https://b.com/hook',
                 secret: 's2',
-                events: { onUploadProgress: true },
+                events: { onPhotoUploadProgress: true },
             },
         ]);
 
@@ -46,7 +46,7 @@ describe('parseWebhooksFromEnv', () => {
 
         expect(result).toHaveLength(2);
         expect(result[0].name).toBe('Hook 1');
-        expect(result[1].events).toEqual({ onUploadProgress: true });
+        expect(result[1].events).toEqual({ onPhotoUploadProgress: true });
     });
 
     it('ignores invalid WEBHOOKS JSON', () => {
@@ -85,8 +85,8 @@ describe('parseWebhooksFromEnv', () => {
                 url: 'https://c.com',
                 secret: '',
                 events: {
-                    onUploadStarted: false,
-                    onUploadProgress: true,
+                    onPhotoUploadStart: false,
+                    onPhotoUploadProgress: true,
                     onS3HealthChanged: true,
                 },
             },
@@ -95,8 +95,8 @@ describe('parseWebhooksFromEnv', () => {
         const result = parseWebhooksFromEnv();
         const events = result[0].events!;
 
-        expect(events.onUploadStarted).toBe(false);
-        expect(events.onUploadProgress).toBe(true);
+        expect(events.onPhotoUploadStart).toBe(false);
+        expect(events.onPhotoUploadProgress).toBe(true);
         expect(events.onS3HealthChanged).toBe(true);
     });
 

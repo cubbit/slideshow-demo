@@ -189,18 +189,22 @@ Each webhook endpoint can subscribe to any combination of events:
 
 | Event | Trigger | Key Payload Fields |
 |---|---|---|
-| `upload.started` | After validation, before S3 upload | `uploadId`, `fileName`, `fileSize`, `mimeType` |
-| `upload.progress` | During multipart S3 upload (throttled to 1 per 2s) | `uploadId`, `fileName`, `percentage`, `bytesUploaded`, `totalBytes` |
-| `upload.completed` | After original + thumbnail uploaded | `uploadId`, `fileName`, `fileSize`, `key`, `url`, `thumbnailUrl` |
-| `upload.failed` | On upload error | `uploadId`, `fileName`, `error` |
-| `batch.started` | Client begins uploading multiple files | `batchId`, `fileCount` |
-| `batch.completed` | All files in a batch finished | `batchId`, `fileCount`, `successCount`, `failedCount` |
-| `photo.download.started` | Single photo download begins | `key` |
-| `photo.download.completed` | Single photo download finished | `key` |
-| `photos.download.started` | Bulk zip download begins | `photoCount`, `date` |
-| `photos.download.completed` | Bulk zip download finished | `photoCount`, `date` |
-| `photo.deleted` | Single photo deleted | `key` |
-| `photos.deleted` | Bulk delete completed | `deletedCount`, `date` |
+| `photo.upload.start` | After validation, before S3 upload | `uploadId`, `fileName`, `fileSize`, `mimeType` |
+| `photo.upload.progress` | During multipart S3 upload (throttled to 1 per 2s) | `uploadId`, `fileName`, `percentage`, `bytesUploaded`, `totalBytes` |
+| `photo.upload.end` | After original + thumbnail uploaded | `uploadId`, `fileName`, `fileSize`, `key`, `url`, `thumbnailUrl` |
+| `photo.upload.error` | On upload error | `uploadId`, `fileName`, `error` |
+| `photos.upload.start` | Client begins uploading multiple files | `batchId`, `fileCount` |
+| `photos.upload.progress` | Per-file progress during batch upload | `batchId`, `fileCount`, `completedCount`, `successCount`, `failedCount` |
+| `photos.upload.end` | All files in a batch finished | `batchId`, `fileCount`, `successCount`, `failedCount` |
+| `photos.upload.error` | Batch upload error | `batchId`, `fileCount`, `error` |
+| `photo.download.start` | Single photo download begins | `key` |
+| `photo.download.progress` | During single photo download | `key`, `percentage`, `bytesDownloaded`, `totalBytes` |
+| `photo.download.end` | Single photo download finished | `key` |
+| `photos.download.start` | Bulk zip download begins | `photoCount`, `date` |
+| `photos.download.progress` | Per-file progress during bulk download | `photoCount`, `completedCount`, `date` |
+| `photos.download.end` | Bulk zip download finished | `photoCount`, `date` |
+| `photo.delete.end` | Single photo deleted | `key` |
+| `photos.delete.end` | Bulk delete completed | `deletedCount`, `date` |
 | `s3.health.changed` | S3 connectivity transitions (ok/error) | `status`, `previousStatus`, `endpoint`, `bucket`, `error` |
 
 **Delivery format:**
@@ -208,12 +212,12 @@ Each webhook endpoint can subscribe to any combination of events:
 ```
 POST <webhook_url>
 Content-Type: application/json
-X-Webhook-Event: upload.completed
+X-Webhook-Event: photo.upload.end
 X-Webhook-Signature: sha256=<hmac-hex>
 X-Webhook-Delivery: <uuid>
 
 {
-  "event": "upload.completed",
+  "event": "photo.upload.end",
   "uploadId": "abc-123",
   "timestamp": "2026-04-10T14:30:00.000Z",
   "data": {
@@ -228,7 +232,7 @@ X-Webhook-Delivery: <uuid>
 
 **Security:** Payloads are signed with HMAC-SHA256 using the webhook's secret. Verify by computing `HMAC-SHA256(secret, raw_body)` and comparing with the `X-Webhook-Signature` header (format: `sha256=<hex>`). The secret is optional — leave empty to skip signing.
 
-**Delivery guarantees:** Fire-and-forget with up to 3 retries on failure (exponential backoff: 1s, 4s, 16s). Webhook delivery never blocks uploads. The `upload.progress` event is throttled to at most one delivery per 2 seconds per webhook per upload.
+**Delivery guarantees:** Fire-and-forget with up to 3 retries on failure (exponential backoff: 1s, 4s, 16s). Webhook delivery never blocks uploads. The `photo.upload.progress` event is throttled to at most one delivery per 2 seconds per webhook per upload.
 
 ### Real-time Updates
 

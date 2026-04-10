@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'No photos found' }, { status: 404 });
         }
 
-        emitWebhookEvent('photos.download.started', { photoCount: keys.length, date });
+        emitWebhookEvent('photos.download.start', { photoCount: keys.length, date });
 
         const passthrough = new PassThrough();
         const archive = archiver('zip', { zlib: { level: 1 } }); // fast compression for images
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
         // Emit completed when the archive stream finishes (all bytes written)
         passthrough.on('finish', () => {
-            emitWebhookEvent('photos.download.completed', { photoCount: keys.length, date });
+            emitWebhookEvent('photos.download.end', { photoCount: keys.length, date });
         });
 
         archive.finalize();
@@ -73,7 +73,7 @@ export async function DELETE(request: NextRequest) {
     try {
         const deleted = await deleteAllPhotos(date);
 
-        emitWebhookEvent('photos.deleted', { deletedCount: deleted, date });
+        emitWebhookEvent('photos.delete.end', { deletedCount: deleted, date });
 
         return NextResponse.json({ deleted });
     } catch (error) {

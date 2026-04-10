@@ -30,41 +30,48 @@ const smallBtnStyle: React.CSSProperties = {
 
 const EVENT_GROUPS = [
     {
-        label: 'Upload Events',
+        label: 'Photo Upload',
         events: [
-            { key: 'onUploadStarted', label: 'Started' },
-            { key: 'onUploadProgress', label: 'Progress' },
-            { key: 'onUploadCompleted', label: 'Completed' },
-            { key: 'onUploadFailed', label: 'Failed' },
+            { key: 'onPhotoUploadStart', label: 'Start' },
+            { key: 'onPhotoUploadProgress', label: 'Progress' },
+            { key: 'onPhotoUploadEnd', label: 'End' },
+            { key: 'onPhotoUploadError', label: 'Error' },
         ],
     },
     {
-        label: 'Batch Events',
+        label: 'Batch Upload',
         events: [
-            { key: 'onBatchStarted', label: 'Started' },
-            { key: 'onBatchProgress', label: 'Progress' },
-            { key: 'onBatchCompleted', label: 'Completed' },
+            { key: 'onPhotosUploadStart', label: 'Start' },
+            { key: 'onPhotosUploadProgress', label: 'Progress' },
+            { key: 'onPhotosUploadEnd', label: 'End' },
+            { key: 'onPhotosUploadError', label: 'Error' },
         ],
     },
     {
-        label: 'Download Events',
+        label: 'Photo Download',
         events: [
-            { key: 'onPhotoDownloadStarted', label: 'Single Started' },
-            { key: 'onPhotoDownloadCompleted', label: 'Single Completed' },
-            { key: 'onPhotosDownloadStarted', label: 'Bulk Started' },
-            { key: 'onPhotosDownloadProgress', label: 'Bulk Progress' },
-            { key: 'onPhotosDownloadCompleted', label: 'Bulk Completed' },
+            { key: 'onPhotoDownloadStart', label: 'Start' },
+            { key: 'onPhotoDownloadProgress', label: 'Progress' },
+            { key: 'onPhotoDownloadEnd', label: 'End' },
         ],
     },
     {
-        label: 'Delete Events',
+        label: 'Bulk Download',
         events: [
-            { key: 'onPhotoDeleted', label: 'Single Deleted' },
-            { key: 'onPhotosDeleted', label: 'Bulk Deleted' },
+            { key: 'onPhotosDownloadStart', label: 'Start' },
+            { key: 'onPhotosDownloadProgress', label: 'Progress' },
+            { key: 'onPhotosDownloadEnd', label: 'End' },
         ],
     },
     {
-        label: 'System Events',
+        label: 'Delete',
+        events: [
+            { key: 'onPhotoDeleteEnd', label: 'Single' },
+            { key: 'onPhotosDeleteEnd', label: 'Bulk' },
+        ],
+    },
+    {
+        label: 'System',
         events: [{ key: 'onS3HealthChanged', label: 'S3 Health Changed' }],
     },
 ] as const;
@@ -76,20 +83,22 @@ const DEFAULT_FORM: WebhookFormState = {
     url: '',
     secret: '',
     enabled: true,
-    onUploadStarted: true,
-    onUploadProgress: false,
-    onUploadCompleted: true,
-    onUploadFailed: true,
-    onBatchStarted: true,
-    onBatchProgress: false,
-    onBatchCompleted: true,
-    onPhotoDownloadStarted: false,
-    onPhotoDownloadCompleted: false,
-    onPhotosDownloadStarted: false,
+    onPhotoUploadStart: true,
+    onPhotoUploadProgress: false,
+    onPhotoUploadEnd: true,
+    onPhotoUploadError: true,
+    onPhotosUploadStart: true,
+    onPhotosUploadProgress: false,
+    onPhotosUploadEnd: true,
+    onPhotosUploadError: true,
+    onPhotoDownloadStart: false,
+    onPhotoDownloadProgress: false,
+    onPhotoDownloadEnd: false,
+    onPhotosDownloadStart: false,
     onPhotosDownloadProgress: false,
-    onPhotosDownloadCompleted: false,
-    onPhotoDeleted: true,
-    onPhotosDeleted: true,
+    onPhotosDownloadEnd: false,
+    onPhotoDeleteEnd: true,
+    onPhotosDeleteEnd: true,
     onS3HealthChanged: false,
 };
 
@@ -98,20 +107,22 @@ interface WebhookFormState {
     url: string;
     secret: string;
     enabled: boolean;
-    onUploadStarted: boolean;
-    onUploadProgress: boolean;
-    onUploadCompleted: boolean;
-    onUploadFailed: boolean;
-    onBatchStarted: boolean;
-    onBatchProgress: boolean;
-    onBatchCompleted: boolean;
-    onPhotoDownloadStarted: boolean;
-    onPhotoDownloadCompleted: boolean;
-    onPhotosDownloadStarted: boolean;
+    onPhotoUploadStart: boolean;
+    onPhotoUploadProgress: boolean;
+    onPhotoUploadEnd: boolean;
+    onPhotoUploadError: boolean;
+    onPhotosUploadStart: boolean;
+    onPhotosUploadProgress: boolean;
+    onPhotosUploadEnd: boolean;
+    onPhotosUploadError: boolean;
+    onPhotoDownloadStart: boolean;
+    onPhotoDownloadProgress: boolean;
+    onPhotoDownloadEnd: boolean;
+    onPhotosDownloadStart: boolean;
     onPhotosDownloadProgress: boolean;
-    onPhotosDownloadCompleted: boolean;
-    onPhotoDeleted: boolean;
-    onPhotosDeleted: boolean;
+    onPhotosDownloadEnd: boolean;
+    onPhotoDeleteEnd: boolean;
+    onPhotosDeleteEnd: boolean;
     onS3HealthChanged: boolean;
 }
 
@@ -201,7 +212,7 @@ export default function WebhookConfigForm() {
 
     async function handleTest(id: string) {
         setTesting(id);
-        const event = testEvents[id] || 'upload.started';
+        const event = testEvents[id] || 'photo.upload.start';
         const result = await testWebhookAction(id, event);
         setTesting(null);
         setStatus(
@@ -265,7 +276,7 @@ export default function WebhookConfigForm() {
                                 {wh.enabled ? 'Disable' : 'Enable'}
                             </button>
                             <select
-                                value={testEvents[wh.id] || 'upload.started'}
+                                value={testEvents[wh.id] || 'photo.upload.start'}
                                 onChange={e =>
                                     setTestEvents(prev => ({
                                         ...prev,
@@ -284,27 +295,31 @@ export default function WebhookConfigForm() {
                                     width: 'auto',
                                 }}
                             >
-                                <optgroup label="Upload">
-                                    <option value="upload.started">upload.started</option>
-                                    <option value="upload.progress">upload.progress</option>
-                                    <option value="upload.completed">upload.completed</option>
-                                    <option value="upload.failed">upload.failed</option>
+                                <optgroup label="Photo Upload">
+                                    <option value="photo.upload.start">photo.upload.start</option>
+                                    <option value="photo.upload.progress">photo.upload.progress</option>
+                                    <option value="photo.upload.end">photo.upload.end</option>
+                                    <option value="photo.upload.error">photo.upload.error</option>
                                 </optgroup>
-                                <optgroup label="Batch">
-                                    <option value="batch.started">batch.started</option>
-                                    <option value="batch.progress">batch.progress</option>
-                                    <option value="batch.completed">batch.completed</option>
+                                <optgroup label="Batch Upload">
+                                    <option value="photos.upload.start">photos.upload.start</option>
+                                    <option value="photos.upload.progress">photos.upload.progress</option>
+                                    <option value="photos.upload.end">photos.upload.end</option>
+                                    <option value="photos.upload.error">photos.upload.error</option>
                                 </optgroup>
-                                <optgroup label="Download">
-                                    <option value="photo.download.started">photo.download.started</option>
-                                    <option value="photo.download.completed">photo.download.completed</option>
-                                    <option value="photos.download.started">photos.download.started</option>
+                                <optgroup label="Photo Download">
+                                    <option value="photo.download.start">photo.download.start</option>
+                                    <option value="photo.download.progress">photo.download.progress</option>
+                                    <option value="photo.download.end">photo.download.end</option>
+                                </optgroup>
+                                <optgroup label="Bulk Download">
+                                    <option value="photos.download.start">photos.download.start</option>
                                     <option value="photos.download.progress">photos.download.progress</option>
-                                    <option value="photos.download.completed">photos.download.completed</option>
+                                    <option value="photos.download.end">photos.download.end</option>
                                 </optgroup>
                                 <optgroup label="Delete">
-                                    <option value="photo.deleted">photo.deleted</option>
-                                    <option value="photos.deleted">photos.deleted</option>
+                                    <option value="photo.delete.end">photo.delete.end</option>
+                                    <option value="photos.delete.end">photos.delete.end</option>
                                 </optgroup>
                                 <optgroup label="System">
                                     <option value="s3.health.changed">s3.health.changed</option>

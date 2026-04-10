@@ -1,18 +1,26 @@
 export type WebhookEventType =
-    | 'upload.started'
-    | 'upload.progress'
-    | 'upload.completed'
-    | 'upload.failed'
-    | 'batch.started'
-    | 'batch.progress'
-    | 'batch.completed'
-    | 'photo.download.started'
-    | 'photo.download.completed'
-    | 'photos.download.started'
+    // Single photo upload
+    | 'photo.upload.start'
+    | 'photo.upload.progress'
+    | 'photo.upload.end'
+    | 'photo.upload.error'
+    // Batch upload
+    | 'photos.upload.start'
+    | 'photos.upload.progress'
+    | 'photos.upload.end'
+    | 'photos.upload.error'
+    // Single photo download
+    | 'photo.download.start'
+    | 'photo.download.progress'
+    | 'photo.download.end'
+    // Bulk download
+    | 'photos.download.start'
     | 'photos.download.progress'
-    | 'photos.download.completed'
-    | 'photo.deleted'
-    | 'photos.deleted'
+    | 'photos.download.end'
+    // Delete
+    | 'photo.delete.end'
+    | 'photos.delete.end'
+    // System
     | 's3.health.changed';
 
 export interface WebhookConfig {
@@ -21,20 +29,22 @@ export interface WebhookConfig {
     url: string;
     secret: string;
     enabled: boolean;
-    onUploadStarted: boolean;
-    onUploadProgress: boolean;
-    onUploadCompleted: boolean;
-    onUploadFailed: boolean;
-    onBatchStarted: boolean;
-    onBatchProgress: boolean;
-    onBatchCompleted: boolean;
-    onPhotoDownloadStarted: boolean;
-    onPhotoDownloadCompleted: boolean;
-    onPhotosDownloadStarted: boolean;
+    onPhotoUploadStart: boolean;
+    onPhotoUploadProgress: boolean;
+    onPhotoUploadEnd: boolean;
+    onPhotoUploadError: boolean;
+    onPhotosUploadStart: boolean;
+    onPhotosUploadProgress: boolean;
+    onPhotosUploadEnd: boolean;
+    onPhotosUploadError: boolean;
+    onPhotoDownloadStart: boolean;
+    onPhotoDownloadProgress: boolean;
+    onPhotoDownloadEnd: boolean;
+    onPhotosDownloadStart: boolean;
     onPhotosDownloadProgress: boolean;
-    onPhotosDownloadCompleted: boolean;
-    onPhotoDeleted: boolean;
-    onPhotosDeleted: boolean;
+    onPhotosDownloadEnd: boolean;
+    onPhotoDeleteEnd: boolean;
+    onPhotosDeleteEnd: boolean;
     onS3HealthChanged: boolean;
     createdAt: string;
     updatedAt: string;
@@ -49,33 +59,35 @@ export interface WebhookPayload {
 }
 
 export type WebhookEventData =
-    | UploadStartedData
-    | UploadProgressData
-    | UploadCompletedData
-    | UploadFailedData
-    | BatchStartedData
-    | BatchProgressData
-    | BatchCompletedData
+    | PhotoUploadStartData
+    | PhotoUploadProgressData
+    | PhotoUploadEndData
+    | PhotoUploadErrorData
+    | PhotosUploadStartData
+    | PhotosUploadProgressData
+    | PhotosUploadEndData
+    | PhotosUploadErrorData
+    | PhotoDownloadProgressData
+    | BulkProgressData
     | SinglePhotoKeyData
     | BulkPhotosData
-    | BulkProgressData
     | PhotosDeletedData
     | S3HealthChangedData;
 
-export interface UploadStartedData {
+export interface PhotoUploadStartData {
     fileName: string;
     fileSize: number;
     mimeType: string;
 }
 
-export interface UploadProgressData {
+export interface PhotoUploadProgressData {
     fileName: string;
     percentage: number;
     bytesUploaded: number;
     totalBytes: number;
 }
 
-export interface UploadCompletedData {
+export interface PhotoUploadEndData {
     fileName: string;
     fileSize: number;
     key: string;
@@ -83,17 +95,17 @@ export interface UploadCompletedData {
     thumbnailUrl: string;
 }
 
-export interface UploadFailedData {
+export interface PhotoUploadErrorData {
     fileName: string;
     error: string;
 }
 
-export interface BatchStartedData {
+export interface PhotosUploadStartData {
     batchId: string;
     fileCount: number;
 }
 
-export interface BatchProgressData {
+export interface PhotosUploadProgressData {
     batchId: string;
     fileCount: number;
     completedCount: number;
@@ -101,11 +113,24 @@ export interface BatchProgressData {
     failedCount: number;
 }
 
-export interface BatchCompletedData {
+export interface PhotosUploadEndData {
     batchId: string;
     fileCount: number;
     successCount: number;
     failedCount: number;
+}
+
+export interface PhotosUploadErrorData {
+    batchId: string;
+    fileCount: number;
+    error: string;
+}
+
+export interface PhotoDownloadProgressData {
+    key: string;
+    percentage: number;
+    bytesDownloaded: number;
+    totalBytes: number;
 }
 
 export interface SinglePhotoKeyData {

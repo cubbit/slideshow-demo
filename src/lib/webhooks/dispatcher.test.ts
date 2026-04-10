@@ -9,25 +9,29 @@ const webhook: WebhookConfig = {
     url: 'https://example.com/hook',
     secret: 'test-secret',
     enabled: true,
-    onUploadStarted: true,
-    onUploadProgress: false,
-    onUploadCompleted: true,
-    onUploadFailed: true,
-    onBatchStarted: true,
-    onBatchCompleted: true,
-    onPhotoDownloadStarted: false,
-    onPhotoDownloadCompleted: false,
-    onPhotosDownloadStarted: false,
-    onPhotosDownloadCompleted: false,
-    onPhotoDeleted: true,
-    onPhotosDeleted: true,
+    onPhotoUploadStart: true,
+    onPhotoUploadProgress: false,
+    onPhotoUploadEnd: true,
+    onPhotoUploadError: true,
+    onPhotosUploadStart: true,
+    onPhotosUploadProgress: false,
+    onPhotosUploadEnd: true,
+    onPhotosUploadError: true,
+    onPhotoDownloadStart: false,
+    onPhotoDownloadProgress: false,
+    onPhotoDownloadEnd: false,
+    onPhotosDownloadStart: false,
+    onPhotosDownloadProgress: false,
+    onPhotosDownloadEnd: false,
+    onPhotoDeleteEnd: true,
+    onPhotosDeleteEnd: true,
     onS3HealthChanged: false,
     createdAt: '',
     updatedAt: '',
 };
 
 const payload: WebhookPayload = {
-    event: 'upload.started',
+    event: 'photo.upload.start',
     timestamp: new Date().toISOString(),
     data: { fileName: 'test.jpg', fileSize: 1000, mimeType: 'image/jpeg' },
 };
@@ -71,7 +75,7 @@ describe('deliverOnce', () => {
         expect(url).toBe('https://example.com/hook');
         expect(options.method).toBe('POST');
         expect(options.headers['Content-Type']).toBe('application/json');
-        expect(options.headers['X-Webhook-Event']).toBe('upload.started');
+        expect(options.headers['X-Webhook-Event']).toBe('photo.upload.start');
         expect(options.headers['X-Webhook-Delivery']).toBeDefined();
 
         // Verify HMAC is correct, not just well-formatted
@@ -98,7 +102,7 @@ describe('deliverOnce', () => {
 
         const [, options] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
         const body = JSON.parse(options.body);
-        expect(body.event).toBe('upload.started');
+        expect(body.event).toBe('photo.upload.start');
         expect(body.data.fileName).toBe('test.jpg');
     });
 });

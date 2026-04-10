@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuid } from 'uuid';
 import { emitWebhookEvent } from '@/lib/webhooks/service';
-import type { BatchStartedData, BatchProgressData, BatchCompletedData } from '@/types/webhook';
+import type { PhotosUploadStartData, PhotosUploadProgressData, PhotosUploadEndData } from '@/types/webhook';
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,11 +15,11 @@ export async function POST(request: NextRequest) {
         const batchId = uuid();
 
         emitWebhookEvent(
-            'batch.started',
+            'photos.upload.start',
             {
                 batchId,
                 fileCount,
-            } satisfies BatchStartedData,
+            } satisfies PhotosUploadStartData,
             { batchId }
         );
 
@@ -39,14 +39,14 @@ export async function PUT(request: NextRequest) {
         }
 
         emitWebhookEvent(
-            'batch.progress',
+            'photos.upload.progress',
             {
                 batchId,
                 fileCount: Number(fileCount) || 0,
                 completedCount: Number(completedCount) || 0,
                 successCount: Number(successCount) || 0,
                 failedCount: Number(failedCount) || 0,
-            } satisfies BatchProgressData,
+            } satisfies PhotosUploadProgressData,
             { batchId }
         );
 
@@ -66,13 +66,13 @@ export async function PATCH(request: NextRequest) {
         }
 
         emitWebhookEvent(
-            'batch.completed',
+            'photos.upload.end',
             {
                 batchId,
                 fileCount: Number(fileCount) || 0,
                 successCount: Number(successCount) || 0,
                 failedCount: Number(failedCount) || 0,
-            } satisfies BatchCompletedData,
+            } satisfies PhotosUploadEndData,
             { batchId }
         );
 
