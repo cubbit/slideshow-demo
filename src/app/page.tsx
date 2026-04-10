@@ -56,28 +56,26 @@ export default async function SlideshowPage() {
                     gap: '8px',
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '24px', width: 'auto' }} />
-                        <span style={{
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            letterSpacing: '0.1em',
-                            color: '#0065FF',
-                            backgroundColor: 'rgba(0,101,255,0.1)',
-                            border: '1px solid rgba(0,101,255,0.2)',
-                            padding: '2px 8px',
-                            borderRadius: '6px',
-                            textTransform: 'uppercase',
-                        }}>
-                            {appName}
-                        </span>
-                    </div>
-                    <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
-                    <DatePicker />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '24px', width: 'auto' }} />
+                    <span style={{
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.1em',
+                        color: '#0065FF',
+                        backgroundColor: 'rgba(0,101,255,0.1)',
+                        border: '1px solid rgba(0,101,255,0.2)',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        textTransform: 'uppercase',
+                    }}>
+                        {appName}
+                    </span>
+                    <div className="desktop-only" style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+                    <div className="desktop-only"><DatePicker /></div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <S3HealthBadgeClient />
                     {settings.endpoint && (
                         <span
@@ -100,7 +98,6 @@ export default async function SlideshowPage() {
                             {settings.endpoint}
                         </span>
                     )}
-                    <div className="desktop-only" style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
                     <HeaderUploadLink />
                     <Link
                         href="/admin"

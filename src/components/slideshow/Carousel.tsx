@@ -183,15 +183,45 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         return <EmptyState />;
     }
 
-    // Mobile: camera roll grid
+    // Mobile: camera roll grid using thumbnails
     if (isMobile) {
         return (
             <>
-                <div className="mobile-grid">
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '1px',
+                    overflowY: 'auto',
+                    height: 'calc(100vh - 90px)',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                }}>
                     {displayPhotos.map(photo => (
-                        <div key={photo.key} className="mobile-grid-item" onClick={() => handlePhotoClick(photo)}>
+                        <div
+                            key={photo.key}
+                            onClick={() => handlePhotoClick(photo)}
+                            style={{
+                                position: 'relative',
+                                paddingBottom: '100%',
+                                overflow: 'hidden',
+                                backgroundColor: '#0E0E15',
+                                cursor: 'pointer',
+                            }}
+                        >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={photo.thumbnailUrl} alt="" loading="lazy" />
+                            <img
+                                src={photo.thumbnailUrl}
+                                alt=""
+                                loading="lazy"
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    display: 'block',
+                                }}
+                            />
                         </div>
                     ))}
                 </div>
