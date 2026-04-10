@@ -8,7 +8,7 @@ export default function SettingsPage() {
     const settings = getSettings();
 
     return (
-        <div style={{ maxWidth: '720px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+        <div style={{ maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
             <div>
                 <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', marginBottom: '4px' }}>
                     S3 Storage

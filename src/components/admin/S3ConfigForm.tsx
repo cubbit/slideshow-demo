@@ -62,7 +62,7 @@ export default function S3ConfigForm({ initialSettings }: Props) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
                 <div>
                     <label className={labelClass} style={labelStyle}>Bucket Name</label>
                     <input className={inputClass} style={inputStyle} value={settings.bucketName} onChange={e => handleChange('bucketName', e.target.value)} required />
@@ -103,7 +103,7 @@ export default function S3ConfigForm({ initialSettings }: Props) {
                 </p>
             )}
 
-            <div className="flex items-center gap-4">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '20px' }}>
                 <button type="submit" disabled={saving} className={btnPrimaryClass} style={btnPrimaryStyle}>
                     {saving ? 'Saving...' : 'Save S3 Settings'}
                 </button>

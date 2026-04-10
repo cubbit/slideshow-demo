@@ -47,7 +47,7 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
                 <div>
                     <label className={labelClass} style={labelStyle}>Animation Speed (seconds)</label>
                     <input className={inputClass} style={inputStyle} type="number" value={settings.speedS} onChange={e => handleChange('speedS', parseInt(e.target.value))} min={10} max={600} />
@@ -74,9 +74,11 @@ export default function SlideshowConfigForm({ initialSettings }: Props) {
                 </p>
             )}
 
-            <button type="submit" disabled={saving} className={btnPrimaryClass} style={btnPrimaryStyle}>
-                {saving ? 'Saving...' : 'Save Slideshow Settings'}
-            </button>
+            <div style={{ marginTop: '20px' }}>
+                <button type="submit" disabled={saving} className={btnPrimaryClass} style={btnPrimaryStyle}>
+                    {saving ? 'Saving...' : 'Save Slideshow Settings'}
+                </button>
+            </div>
         </form>
     );
 }

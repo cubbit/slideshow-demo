@@ -26,7 +26,7 @@ export default function PasswordChangeForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md space-y-5">
+        <form onSubmit={handleSubmit} className="max-w-sm space-y-5">
             <div>
                 <label className={labelClass} style={labelStyle}>Current Password</label>
                 <input className={inputClass} style={inputStyle} type="password" name="currentPassword" required autoComplete="current-password" />
@@ -47,9 +47,11 @@ export default function PasswordChangeForm() {
                 </p>
             )}
 
-            <button type="submit" disabled={saving} className={btnPrimaryClass} style={btnPrimaryStyle}>
-                {saving ? 'Changing...' : 'Change Password'}
-            </button>
+            <div style={{ marginTop: '20px' }}>
+                <button type="submit" disabled={saving} className={btnPrimaryClass} style={btnPrimaryStyle}>
+                    {saving ? 'Changing...' : 'Change Password'}
+                </button>
+            </div>
         </form>
     );
 }
