@@ -121,6 +121,32 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
         return () => window.removeEventListener('keydown', handleKey);
     }, [togglePause, selectedPhoto]);
 
+    // Show splash while initial photos are loading (avoid flash of empty state)
+    const [ready, setReady] = useState(initialPhotos.length > 0);
+    useEffect(() => {
+        if (photos.length > 0) setReady(true);
+        // Give the first fetch 3s before showing empty state
+        const timer = setTimeout(() => setReady(true), 3000);
+        return () => clearTimeout(timer);
+    }, [photos.length]);
+
+    if (!ready) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', gap: '20px' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/cubbit-logo.svg" alt="Cubbit" style={{ height: '32px', width: 'auto', opacity: 0.6 }} />
+                <div style={{
+                    width: 28,
+                    height: 28,
+                    border: '2px solid rgba(255,255,255,0.1)',
+                    borderTopColor: '#0065FF',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                }} />
+            </div>
+        );
+    }
+
     if (photos.length === 0 || s3Status === 'error') {
         return <EmptyState />;
     }

@@ -13,6 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const router = useRouter();
     const [uploadsDisabled, setUploadsDisabled] = useState(false);
+    const appName = typeof document !== 'undefined' ? document.body.dataset.appName || 'Slideshow' : 'Slideshow';
 
     useEffect(() => {
         fetch('/api/settings/public')
@@ -88,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             borderRadius: '6px',
                             textTransform: 'uppercase',
                         }}>
-                            Slideshow
+                            {appName}
                         </span>
                     </Link>
                     <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
@@ -104,7 +105,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="15 18 9 12 15 6" />
                         </svg>
-                        Slideshow
+                        {appName}
                     </Link>
                     <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
                     <button

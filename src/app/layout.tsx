@@ -1,10 +1,12 @@
-import type { Metadata } from 'next';
+import { getAppName, getAppTitle } from '@/lib/appName';
 import './globals.css';
 
-export const metadata: Metadata = {
-    title: 'Cubbit Slideshow',
-    description: 'Upload and display photos using Cubbit DS3 storage',
-};
+export async function generateMetadata() {
+    return {
+        title: getAppTitle(),
+        description: 'Upload and display photos using Cubbit DS3 storage',
+    };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -16,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     rel="stylesheet"
                 />
             </head>
-            <body>{children}</body>
+            <body data-app-name={getAppName()}>{children}</body>
         </html>
     );
 }

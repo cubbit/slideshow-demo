@@ -7,12 +7,14 @@ import HeaderUploadLink from '@/components/layout/HeaderUploadLink';
 import DatePicker from '@/components/layout/DatePicker';
 import { S3HealthProvider } from '@/contexts/S3HealthContext';
 import { DateProvider } from '@/contexts/DateContext';
+import { getAppName } from '@/lib/appName';
 import Link from 'next/link';
 import type { PhotoMeta } from '@/types/photo';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SlideshowPage() {
+    const appName = getAppName();
     let initialPhotos: PhotoMeta[] = [];
     try {
         const page = await getPhotos();
@@ -67,7 +69,7 @@ export default async function SlideshowPage() {
                             borderRadius: '6px',
                             textTransform: 'uppercase',
                         }}>
-                            Slideshow
+                            {appName}
                         </span>
                     </div>
                     <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />

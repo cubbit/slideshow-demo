@@ -1,11 +1,13 @@
 import UploadContent from '@/components/upload/UploadContent';
 import { getPublicSettings } from '@/lib/settings/service';
+import { getAppName } from '@/lib/appName';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
 export default function UploadPage() {
     const settings = getPublicSettings();
+    const appName = getAppName();
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF' }}>
             {/* Header */}
@@ -34,7 +36,7 @@ export default function UploadPage() {
                         borderRadius: '6px',
                         textTransform: 'uppercase' as const,
                     }}>
-                        Slideshow
+                        {appName}
                     </span>
                 </Link>
                 <Link
