@@ -1,3 +1,6 @@
+{{- if and (gt (int .Values.replicaCount) 1) .Values.persistence.enabled }}
+{{- fail "replicaCount > 1 is incompatible with ReadWriteOnce persistence. Disable persistence or use replicaCount: 1." }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +9,10 @@ metadata:
     {{- include "cubbit-slideshow.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  {{- if .Values.persistence.enabled }}
+  strategy:
+    type: Recreate
+  {{- end }}
   selector:
     matchLabels:
       {{- include "cubbit-slideshow.selectorLabels" . | nindent 6 }}
@@ -14,10 +21,20 @@ spec:
       labels:
         {{- include "cubbit-slideshow.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "cubbit-slideshow.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
@@ -48,30 +65,30 @@ spec:
             - name: S3_ENDPOINT
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  name: {{ include "cubbit-slideshow.secretName" . }}
                   key: s3-endpoint
             - name: S3_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  name: {{ include "cubbit-slideshow.secretName" . }}
                   key: s3-access-key-id
             - name: S3_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  name: {{ include "cubbit-slideshow.secretName" . }}
                   key: s3-secret-access-key
             {{- if .Values.auth.adminPassword }}
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  name: {{ include "cubbit-slideshow.secretName" . }}
                   key: admin-password
             {{- end }}
             {{- if .Values.auth.jwtSecret }}
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  name: {{ include "cubbit-slideshow.secretName" . }}
                   key: jwt-secret
             {{- end }}
             {{- if .Values.webhook.url }}
@@ -83,17 +100,22 @@ spec:
             - name: WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "cubbit-slideshow.fullname" . }}
+                  name: {{ include "cubbit-slideshow.secretName" . }}
                   key: webhook-secret
             {{- end }}
             {{- end }}
             {{- if .Values.webhooks }}
             - name: WEBHOOKS
-              value: {{ .Values.webhooks | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubbit-slideshow.secretName" . }}
+                  key: webhooks
             {{- end }}
           volumeMounts:
             - name: data
               mountPath: {{ .Values.app.dataDir }}
+            - name: tmp
+              mountPath: /tmp
           livenessProbe:
             httpGet:
               path: /api/health
@@ -101,6 +123,7 @@ spec:
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
           readinessProbe:
             httpGet:
               path: /api/health
@@ -108,6 +131,7 @@ spec:
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -118,3 +142,5 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: tmp
+          emptyDir: {}

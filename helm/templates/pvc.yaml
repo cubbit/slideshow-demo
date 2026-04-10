@@ -5,6 +5,10 @@ metadata:
   name: {{ include "cubbit-slideshow.fullname" . }}-data
   labels:
     {{- include "cubbit-slideshow.labels" . | nindent 4 }}
+  {{- with .Values.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce

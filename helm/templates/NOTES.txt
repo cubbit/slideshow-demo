@@ -1,0 +1,34 @@
+Cubbit Slideshow has been deployed!
+
+{{- if .Values.ingress.enabled }}
+Access the application at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else }}
+Access the application via port-forward:
+  kubectl port-forward svc/{{ include "cubbit-slideshow.fullname" . }} 3000:{{ .Values.service.port }}
+  Then open http://localhost:3000
+{{- end }}
+
+Admin panel: /admin
+
+{{- if not .Values.auth.adminPassword }}
+
+NOTE: No ADMIN_PASSWORD was set. A random password was generated on first run.
+Retrieve it from the pod logs:
+  kubectl logs deploy/{{ include "cubbit-slideshow.fullname" . }} | grep "ADMIN PASSWORD"
+{{- end }}
+
+{{- if not .Values.auth.jwtSecret }}
+
+WARNING: No JWT_SECRET was set. A random secret is generated per pod restart.
+This will invalidate all active sessions on restart. Set auth.jwtSecret for production use.
+{{- end }}
+
+{{- if not .Values.auth.existingSecret }}
+
+TIP: For production, use auth.existingSecret to reference a pre-existing Secret
+instead of storing credentials in Helm values:
+  helm upgrade slideshow ./helm --set auth.existingSecret=my-secret
+{{- end }}

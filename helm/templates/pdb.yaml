@@ -1,0 +1,13 @@
+{{- if .Values.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "cubbit-slideshow.fullname" . }}
+  labels:
+    {{- include "cubbit-slideshow.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "cubbit-slideshow.selectorLabels" . | nindent 6 }}
+{{- end }}

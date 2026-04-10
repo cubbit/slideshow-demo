@@ -2,8 +2,17 @@ replicaCount: 1
 
 image:
   repository: cubbit/slideshow
-  tag: "2.0.0"
+  tag: "2.1.0"
   pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
 
 service:
   type: ClusterIP
@@ -13,6 +22,7 @@ service:
 ingress:
   enabled: true
   className: nginx
+  annotations: {}
   hosts:
     - host: slideshow.local
       paths:
@@ -28,11 +38,31 @@ resources:
     cpu: 100m
     memory: 256Mi
 
+podSecurityContext:
+  fsGroup: 1001
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
+
+terminationGracePeriodSeconds: 60
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
 persistence:
   enabled: true
   size: 1Gi
   storageClassName: ""
   mountPath: /data
+  annotations: {}
 
 # Application configuration
 app:
@@ -61,6 +91,10 @@ slideshow:
 auth:
   adminPassword: ""
   jwtSecret: ""
+  # Use a pre-existing Secret instead of creating one from values
+  # The secret must contain keys: s3-endpoint, s3-access-key-id, s3-secret-access-key
+  # Optional keys: admin-password, jwt-secret, webhook-secret
+  existingSecret: ""
 
 # Webhooks (optional — seeded on first run if no webhooks exist in DB)
 # Single webhook shorthand:
@@ -77,7 +111,9 @@ probes:
     initialDelaySeconds: 15
     periodSeconds: 10
     timeoutSeconds: 5
+    failureThreshold: 6
   readiness:
     initialDelaySeconds: 5
     periodSeconds: 5
     timeoutSeconds: 3
+    failureThreshold: 3
