@@ -54,28 +54,69 @@ export default function PhotoModal({ photo, onClose }: Props) {
             onClick={onClose}
         >
             <div
-                className="relative max-w-[90vw] max-h-[90vh]"
+                style={{
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    maxWidth: '85vw',
+                    maxHeight: '85vh',
+                    padding: '32px',
+                    backgroundColor: 'rgba(22, 22, 33, 0.9)',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={photo.url}
                     alt=""
-                    className="max-w-full max-h-[80vh] rounded-lg object-contain"
+                    style={{
+                        maxWidth: '100%',
+                        maxHeight: 'calc(85vh - 120px)',
+                        borderRadius: '12px',
+                        objectFit: 'contain',
+                    }}
                 />
 
                 {/* Controls */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                <div style={{ display: 'flex', gap: '12px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, width: '100%', justifyContent: 'center' }}>
                     <button
                         onClick={handleDownload}
-                        className="px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm text-white text-sm hover:bg-white/20 transition-colors border border-white/20"
+                        style={{
+                            padding: '10px 24px',
+                            borderRadius: '10px',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: '#FFFFFF',
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)')}
                     >
                         Download
                     </button>
                     <button
                         onClick={handleDelete}
                         disabled={deleting}
-                        className="px-4 py-2 rounded-lg bg-error/80 text-white text-sm hover:bg-error transition-colors disabled:opacity-50"
+                        style={{
+                            padding: '10px 24px',
+                            borderRadius: '10px',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: '#FFFFFF',
+                            backgroundColor: '#D32C20',
+                            border: 'none',
+                            cursor: deleting ? 'not-allowed' : 'pointer',
+                            opacity: deleting ? 0.5 : 1,
+                            transition: 'background-color 0.2s',
+                        }}
+                        onMouseEnter={e => { if (!deleting) e.currentTarget.style.backgroundColor = '#b82519'; }}
+                        onMouseLeave={e => { if (!deleting) e.currentTarget.style.backgroundColor = '#D32C20'; }}
                     >
                         {deleting ? 'Deleting...' : 'Delete'}
                     </button>
@@ -84,7 +125,25 @@ export default function PhotoModal({ photo, onClose }: Props) {
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
+                    style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        color: '#FFFFFF',
+                        fontSize: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)')}
                 >
                     ×
                 </button>

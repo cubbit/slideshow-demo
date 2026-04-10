@@ -44,15 +44,10 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // Protect mutation API routes
+    // Protect admin API routes (settings mutations only)
     const isSettingsMutation =
         pathname.startsWith('/api/settings') && request.method !== 'GET';
-    const isPhotoMutation =
-        pathname.startsWith('/api/photos') &&
-        (request.method === 'DELETE' || request.method === 'POST');
-    const isUpload = pathname === '/api/upload' && request.method === 'POST';
-
-    if (isSettingsMutation || isPhotoMutation || isUpload) {
+    if (isSettingsMutation) {
         if (!(await isAuthenticated(request))) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -62,5 +57,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/api/settings/:path*', '/api/photos/:path*', '/api/upload'],
+    matcher: ['/admin/:path*', '/api/settings/:path*'],
 };

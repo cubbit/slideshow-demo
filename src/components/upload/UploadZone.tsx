@@ -117,7 +117,7 @@ export default function UploadZone() {
                         )}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
                         {items.map(item => (
                             <UploadItem key={item.id} item={item} onRemove={removeFile} />
                         ))}

@@ -29,7 +29,19 @@ export default async function SlideshowPage() {
 
     return (
         <S3HealthProvider>
-        <div style={{ minHeight: '100vh', backgroundColor: '#0E0E15', color: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+        <div style={{
+            minHeight: '100vh',
+            backgroundColor: '#0E0E15',
+            color: '#FFFFFF',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundImage: `
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,101,255,0.06) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+            `,
+            backgroundSize: '100% 100%, 60px 60px, 60px 60px',
+        }}>
             {/* Header */}
             <header
                 style={{

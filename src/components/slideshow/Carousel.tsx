@@ -1,27 +1,19 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import CarouselRow from './CarouselRow';
 import PhotoModal from './PhotoModal';
 import EmptyState from './EmptyState';
 import { usePhotos } from '@/hooks/usePhotos';
 import { usePublicSettings } from '@/hooks/usePublicSettings';
 import { useS3Health } from '@/contexts/S3HealthContext';
+import { shuffleArray, diffPhotos } from '@/lib/photos/diff';
 import type { PhotoMeta } from '@/types/photo';
 import type { PublicSettings } from '@/types/settings';
 
 interface Props {
     initialPhotos: PhotoMeta[];
     initialSettings: PublicSettings;
-}
-
-function shuffleArray<T>(arr: T[]): T[] {
-    const shuffled = [...arr];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
 }
 
 export default function Carousel({ initialPhotos, initialSettings }: Props) {
@@ -32,20 +24,40 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [selectedPhoto, setSelectedPhoto] = useState<PhotoMeta | null>(null);
 
-    // Distribute photos across rows
-    const rows = useMemo(() => {
-        if (photos.length === 0) return [];
+    // Maintain a stable display list: use server order for initial render (no hydration mismatch),
+    // shuffle on mount, then only diff (add/remove) on subsequent polls.
+    const [displayPhotos, setDisplayPhotos] = useState<PhotoMeta[]>(initialPhotos);
+    const mountedRef = useRef(false);
+    useEffect(() => {
+        if (photos.length === 0) {
+            setDisplayPhotos([]);
+            return;
+        }
 
-        const rowCount = settings.rows;
+        if (!mountedRef.current) {
+            mountedRef.current = true;
+            setDisplayPhotos(shuffleArray(photos));
+        } else {
+            setDisplayPhotos(prev => diffPhotos(prev, photos));
+        }
+    }, [photos]);
+
+    // Distribute photos across rows, reducing row count if needed so each row
+    // has enough photos for the marquee animation.
+    const rows = useMemo(() => {
+        if (displayPhotos.length === 0) return [];
+
+        // Each row needs at least 2 photos (marquee duplicates them for seamless looping)
+        const maxRows = Math.max(1, Math.floor(displayPhotos.length / 2));
+        const rowCount = Math.min(settings.rows, maxRows);
         const result: PhotoMeta[][] = Array.from({ length: rowCount }, () => []);
 
-        const shuffled = shuffleArray(photos);
-        shuffled.forEach((photo, i) => {
+        displayPhotos.forEach((photo, i) => {
             result[i % rowCount].push(photo);
         });
 
         return result;
-    }, [photos, settings.rows]);
+    }, [displayPhotos, settings.rows, settings.minCountForMarquee]);
 
     const handlePhotoClick = useCallback((photo: PhotoMeta) => {
         setSelectedPhoto(photo);
@@ -78,7 +90,7 @@ export default function Carousel({ initialPhotos, initialSettings }: Props) {
     }
 
     return (
-        <div className="flex flex-col gap-2 h-full justify-center">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', justifyContent: 'center', minHeight: 'calc(100vh - 80px)' }}>
             {rows.map((rowPhotos, i) => (
                 <CarouselRow
                     key={i}

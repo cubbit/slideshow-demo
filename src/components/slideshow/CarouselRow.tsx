@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect, useCallback } from 'react';
 import styles from './CarouselRow.module.css';
 import PhotoCard from './PhotoCard';
 import type { PhotoMeta } from '@/types/photo';
@@ -28,14 +28,78 @@ export default function CarouselRow({
     onMouseEnter,
     onMouseLeave,
 }: Props) {
-    // For the infinite scroll, we duplicate the photos so the animation loops seamlessly
     const isAnimated = photos.length >= minCount;
+    const trackRef = useRef<HTMLDivElement>(null);
+    const offsetRef = useRef(0);
+    const rafRef = useRef<number>(0);
+    const lastTimeRef = useRef<number>(0);
+    const pausedRef = useRef(paused);
+    const userScrollRef = useRef(0);
 
-    // Double the photos for seamless loop
+    pausedRef.current = paused;
+
+    // Pixels per second based on speedS and photo count
+    const pxPerSecond = useMemo(() => {
+        const cardWidth = 248; // 240px + 8px gap
+        const totalWidth = photos.length * cardWidth;
+        const duration = (speedS / 10) * photos.length;
+        return totalWidth / duration;
+    }, [photos.length, speedS]);
+
+    // Double photos for seamless loop
     const displayPhotos = useMemo(
         () => (isAnimated ? [...photos, ...photos] : photos),
         [photos, isAnimated]
     );
+
+    // Animation loop
+    useEffect(() => {
+        if (!isAnimated || !trackRef.current) return;
+
+        const cardWidth = 248;
+        const halfWidth = photos.length * cardWidth;
+
+        function animate(time: number) {
+            if (!lastTimeRef.current) lastTimeRef.current = time;
+            const delta = (time - lastTimeRef.current) / 1000;
+            lastTimeRef.current = time;
+
+            if (!pausedRef.current) {
+                const dir = direction === 'left' ? 1 : -1;
+                offsetRef.current += pxPerSecond * delta * dir;
+            }
+
+            // Add user scroll offset
+            if (userScrollRef.current !== 0) {
+                offsetRef.current += userScrollRef.current;
+                userScrollRef.current = 0;
+            }
+
+            // Wrap around for seamless loop
+            if (offsetRef.current >= halfWidth) offsetRef.current -= halfWidth;
+            if (offsetRef.current < 0) offsetRef.current += halfWidth;
+
+            if (trackRef.current) {
+                trackRef.current.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
+            }
+
+            rafRef.current = requestAnimationFrame(animate);
+        }
+
+        rafRef.current = requestAnimationFrame(animate);
+        return () => {
+            cancelAnimationFrame(rafRef.current);
+            lastTimeRef.current = 0;
+        };
+    }, [isAnimated, direction, pxPerSecond, photos.length]);
+
+    // Trackpad/wheel scroll handler
+    const handleWheel = useCallback((e: React.WheelEvent) => {
+        // Use deltaX for horizontal trackpad gestures, fall back to deltaY for mouse wheel
+        const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        userScrollRef.current += delta;
+        e.preventDefault();
+    }, []);
 
     if (photos.length === 0) return null;
 
@@ -60,11 +124,9 @@ export default function CarouselRow({
             className={styles.row}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
+            onWheel={handleWheel}
         >
-            <div
-                className={`${styles.track} ${direction === 'right' ? styles.reverse : ''} ${paused ? styles.paused : ''}`}
-                style={{ '--speed': `${speedS}s` } as React.CSSProperties}
-            >
+            <div ref={trackRef} className={styles.trackManual}>
                 {displayPhotos.map((photo, i) => (
                     <PhotoCard
                         key={`${photo.key}-${i}`}
