@@ -5,7 +5,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 const navItems = [
-    { href: '/admin/settings', label: 'Settings', icon: '⚙' },
+    { href: '/admin/settings', label: 'Slideshow', icon: '⚙' },
+    { href: '/admin/photos', label: 'Photos', icon: '🖼' },
+    { href: '/admin/storage', label: 'S3 Storage', icon: '☁' },
+    { href: '/admin/webhooks', label: 'Webhooks', icon: '🔗' },
     { href: '/admin/password', label: 'Password', icon: '🔑' },
 ];
 
