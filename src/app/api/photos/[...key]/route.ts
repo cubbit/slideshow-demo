@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
+import type { SdkStream } from '@smithy/types';
 import { getS3Client } from '@/lib/s3/client';
 import { getSettings } from '@/lib/settings/service';
 import { deletePhoto } from '@/lib/s3/delete';
@@ -39,7 +40,8 @@ export async function GET(
         if (response.ContentLength) headers.set('Content-Length', String(response.ContentLength));
         headers.set('Cache-Control', 'public, max-age=86400');
 
-        let bodyStream = response.Body as ReadableStream;
+        const sdkStream = response.Body as SdkStream<ReadableStream>;
+        let bodyStream = sdkStream.transformToWebStream();
 
         if (isDownload) {
             const filename = photoKey.split('/').pop() || 'photo';
@@ -70,8 +72,14 @@ export async function GET(
         }
 
         return new Response(bodyStream, { headers });
-    } catch (error) {
-        logger.error('Failed to proxy photo', { error });
+    } catch (err) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        logger.error('Failed to proxy photo', {
+            message: e.message,
+            name: e.name,
+            code: (e as NodeJS.ErrnoException).code,
+            stack: e.stack,
+        });
         return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 }
@@ -93,8 +101,13 @@ export async function DELETE(
         emitWebhookEvent('photo.delete.end', { key: photoKey });
 
         return NextResponse.json({ success: true });
-    } catch (error) {
-        logger.error('Failed to delete photo', { error });
+    } catch (err) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        logger.error('Failed to delete photo', {
+            message: e.message,
+            name: e.name,
+            code: (e as NodeJS.ErrnoException).code,
+        });
         return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
     }
 }

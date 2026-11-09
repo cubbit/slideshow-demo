@@ -35,9 +35,13 @@ export function emitWebhookEvent(
         };
 
         for (const webhook of webhooks) {
-            // Throttle progress events per webhook+upload pair
-            if (event === 'photo.upload.progress' && options?.uploadId) {
-                const key = `${webhook.id}:${options.uploadId}`;
+            // Throttle progress events per webhook+context pair
+            const isProgressEvent =
+                (event === 'photo.upload.progress' && options?.uploadId) ||
+                (event === 'photo.download.progress' && data && 'key' in data);
+            if (isProgressEvent) {
+                const contextId = options?.uploadId || (data as { key: string }).key;
+                const key = `${webhook.id}:${contextId}`;
                 const lastEmit = progressThrottle.get(key) ?? 0;
                 const now = Date.now();
                 if (now - lastEmit < PROGRESS_THROTTLE_MS) continue;

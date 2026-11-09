@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: cubbit/slideshow
-  tag: "2.2.0"
+  tag: "2.2.2"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Database from 'better-sqlite3';
 import { initSchema } from './schema';
+import { startHealthPoller } from '@/lib/s3/health-poller';
 
 const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DATA_DIR, 'slideshow.db');
@@ -17,6 +18,7 @@ export function getDb(): Database.Database {
         db.pragma('foreign_keys = ON');
 
         initSchema(db);
+        startHealthPoller();
     }
     return db;
 }
